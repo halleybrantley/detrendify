@@ -405,10 +405,6 @@ The following calculations need only be done once.
 \item $\mathcal{O}(n(k + 1)^2)$ to compute the banded Cholesky factorization of $\M{I} + [\Mn{D}{k}]\Tra[\Mn{D}{k}]$
 \end{itemize}
 
-banded linear system solve, with bandwidth $k + 1$.
-This linear solve can be accomplished in $\mathcal{O}(n(k + 1)^2)$. The first solve using a banded Cholesky decomposition requires $\mathcal{O}(n(k + 1)^2)$. Subsequent solves require
-$\mathcal{O}(n(k+1))$.
-
 \subsubsection*{Per-Iteration}
 
 The following calculations will be done every iteration.
@@ -421,7 +417,7 @@ The following calculations will be done every iteration.
 \M{I} \\ \Mn{D}{k} \end{pmatrix}\V{\phi}$
 \end{itemize}
 
-The total cost when $n \gg p$ is $\mathcal{O}(nk)$.
+The total cost is $\mathcal{O}(nk)$.
 
 \subsection{Summary}
 
