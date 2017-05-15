@@ -212,6 +212,8 @@ Examples:
 \item Galaxy spectrum baseline estimation \cite{Ilewicz2015,Bacher2016}
 \end{itemize}
 
+Need to decide between detrending versus detrending + denoising. The BEADS \cite{Ning2014} method does both. We may wish to focus on detrending and then use wavelet SURE denoising as a postprocessing step, i.e. do a two-stage procedure, both of which can be done in linear time. On paper this should be faster than the BEADS procedure. Or we may just want to stick with detrending.  There's Matlab code for BEADS, and the BEADS paper also points to two other popular methods in chromotography. 
+
 Things to do:
 \begin{itemize}
 	\item Convergence of the algorithm
