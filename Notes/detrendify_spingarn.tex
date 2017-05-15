@@ -1,0 +1,478 @@
+%
+% A simple LaTeX template for Books
+%  (c) Aleksander Morgado <aleksander@es.gnu.org>
+%  Released into public domain
+%
+
+\documentclass{article}
+\usepackage[a4paper, top=3cm, bottom=3cm]{geometry}
+\usepackage[latin1]{inputenc}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage[usenames]{color}
+\RequirePackage[OT1]{fontenc}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+%% For special lists like inparaenum, compactenum, compactitem
+\usepackage{paralist}
+%% For \boldsymbol
+\usepackage{amsbsy}
+
+%% For \mathscr
+\usepackage[mathscr]{eucal}
+
+%% For \bm (bold math)
+\usepackage{bm}
+
+%% For proper spacing in text macros
+\usepackage{xspace}
+
+%% For \subfloat command
+\usepackage{subfig}
+
+%% Algorithm
+\usepackage{algorithm,algorithmic}
+%\usepackage{algpseudocode}
+
+%% Useful shorthand for converting equations to be inline
+\newenvironment{inlinemath}{$}{$}
+
+%% Define hypen
+\mathchardef\mhyphen="2D
+
+%% For hyperlinks. Should always be the last package. Omit for DVI version.
+\ifpdf
+\usepackage[colorlinks,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\else
+\newcommand{\href}[2]{{#2}}
+\usepackage{url}
+\fi
+
+%% ----------------------------------------------------------------------
+%% Hyper-linked References
+%% ----------------------------------------------------------------------
+
+\ifpdf
+\newcommand{\Sec}[1]{\hyperref[sec:#1]{\S\ref*{sec:#1}}} %section
+\newcommand{\App}[1]{\hyperref[sec:#1]{Appendix~\ref*{sec:#1}}} %appendix
+\newcommand{\Eqn}[1]{\hyperref[eq:#1]{{\rm (\ref*{eq:#1})}}} %equation
+\newcommand{\Part}[1]{\hyperref[part:#1]{(\ref*{part:#1})}} %part of theorem
+\newcommand{\Fig}[1]{\hyperref[fig:#1]{Figure~\ref*{fig:#1}}} %figure
+\newcommand{\Tab}[1]{\hyperref[tab:#1]{Table~\ref*{tab:#1}}} %table
+\newcommand{\Thm}[1]{\hyperref[thm:#1]{Theorem~\ref*{thm:#1}}} %theorem
+\newcommand{\Lem}[1]{\hyperref[lem:#1]{Lemma~\ref*{lem:#1}}} %lemma
+\newcommand{\Prop}[1]{\hyperref[prop:#1]{Proposition~\ref*{prop:#1}}} %proposition
+\newcommand{\Cor}[1]{\hyperref[cor:#1]{Corollary~\ref*{cor:#1}}} %corollary
+\newcommand{\Def}[1]{\hyperref[def:#1]{Definition~\ref*{def:#1}}} %definition
+\newcommand{\Alg}[1]{\hyperref[alg:#1]{Algorithm~\ref*{alg:#1}}} %algorithm
+\newcommand{\Ex}[1]{\hyperref[ex:#1]{Example~\ref*{ex:#1}}} %example
+\newcommand{\As}[1]{\hyperref[as:#1]{Assumption~{\rm\ref*{as:#1}}}} %assumption
+\newcommand{\Reg}[1]{\hyperref[as:#1]{Condition~\ref*{reg:#1}}} %regularity condition
+\newcommand{\AlgLine}[2]{\hyperref[alg:#1]{line~\ref*{line:#2} of Algorithm~\ref*{alg:#1}}}
+\newcommand{\AlgLines}[3]{\hyperref[alg:#1]{lines~\ref*{line:#2}--\ref*{line:#3} of Algorithm~\ref*{alg:#1}}}
+\else
+\newcommand{\Sec}[1]{{\S\ref{sec:#1}}} %section
+\newcommand{\App}[1]{{Appendix~\ref{sec:#1}}} %appendix
+\newcommand{\Eqn}[1]{{(\ref{eq:#1})}} %equation
+\newcommand{\Part}[1]{{(\ref{part:#1})}} %part of proof
+\newcommand{\Fig}[1]{{Figure~\ref{fig:#1}}} %figure
+\newcommand{\Tab}[1]{{Table~\ref{tab:#1}}} %table
+\newcommand{\Thm}[1]{{Theorem~\ref{thm:#1}}} %theorem
+\newcommand{\Lem}[1]{{Lemma~\ref{lem:#1}}} %lemma
+\newcommand{\Prop}[1]{{Proposition~\ref{prop:#1}}} %proposition
+\newcommand{\Cor}[1]{{Corollary~\ref{cor:#1}}} %corollary
+\newcommand{\Def}[1]{{Definition~\ref{def:#1}}} %definition
+\newcommand{\Alg}[1]{{Algorithm~\ref{alg:#1}}} %algorithm
+\newcommand{\Ex}[1]{{Example~\ref{ex:#1}}} %example
+\newcommand{\Reg}[1]{{R~\ref*{reg:#1}}} %regularity condition
+\fi
+
+%% ----------------------------------------------------------------------
+%% Definitions
+%% ----------------------------------------------------------------------
+
+%% Shorthand for Real
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\dom}{{\bf dom}\,}
+
+%% Math notation
+\newcommand{\Tra}{^{\sf T}} % Transpose
+\newcommand{\Inv}{^{-1}} % Inverse
+\newcommand{\tr}{\operatorname{tr}} % Trace
+\newcommand{\Ker}{\operatorname{Ker}} % Kernel
+\def\vec{\mathop{\rm vec}\nolimits}
+\def\mtcz{\mathop{\rm mat}\nolimits} % Matricize operation
+\newcommand{\amp}{\mathop{\:\:\,}\nolimits}
+\newcommand{\bic}{\text{BIC}}
+
+%% Vectors
+\newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+\newcommand{\Vbar}[1]{{\bm{\M{A}r \mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+\newcommand{\VnE}[3]{{#1}^{(#2)}_{#3}} % n-th vector
+\newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+
+
+%% Matrices
+\newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+\newcommand{\MC}[2]{\V{#1}_{#2}}
+\newcommand{\Mr}[2]{\V{#1}_{#2}} % matrix row
+\newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\MhatC}[2]{\Vhat{#1}_{#2}} % matrix column
+\newcommand{\Mbar}[1]{{\bm{\M{A}r \mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\MbarC}[2]{\Vbar{#1}_{#2}} % matrix column
+\newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+\newcommand{\Mbarn}[2]{\Mbar{#1}^{(#2)}} % n-th matrix
+\newcommand{\Mtilden}[2]{\Mtilde{#1}^{(#2)}} % n-th matrix
+\newcommand{\MnTra}[2]{\M{#1}^{(#2){{\sf T}}}} % n-th matrix transpose
+\newcommand{\MnE}[3]{\MakeLowercase{#1}^{(#2)}_{#3}} % n-th matrix element
+\newcommand{\MnC}[3]{\V{#1}^{(#2)}_{#3}} % n-th matrix column
+\newcommand{\MbarnC}[3]{\Vbar{#1}^{(#2)}_{#3}} % n-th matrix column
+\newcommand{\MnCTra}[3]{\V{#1}^{(#2){{\sf T}}}_{#3}} % n-th matrix column transpose
+\newcommand{\MCTra}[2]{\V{#1}^{{\sf T}}_{#2}} % n-th matrix column transpose
+
+%% Tensors
+\newcommand{\T}[1]{\boldsymbol{\mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\Tbar}[1]{\boldsymbol{\M{A}r \mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\That}[1]{\boldsymbol{\hat \mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\Ttilde}[1]{\boldsymbol{\tilde \mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\TE}[2]{\MakeLowercase{#1}_{\MI{#2}}} % tensor element with multi-index
+
+%% Matrix-matrix operations
+\newcommand{\Kron}{\otimes} %Kronecker
+\newcommand{\Khat}{\odot} %Khatri-Rao
+\newcommand{\Hada}{\ast} %Hadamard
+\newcommand{\Divide}{\varoslash}
+
+% Matricize
+\newcommand{\Mz}[2]{\M{#1}_{(#2)}} % n-th mode matricize
+\newcommand{\Mzsets}[3]{\TM{#1}{#2\times#3}} % matricze with just the sets specified
+\newcommand{\Mzall}[4]{\TM{#1}{#2\times#3\,:\,#4}} % full matricize specification
+
+%% K-Tensor
+\newcommand{\KT}[1]{\left\llbracket #1 \right\rrbracket} % kruskal operator
+\newcommand{\KTsmall}[1]{\llbracket #1 \rrbracket} % small kruskal operator
+\newcommand{\KG}[1]{\langle #1 \rangle} % kruskal "group"
+
+%% text with quads around it
+\newcommand{\qtext}[1]{\quad\text{#1}\quad}
+
+%% Derivative
+\newcommand{\FD}[2]{\frac{\partial #1}{\partial #2}}
+
+%% Prox-operator
+\newcommand{\prox}[2]{\operatorname{prox}_{#1}({#2})}
+
+%% Sign-operator
+\newcommand{\sign}[1]{\operatorname{sign}({#1})}
+
+%% convex hull
+\newcommand{\conv}[1]{\operatorname{conv}({#1})}
+
+%% For comments to each other
+\newcommand{\Remark}[2]{{\color{red}Remark from #1: #2}\xspace}
+\newcommand{\Note}[1]{{{\color{red}{#1}}}\xspace}
+
+%% ----------------------------------------------------------------------
+%% Environments
+%% ----------------------------------------------------------------------
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+%% Assumptions environment
+\newtheorem{assumption}[theorem]{Assumption}
+
+\begin{document}
+\title{Quantile Trend Filtering via Spingarn's Method}
+\noindent
+\textbf{Quantile Trend Filtering via Spingarn's Method}\\
+\textbf{Date: \today}\\
+
+%% ----------------------------------------------------------------------
+%% Introduction
+%% ----------------------------------------------------------------------
+\section{Introduction}
+
+We introduce a linear time algorithm for removing trends in time series.
+
+Examples:
+\begin{itemize}
+\item Air quality 
+\item ECG \cite{Sanyal2012}
+\item Chromatogram baseline estimation  \cite{Ning2014}
+\end{itemize}
+
+Things to do:
+\begin{itemize}
+	\item Convergence of the algorithm
+	\item Convergence rate?
+	\item Timing experiments of LP versus Spingarn
+	\item Make an R package - detrendr
+	\item Compare on synthetic data quality of solution with existing methods
+	\item Do comparisons on real data examples
+\end{itemize}
+
+%% ----------------------------------------------------------------------
+%% Quantile Regression
+%% ----------------------------------------------------------------------
+\section{Quantile Regression}
+
+The classic least squares regression is notoriously sensitive to outliers. One remedy to blunt the influence of outliers is to compute the least absolute deviations (LAD) solution in place of the least squares one. Given a design matrix $\M{X} \in \Real^{n \times p}$ and continuous responses $\V{y} \in \Real^n$, we estimate a regression vector $\V{\theta} \in \Real^p$ so that $\M{X}\V{\theta}$ is a good approximation of $\V{y}$. The LAD estimator is a solution to the problem
+\begin{eqnarray*}
+\underset{\V{\theta}}{\min}\; \frac{1}{n}\lVert \V{y} - \M{X}\V{\theta} \rVert_1.
+\end{eqnarray*}
+The above optimization problem generalizes the notion of the median of a collection of numbers. A median $\mu$ of $n$ reals $\VE{y}{1}, \ldots, \VE{y}{n}$ is the minimizer of the function
+\begin{eqnarray*}
+f(u) & = & \frac{1}{n}\sum_{i=1}^n \lvert \VE{y}{i} - \theta \rvert.
+\end{eqnarray*}
+Recall that the median is the 50th percentile or 0.5-quantile, namely half of the $\VE{y}{i}$ are less than or equal to $\mu$ and the other half is greater than or equal to $\mu$. The median can be generalized to arbitrary $\tau$-quantiles for $\tau \in (0,1)$ as follows. First define the so-called ``check function"
+\begin{eqnarray*}
+\rho_\tau(\Delta) & = & \begin{cases}
+\tau \Delta & \text{$\Delta \geq 0$} \\
+-(1-\tau)\Delta & \text{$\Delta < 0$}. \\
+\end{cases}
+\end{eqnarray*}
+Then the $\tau$th quantile of the $\VE{y}{i}$ is a minimizer of the function
+\begin{eqnarray*}
+f_\tau(\theta) & = & \frac{1}{n}\sum_{i=1}^n \rho_\tau(\VE{y}{i} - \theta).
+\end{eqnarray*}
+Returning to the regression context, we can generalize LAD regression to quantile regression, namely computing the minimizer of the function
+\begin{eqnarray*}
+f_\tau(\V{\theta}) & = & \frac{1}{n}\sum_{i=1}^n \rho_\tau(\VE{y}{i} - \langle \V{x}_i \mid \V{\theta} \rangle),
+\end{eqnarray*}
+where $\V{x}_i \in \Real^p$ denotes the $i$th row of $\M{X}$.
+
+%% ----------------------------------------------------------------------
+%% Trend Filtering
+%% ----------------------------------------------------------------------
+\section{Trend Filtering}
+
+In the trend filtering problem \cite{Kim2009, Tib2014}, one is interested in finding an adaptive polynomial approximation to noisy data $\V{y} \in \Real^n$ by solving the following convex problem.
+\begin{eqnarray*}
+\underset{\V{\theta}}{\arg\min}\; \frac{1}{2n} \lVert \V{y} - \V{\theta} \rVert_2^2 + \lambda \lVert \Mn{D}{k+1}\V{\theta} \rVert_1,
+\end{eqnarray*}
+where $\lambda \geq 0$ is a regularization parameter that trades off the emphasis on the data fidelity term and the matrix $\Mn{D}{k+1} \in \Real^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\Mn{D}{k+1}$ consider the difference operator when $k = 0$.
+\begin{eqnarray*}
+\Mn{D}{1} = \begin{pmatrix}
+-1 & 1 & 0 & \cdots & 0 & 0 \\
+0 & -1 & 1 & \cdots & 0 & 0 \\
+\vdots & & & & & \\
+0 & 0 & 0 & \cdots & -1 & 1 \\
+\end{pmatrix}
+\end{eqnarray*}
+Thus, $\lVert \Mn{D}{1}\V{\theta} \rVert_1 = \sum_{i=1}^{n-1} \lvert \VE{\theta}{i} - \VE{\theta}{i+1} \rvert$ which is just total variation denoising in one dimension. The penalty incentivizes solutions which are piece-wise constant. For $k \geq 1$, the difference operator $\Mn{D}{k+1} \in \Real^{(n-k-1) \times n}$ is defined recursively as follows
+\begin{eqnarray*}
+\Mn{D}{k+1} & = & \Mn{D}{1}\Mn{D}{k}.
+\end{eqnarray*}
+By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$.
+
+%% ----------------------------------------------------------------------
+%% Quantile Trend Filtering
+%% ----------------------------------------------------------------------
+\section{Quantile Trend Filtering}
+
+We combine the ideas of quantile regression and trend filtering, namely consider the signal approximation problem, where the design $\M{X}$ is the identity matrix.
+
+The estimation of the quantile trend filtering model can be posed as the following optimization problem.
+\begin{eqnarray}
+\label{eq:quantile_trend}
+	\underset{\V{\theta}}{\min}\; \frac{1}{n} \sum_{i=1}^n \rho_\tau(\VE{y}{i} - \VE{\theta}{i}) + \lambda \lVert \Mn{D}{k} \V{\theta} \rVert_1,
+\end{eqnarray}
+where $\lambda$ is a nonnegative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem can be solved by a linear program. We argue that it is better solved by Spingarn's method of partial inverses.
+
+%% ----------------------------------------------------------------------
+%% Spingarn's method of partial inverses
+%% ----------------------------------------------------------------------
+\section{Spingarn's method of partial inverses}
+
+We first review Spingarn's method \cite{Spingarn1985}, which solves the following equality constrained convex problem:
+\begin{equation}
+\label{eq:spingarn}
+\begin{split}
+\text{minimize}\; & \psi(\V{x}) \\
+\text{subject to}\; & \V{x} \in V,
+\end{split}
+\end{equation}
+where $V$ is a subspace. The problem \Eqn{spingarn} can be expressed as the unconstrained optimization problem
+\begin{equation}
+\label{eq:spingarn2}
+\text{minimize}\; \psi(\V{x}) + \iota_V(\V{x}),
+\end{equation}
+where $\iota_V$ is the indicator function of the set $V$. Spingarn's method applies Douglas-Rachford splitting to the problem \Eqn{spingarn2} to give the following updates.
+
+\begin{eqnarray*}
+\V{x}^+ & = & \prox{t\psi}{\V{z}} \\
+\V{y}^+ & = & P_V(2\V{x}^+ - \V{z}) \\
+\V{z}^+ & = & \V{z} + \V{y}^+ - \V{x}^+.
+\end{eqnarray*}
+The parameter $t$ is a step-size which can be fixed at 1 to guarantee convergence. The mapping $P_V$ is the orthogonal projection onto the set $V$.
+
+%% ----------------------------------------------------------------------
+%% Applying Spingarn's Method to Quantile Trend Filtering
+%% ----------------------------------------------------------------------
+\section{Applying Spingarn's Method to Quantile Trend Filtering}
+
+To simplify the notation we suppress the order $k$ and write $\Mn{D}{k}$ as $\M{D}$.
+We can reformulate our optimization problem \Eqn{quantile_trend} as the following equality constrained convex optimization problem.
+
+\begin{eqnarray*}
+\text{minimize}\; && f_1(\V{\theta}) + f_2(\V{\eta}) \\
+\text{subject to}\; && \V{\eta} = \M{D}\V{\theta}
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+f_1(\V{\theta}) = \sum_{i=1}^n \rho_\tau(\VE{y}{i} - \VE{\theta}{i}) \quad\quad \text{and} \quad\quad
+f_2(\V{\eta}) = \lVert \V{\eta} \rVert_1.
+\end{eqnarray*}
+
+If we set $\psi(\V{\theta}, \V{\eta}) = f_1(\V{\theta}) + f_2(\V{\eta})$ and $V = \{ \V{z}\Tra = (\V{\theta}\Tra, \V{\eta}\Tra) : \V{\eta} = \M{D}\V{\theta} \}$, then we can apply Spingarn's method. Note that
+\begin{eqnarray*}
+\prox{th}{\V{\theta}, \V{\eta}} & = & (\prox{tf_1}{\V{\theta}}, \prox{tf_2}{\V{\eta}}) \\
+P_V(\V{\theta}, \V{\eta}) & = & \begin{pmatrix}
+\M{I} \\ \M{D}
+\end{pmatrix}
+\begin{pmatrix}
+\M{I} + \M{D}\Tra\M{D}
+\end{pmatrix}\Inv
+\begin{pmatrix}
+\V{\theta} + \M{D}\Tra\V{\eta}
+\end{pmatrix},
+\end{eqnarray*}
+where the projection $P_V$ requires a banded linear system solve, with bandwidth $k + 1$.
+This linear solve can be accomplished in $\mathcal{O}(n(k + 1)^2)$. The first solve using a banded Cholesky decomposition requires $\mathcal{O}(n(k + 1)^2)$. Subsequent solves require
+$\mathcal{O}(n(k+1))$.
+
+We should also consider trying the reparameterization for ADMM trend filtering proposed in \cite{Ramdas2016}.
+
+%% ----------------------------------------------------------------------
+%% Proximal mappings
+%% ----------------------------------------------------------------------
+\subsection*{Proximal mappings}
+
+We need the proximal mappings for $tf_1$ and $tf_2$.
+
+\begin{eqnarray*}
+\left [\prox{tf_1}{\V{\theta}} \right ]_i & = & \prox{(t/n)\rho_\tau}{\VE{y}{i} - \VE{\theta}{i}}, \\
+\left [\prox{tf_2}{\V{\eta}} \right ]_j & = & S(\VE{\eta}{j}, t\lambda).
+\end{eqnarray*}
+
+The proximal mapping for $tf_2$ is the element-wise softhresholding operator. We now derive the  proximal mapping of $\rho_\tau(\Delta)$, which can be evaluated in closed form. We need to find the minimizer of the following univariate function
+\begin{eqnarray*}
+g_\tau(\Delta) & = & \Delta[\tau - I(\Delta < 0)] +  \frac{n}{2t} (\Delta - w)^2, \\
+\end{eqnarray*}
+where $w \in \Real$ is given and $I(\Delta < 0)$ is 0 when $\Delta < 0$ and 1 otherwise.
+
+The subgradient of $\rho_\tau(\Delta) = \Delta[\tau - I(\Delta < 0)]$ is given by
+\begin{eqnarray*}
+\partial \rho_\tau(\Delta) & = & \begin{cases}
+\tau & \text{if $\Delta > 0$} \\
+\tau - 1 & \text{if $\Delta < 0$} \\
+[\tau - 1, \tau] & \text{if $\Delta = 0$}.
+\end{cases}
+\end{eqnarray*}
+The stationary condition is
+\begin{eqnarray*}
+\frac{n}{t}[w - \Delta] & \in & \partial \rho_\tau(\Delta).
+\end{eqnarray*}
+Therefore, the proximal mapping is given by 
+\begin{eqnarray*}
+\prox{(t/n) \rho_\tau}{w} & = & \begin{cases}
+w - \tau \frac{t}{n}& \text{if $w > \tau \frac{t}{n}$} \\
+w + (1-\tau)\frac{t}{n} & \text{if $w < - (1-\tau)\frac{t}{n}$} \\
+0 & \text{if $-(1- \tau)\frac{t}{n} \leq w \leq \tau \frac{t}{n}$.}
+\end{cases}
+\end{eqnarray*}
+
+
+
+
+\subsection*{Computational Costs}
+
+\subsubsection*{Precomputation}
+
+The following calculations need only be done once. 
+
+\begin{itemize}
+\item $\mathcal{O}(n(k + 1)^2)$ to compute the banded Cholesky factorization of $\M{I} + [\Mn{D}{k}]\Tra[\Mn{D}{k}]$
+\end{itemize}
+
+banded linear system solve, with bandwidth $k + 1$.
+This linear solve can be accomplished in $\mathcal{O}(n(k + 1)^2)$. The first solve using a banded Cholesky decomposition requires $\mathcal{O}(n(k + 1)^2)$. Subsequent solves require
+$\mathcal{O}(n(k+1))$.
+
+\subsubsection*{Per-Iteration}
+
+The following calculations will be done every iteration.
+
+\begin{itemize}
+\item $\mathcal{O}(n)$ to compute $\prox{t\psi}{\V{\theta}, \V{\eta}}$
+\item $\mathcal{O}((k+1)(n-k+1))$ to compute $\V{\theta} + [\Mn{D}{k}]\Tra\V{\eta}$
+\item $\mathcal{O}(n(k+1))$ to compute $\V{\phi} = (\M{I} +[\Mn{D}{k}]\Tra[\Mn{D}{k}] )\Inv(\V{\theta} + \M{D}\Tra\V{\eta})$
+\item $\mathcal{O}((k+1)(n-k+1))$ to compute $\begin{pmatrix}
+\M{I} \\ \Mn{D}{k} \end{pmatrix}\V{\phi}$
+\end{itemize}
+
+The total cost when $n \gg p$ is $\mathcal{O}(nk)$.
+
+\subsection{Summary}
+
+\begin{itemize}
+\item The overall computational complexity is essentially linear $\mathcal{O}(nk^2)$ for the initial banded Cholesky decomposition and the per-iteration complexity is $\mathcal{O}(nk)$.
+\item One could also apply Anderson acceleration to reduce the number of Spingarin updates, since the Douglas-Rachford algorithm is a fixed point algorithm.
+\end{itemize}
+
+
+
+
+
+%\section{Problem}
+%
+%\begin{eqnarray*}
+%\text{minimize}\; \left [\sum_{i=1}^n w_i h\left (\langle \V{x}_i, \V{\beta} \rangle \right) \right ] + \lambda \lVert \V{\beta} \rVert_1,
+%\end{eqnarray*}
+%where
+%\begin{eqnarray*}
+%h(r) & = & \left (1 - r \right )_+ \\
+%\partial h(r) & = & \begin{cases}
+%-1 & r < 1 \\
+%[-1,0] & r = 1 \\
+%0 & r > 1.
+%\end{cases}
+%\end{eqnarray*}
+
+%\section*{ADMM formulation}
+%
+%\begin{eqnarray*}
+%\underset{\V{\beta},\V{z}}{\text{minimize}}\;  & & \left [\sum_{i=1}^n w_i h\left (\VE{z}{i} \right) \right ] + \lambda \lVert \V{\beta} \rVert_1 \\
+%\text{subject to}\; & & \V{z} - \M{X}\V{\beta} = \V{0}.
+%\end{eqnarray*}
+%
+%ADMM Updates
+%
+%\begin{eqnarray*}
+%\Vn{z}{m+1} & = & \underset{\V{z}}{\arg\min}\;  \left [\sum_{i=1}^n w_i h\left (\VE{z}{i} \right) \right ] + \frac{\rho}{2} \lVert \V{z} - \M{X}\Vn{\beta}{m} + \Vn{u}{m} \rVert_2^2 \\
+%\VnE{z}{m+1}{i} & = & \prox{(w_i/\rho) h}{\langle \V{x}_i, \Vn{\beta}{m} \rangle - \VnE{u}{m}{i}} \\
+%\Vn{\beta}{m+1} & = & \underset{\V{\beta}}{\arg\min}\;  \frac{\lambda}{\rho} \lVert \V{\beta} \rVert_1 + \frac{1}{2} \lVert \Vn{z}{m+1} - \M{X}\V{\beta} + \Vn{u}{m} \rVert_2^2 \\
+%\Vn{u}{m+1} & = & \Vn{u}{m} + \Vn{z}{m+1} - \M{X}\Vn{\beta}{m+1}.
+%\end{eqnarray*}
+%
+%
+%\begin{eqnarray*}
+%\text{minimize}\; && f_1(\V{\beta}) + f_2(\M{X}\V{\beta}) \\
+%\end{eqnarray*}
+
+
+\bibliographystyle{plain}
+\bibliography{detrendify}
+
+\end{document}  
+
