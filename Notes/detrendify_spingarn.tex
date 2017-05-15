@@ -431,46 +431,6 @@ The total cost when $n \gg p$ is $\mathcal{O}(nk)$.
 \end{itemize}
 
 
-
-
-
-%\section{Problem}
-%
-%\begin{eqnarray*}
-%\text{minimize}\; \left [\sum_{i=1}^n w_i h\left (\langle \V{x}_i, \V{\beta} \rangle \right) \right ] + \lambda \lVert \V{\beta} \rVert_1,
-%\end{eqnarray*}
-%where
-%\begin{eqnarray*}
-%h(r) & = & \left (1 - r \right )_+ \\
-%\partial h(r) & = & \begin{cases}
-%-1 & r < 1 \\
-%[-1,0] & r = 1 \\
-%0 & r > 1.
-%\end{cases}
-%\end{eqnarray*}
-
-%\section*{ADMM formulation}
-%
-%\begin{eqnarray*}
-%\underset{\V{\beta},\V{z}}{\text{minimize}}\;  & & \left [\sum_{i=1}^n w_i h\left (\VE{z}{i} \right) \right ] + \lambda \lVert \V{\beta} \rVert_1 \\
-%\text{subject to}\; & & \V{z} - \M{X}\V{\beta} = \V{0}.
-%\end{eqnarray*}
-%
-%ADMM Updates
-%
-%\begin{eqnarray*}
-%\Vn{z}{m+1} & = & \underset{\V{z}}{\arg\min}\;  \left [\sum_{i=1}^n w_i h\left (\VE{z}{i} \right) \right ] + \frac{\rho}{2} \lVert \V{z} - \M{X}\Vn{\beta}{m} + \Vn{u}{m} \rVert_2^2 \\
-%\VnE{z}{m+1}{i} & = & \prox{(w_i/\rho) h}{\langle \V{x}_i, \Vn{\beta}{m} \rangle - \VnE{u}{m}{i}} \\
-%\Vn{\beta}{m+1} & = & \underset{\V{\beta}}{\arg\min}\;  \frac{\lambda}{\rho} \lVert \V{\beta} \rVert_1 + \frac{1}{2} \lVert \Vn{z}{m+1} - \M{X}\V{\beta} + \Vn{u}{m} \rVert_2^2 \\
-%\Vn{u}{m+1} & = & \Vn{u}{m} + \Vn{z}{m+1} - \M{X}\Vn{\beta}{m+1}.
-%\end{eqnarray*}
-%
-%
-%\begin{eqnarray*}
-%\text{minimize}\; && f_1(\V{\beta}) + f_2(\M{X}\V{\beta}) \\
-%\end{eqnarray*}
-
-
 \bibliographystyle{plain}
 \bibliography{detrendify}
 
