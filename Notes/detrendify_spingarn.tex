@@ -208,13 +208,14 @@ Examples:
 \begin{itemize}
 \item Air quality 
 \item ECG \cite{Sanyal2012}
-\item Chromatogram baseline estimation  \cite{Ning2014}
+\item Chromatogram baseline estimation  \cite{Ning2014, Ilewicz2015}
+\item Galaxy spectrum baseline estimation \cite{Ilewicz2015,Bacher2016}
 \end{itemize}
 
 Things to do:
 \begin{itemize}
 	\item Convergence of the algorithm
-	\item Convergence rate?
+	\item Convergence rate \cite{He2012, He2015, Davis2017}
 	\item Timing experiments of LP versus Spingarn
 	\item Make an R package - detrendr
 	\item Compare on synthetic data quality of solution with existing methods
@@ -330,8 +331,8 @@ We can reformulate our optimization problem \Eqn{quantile_trend} as the followin
 \end{eqnarray*}
 where
 \begin{eqnarray*}
-f_1(\V{\theta}) = \sum_{i=1}^n \rho_\tau(\VE{y}{i} - \VE{\theta}{i}) \quad\quad \text{and} \quad\quad
-f_2(\V{\eta}) = \lVert \V{\eta} \rVert_1.
+f_1(\V{\theta}) = \frac{1}{n}\sum_{i=1}^n \rho_\tau(\VE{y}{i} - \VE{\theta}{i}) \quad\quad \text{and} \quad\quad
+f_2(\V{\eta}) = \lambda\lVert \V{\eta} \rVert_1.
 \end{eqnarray*}
 
 If we set $\psi(\V{\theta}, \V{\eta}) = f_1(\V{\theta}) + f_2(\V{\eta})$ and $V = \{ \V{z}\Tra = (\V{\theta}\Tra, \V{\eta}\Tra) : \V{\eta} = \M{D}\V{\theta} \}$, then we can apply Spingarn's method. Note that
@@ -361,7 +362,7 @@ We should also consider trying the reparameterization for ADMM trend filtering p
 We need the proximal mappings for $tf_1$ and $tf_2$.
 
 \begin{eqnarray*}
-\left [\prox{tf_1}{\V{\theta}} \right ]_i & = & \prox{(t/n)\rho_\tau}{\VE{y}{i} - \VE{\theta}{i}}, \\
+\left [\prox{tf_1}{\V{\theta}} \right ]_i & = & \VE{y}{i} - \prox{(t/n)\rho_\tau}{\VE{y}{i} - \VE{\theta}{i}}, \\
 \left [\prox{tf_2}{\V{\eta}} \right ]_j & = & S(\VE{\eta}{j}, t\lambda).
 \end{eqnarray*}
 
