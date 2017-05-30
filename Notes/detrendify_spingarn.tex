@@ -315,9 +315,9 @@ where $\iota_V$ is the indicator function of the set $V$. Spingarn's method appl
 \begin{eqnarray*}
 \V{x}^+ & = & \prox{t\psi}{\V{z}} \\
 \V{y}^+ & = & P_V(2\V{x}^+ - \V{z}) \\
-\V{z}^+ & = & \V{z} + \V{y}^+ - \V{x}^+.
+\V{z}^+ & = & \V{z} + \lambda(\V{y}^+ - \V{x}^+).
 \end{eqnarray*}
-The parameter $t$ is a step-size which can be fixed at 1 to guarantee convergence. The mapping $P_V$ is the orthogonal projection onto the set $V$.
+The parameter $t$ is a step-size and $\lambda_n$ is Karolinski-Mann. We require that $\lambda_n \in ]0, 2[$ and that $\sum_n \lambda_n(1-\lambda_n) = \infty$. The mapping $P_V$ is the orthogonal projection onto the set $V$.
 
 %% ----------------------------------------------------------------------
 %% Applying Spingarn's Method to Quantile Trend Filtering
@@ -426,7 +426,7 @@ The total cost is $\mathcal{O}(nk)$.
 
 \begin{itemize}
 \item The overall computational complexity is essentially linear $\mathcal{O}(nk^2)$ for the initial banded Cholesky decomposition and the per-iteration complexity is $\mathcal{O}(nk)$.
-\item One could also apply Anderson acceleration to reduce the number of Spingarin updates, since the Douglas-Rachford algorithm is a fixed point algorithm.
+\item One could also apply Anderson acceleration to reduce the number of Spingarn updates, since the Douglas-Rachford algorithm is a fixed point algorithm.
 \end{itemize}
 
 
