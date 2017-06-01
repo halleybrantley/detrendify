@@ -210,6 +210,7 @@ Examples:
 \item ECG \cite{Sanyal2012}
 \item Chromatogram baseline estimation  \cite{Ning2014, Ilewicz2015}
 \item Galaxy spectrum baseline estimation \cite{Ilewicz2015,Bacher2016}
+\item Identifying absorption dips from black body radiation
 \end{itemize}
 
 Need to decide between detrending versus detrending + denoising. The BEADS \cite{Ning2014} method does both. We may wish to focus on detrending and then use wavelet SURE denoising as a postprocessing step, i.e. do a two-stage procedure, both of which can be done in linear time. On paper this should be faster than the BEADS procedure. Or we may just want to stick with detrending.  There's Matlab code for BEADS, and the BEADS paper also points to two other popular methods in chromotography. 
@@ -313,11 +314,11 @@ where $V$ is a subspace. The problem \Eqn{spingarn} can be expressed as the unco
 where $\iota_V$ is the indicator function of the set $V$. Spingarn's method applies Douglas-Rachford splitting to the problem \Eqn{spingarn2} to give the following updates.
 
 \begin{eqnarray*}
-\V{x}^+ & = & \prox{t\psi}{\V{z}} \\
-\V{y}^+ & = & P_V(2\V{x}^+ - \V{z}) \\
-\V{z}^+ & = & \V{z} + \lambda(\V{y}^+ - \V{x}^+).
+\Vn{x}{k+1} & = & \prox{t\psi}{\Vn{z}{k}} \\
+\Vn{y}{k+1} & = & P_V\left(2\Vn{x}{k+1} - \Vn{z}{k} \right) \\
+\Vn{z}{k+1} & = & \Vn{z}{k} + \lambda^{(k)}\left(\Vn{y}{k+1} - \Vn{x}{k+1} \right).
 \end{eqnarray*}
-The parameter $t$ is a step-size and $\lambda_n$ is Karolinski-Mann. We require that $\lambda_n \in ]0, 2[$ and that $\sum_n \lambda_n(1-\lambda_n) = \infty$. The mapping $P_V$ is the orthogonal projection onto the set $V$.
+The parameter $t$ is a step-size and $\lambda^{(k)}$ is Krasnosel'ski{\u i}-Mann iteration (Need citation). We require that $\lambda^{(k)} \in ]0, 2[$ and that $\sum_n \lambda^{(k)} (2-\lambda^{(k)}) = \infty$. The mapping $P_V$ is the orthogonal projection onto the set $V$.  Note that the algorithm iterates $\Vn{x}{k}$ will converge to a solution to problem $\Eqn{spingarn}$ \cite{Combettes2005}. We need to experiment with different over / under-relaxation parameters $\lambda^{(k)}$ and step sizes $t$. It will converge if we take $\lambda^{(k)} = 1$ and $t = 1$, but we may be able to converge faster in practice by taking non-trivial values.
 
 %% ----------------------------------------------------------------------
 %% Applying Spingarn's Method to Quantile Trend Filtering
@@ -352,9 +353,7 @@ P_V(\V{\theta}, \V{\eta}) & = & \begin{pmatrix}
 \end{eqnarray*}
 where the projection $P_V$ requires a banded linear system solve, with bandwidth $k + 1$.
 This linear solve can be accomplished in $\mathcal{O}(n(k + 1)^2)$. The first solve using a banded Cholesky decomposition requires $\mathcal{O}(n(k + 1)^2)$. Subsequent solves require
-$\mathcal{O}(n(k+1))$.
-
-We should also consider trying the reparameterization for ADMM trend filtering proposed in \cite{Ramdas2016}.
+$\mathcal{O}(n(k+1))$. We can use RccpArmadillo to do banded Cholesky \cite{Eddelbuettel2014}.
 
 %% ----------------------------------------------------------------------
 %% Proximal mappings
@@ -426,9 +425,38 @@ The total cost is $\mathcal{O}(nk)$.
 
 \begin{itemize}
 \item The overall computational complexity is essentially linear $\mathcal{O}(nk^2)$ for the initial banded Cholesky decomposition and the per-iteration complexity is $\mathcal{O}(nk)$.
-\item One could also apply Anderson acceleration to reduce the number of Spingarn updates, since the Douglas-Rachford algorithm is a fixed point algorithm.
+\item One could also apply Anderson acceleration \cite{Walker2011} to reduce the number of Spingarn updates, since the Douglas-Rachford algorithm is a fixed point algorithm.
 \end{itemize}
 
+%% ----------------------------------------------------------------------
+%% Applying Spingarn's Method to Quantile Trend Filtering version 2
+%% ----------------------------------------------------------------------
+\section{Applying Spingarn's Method to Quantile Trend Filtering version 2}
+
+Following the specialized ADMM algorithm for trend filtering \cite{Ramdas2016}, we can also take advantage of fast exact solvers of the one-dimensional fussed lasso problem \cite{davies2001, Johnson2013}. The first method is based on taut strings, and the second is based on dynamic programming. Both of these methods run in linear time. A third exact method with worst case quadratic penalty but linear time in typical cases was proposed in \cite{Condat2013}. C code is available for all three methods. We should compare them.
+
+What is the reparameterization?
+
+\begin{eqnarray*}
+\text{minimize}\; && f_1(\V{\theta}) + f_2(\V{\eta}) \\
+\text{subject to}\; && \V{\eta} = \M{D}\V{\theta}
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+f_1(\V{\theta}) = \frac{1}{n}\sum_{i=1}^n \rho_\tau(\VE{y}{i} - \VE{\theta}{i}) \quad\quad \text{and} \quad\quad
+f_2(\V{\eta}) = \lambda\lVert \Mn{D}{1}\V{\eta} \rVert_1.
+\end{eqnarray*}
+
+Difference with version 1: If we are interested in a 3rd order penalization, then $\M{D} = \Mn{D}{2}$ in version 2 as opposed to $\M{D} = \Mn{D}{3}$ in version 1. The proximal mapping for $f_2$ is solved using one of the exact solvers \cite{davies2001, Johnson2013, Condat2013}. Show some timing results between the different versions. Point readers to \cite{Ramdas2016} for a discussion of why this minor reparameterization may lead to speed up.
+
+\section{Other Practical Issues}
+
+\begin{itemize}
+	\item Read compressed data
+	\item May want to read data directly in C and not pull into R; make R just an interface
+	\item Use historical data to choose $\tau$ and $\lambda$
+	\item 
+\end{itemize}
 
 \bibliographystyle{plain}
 \bibliography{detrendify}
