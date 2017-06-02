@@ -1,0 +1,71 @@
+\begin{thebibliography}{10}
+
+\bibitem{Bacher2016}
+R.~Bacher, F.~Chatelain, and O.~Michel.
+\newblock An adaptive robust regression method: Application to galaxy spectrum
+  baseline estimation.
+\newblock In {\em 2016 IEEE International Conference on Acoustics, Speech and
+  Signal Processing (ICASSP)}, pages 4423--4427, March 2016.
+
+\bibitem{Davis2017}
+Damek Davis.
+\newblock {Convergence rate analysis of the forward-Douglas-Rachford splitting
+  scheme}.
+\newblock {\em SIAM Journal on Optimization}.
+\newblock in press.
+
+\bibitem{He2012}
+Bingsheng He and Xiaoming Yuan.
+\newblock {On the $O(1/n)$ Convergence Rate of the Douglas-Rachford Alternating
+  Direction Method}.
+\newblock {\em SIAM Journal on Numerical Analysis}, 50(2):700--709, 2012.
+
+\bibitem{He2015}
+Bingsheng He and Xiaoming Yuan.
+\newblock {On the convergence rate of Douglas-Rachford operator splitting
+  method}.
+\newblock {\em Mathematical Programming}, 153(2):715--722, 2015.
+
+\bibitem{Ilewicz2015}
+W.~Ilewicz, M.~Kowalczuk, M.~Niezabitowski, D.~Buchczik, and A.~G\l{}uszka.
+\newblock Comparison of baseline estimation algorithms for chromatographic
+  signals.
+\newblock In {\em 2015 20th International Conference on Methods and Models in
+  Automation and Robotics (MMAR)}, pages 925--930, Aug 2015.
+
+\bibitem{Kim2009}
+Seung-Jean Kim, Kwangmoo Koh, Stephen Boyd, and Dimitry Gorinevsky.
+\newblock $\ell_1$ trend filtering.
+\newblock {\em SIAM Review}, 51(2):339--360, 2009.
+
+\bibitem{Ning2014}
+Xiaoran Ning, Ivan~W. Selesnick, and Laurent Duval.
+\newblock Chromatogram baseline estimation and denoising using sparsity
+  (beads).
+\newblock {\em Chemometrics and Intelligent Laboratory Systems}, 139:156 --
+  167, 2014.
+
+\bibitem{Ramdas2016}
+Aaditya Ramdas and Ryan~J. Tibshirani.
+\newblock {Fast and Flexible ADMM Algorithms for Trend Filtering}.
+\newblock {\em Journal of Computational and Graphical Statistics}, 0(ja):0--0,
+  2016.
+
+\bibitem{Sanyal2012}
+A.~Sanyal, A.~Baral, and A.~Lahiri.
+\newblock {Application of S-transform for removing baseline drift from ECG}.
+\newblock In {\em 2012 2nd National Conference on Computational Intelligence
+  and Signal Processing (CISP)}, pages 153--157, March 2012.
+
+\bibitem{Spingarn1985}
+Jonathan~E. Spingarn.
+\newblock Applications of the method of partial inverses to convex programming:
+  Decomposition.
+\newblock {\em Mathematical Programming}, 32(2):199--223, 1985.
+
+\bibitem{Tib2014}
+Ryan~J. Tibshirani.
+\newblock Adaptive piecewise polynomial estimation via trend filtering.
+\newblock {\em The Annals of Statistics}, 42(1):285--323, 02 2014.
+
+\end{thebibliography}
