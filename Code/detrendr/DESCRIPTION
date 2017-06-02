@@ -1,11 +1,10 @@
 Package: detrendr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Quantile Trend Filtering
 Version: 0.1.0
-Author: Eric C. Chi
-Maintainer: Eric C. Chi <ecchi1105@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Halley Brantley, Eric Chi, Joe Guinness
+Maintainer: Halley Brantley <hlbrantl@ncsu.edu>
+Description: This package implements a method for estimating baseline drift in spikey and noisy univariate signals.
 Depends:
     Matrix
 License: What license is it under?
