@@ -13,3 +13,5 @@ Code/detrendr/R/.Rhistory
 *.synctex.gz
 *~
 
+
+*.o
