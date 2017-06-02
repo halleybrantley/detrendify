@@ -1,2 +1,15 @@
 
+
 Code/detrendr/R/.Rhistory
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*~
+

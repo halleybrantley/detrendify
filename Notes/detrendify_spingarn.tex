@@ -238,7 +238,9 @@ The above optimization problem generalizes the notion of the median of a collect
 \begin{eqnarray*}
 f(u) & = & \frac{1}{n}\sum_{i=1}^n \lvert \VE{y}{i} - \theta \rvert.
 \end{eqnarray*}
-Recall that the median is the 50th percentile or 0.5-quantile, namely half of the $\VE{y}{i}$ are less than or equal to $\mu$ and the other half is greater than or equal to $\mu$. The median can be generalized to arbitrary $\tau$-quantiles for $\tau \in (0,1)$ as follows. First define the so-called ``check function"
+Recall that the median is the 50th percentile or 0.5-quantile, namely half of the $\VE{y}{i}$ are less than or equal to $\mu$ and the other half is greater than or equal to $\mu$. The median can be generalized to arbitrary $\tau$-quantiles for $\tau \in (0,1)$ to give us quantile regression \cite{Koenker1978}.
+
+First define the so-called ``check function"
 \begin{eqnarray*}
 \rho_\tau(\Delta) & = & \begin{cases}
 \tau \Delta & \text{$\Delta \geq 0$} \\
@@ -306,7 +308,7 @@ We first review Spingarn's method \cite{Spingarn1985}, which solves the followin
 \text{subject to}\; & \V{x} \in V,
 \end{split}
 \end{equation}
-where $V$ is a subspace. The problem \ref{eq:spingarn} can be expressed as the unconstrained optimization problem
+where $V$ is a subspace. The problem \Eqn{spingarn} can be expressed as the unconstrained optimization problem
 \begin{equation}
 \label{eq:spingarn2}
 \text{minimize}\; \psi(\V{x}) + \iota_V(\V{x}),
@@ -455,7 +457,21 @@ Difference with version 1: If we are interested in a 3rd order penalization, the
 	\item Read compressed data
 	\item May want to read data directly in C and not pull into R; make R just an interface
 	\item Use historical data to choose $\tau$ and $\lambda$
-	\item 
+\end{itemize}
+
+\section{To Do}
+
+\begin{itemize}
+	\item Find out if we can use the EPA data. Add co-authors?
+	\item Make version 2 with the three fast fused lasso solvers
+	\item Add homotopy / warm start
+	\item Add model selection
+	\item Do experiments to evaluate different choices of $t$ and $\lambda^{(k)}$
+	\item See if Anderson acceleration helps. Talk to Tim Kelley?
+	\item Write vignette
+	\item Do comparisons with BEAD
+	\item Do wind polar plots with and without removing trends
+	\item Compare with Splines
 \end{itemize}
 
 \bibliographystyle{plain}
