@@ -147,11 +147,7 @@ get_Dk <- function(n, k) {
 #' angles <- matrix(t(theta - proj$theta)%*%(theta2 - matrix(proj$theta)%*%matrix(1,1,m)))
 #' angles <- angles + matrix(t(eta - proj$eta)%*%(eta2 - matrix(proj$eta)%*%matrix(1,1,m)))
 #' summary(angles)
-project_V <- function(theta, eta, D) {
-  n <- ncol(D)
-  I <- matrix(0, n, n)
-  diag(I) <- 1
-  M <- I + Matrix::t(D) %*% D
+project_V <- function(theta, eta, D, M) {
   theta <- Matrix::solve(M, theta + Matrix::t(D)%*%eta, sparse=TRUE)
   eta <- D%*%theta
   return(list(theta=theta, eta=eta))
@@ -201,13 +197,13 @@ project_V <- function(theta, eta, D) {
 #' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
-spingarn_one_step <- function(theta, eta, y, D, lambda, tau=0.05, t=1) {
+spingarn_one_step <- function(theta, eta, y, D, lambda, tau=0.05, t=1,M) {
   theta_old <- theta
   eta_old <- eta
   prox_sol <- prox(theta, eta, y, lambda, tau, t)
   theta <- prox_sol$theta
   eta <- prox_sol$eta
-  proj_sol <- project_V(2*theta - theta_old, 2*eta - eta_old, D)
+  proj_sol <- project_V(2*theta - theta_old, 2*eta - eta_old, D,M)
   theta <- theta_old + 1.9*(proj_sol$theta - theta)
   eta <- eta_old + 1.9*(proj_sol$eta - eta)
   return(list(theta=theta, eta=matrix(eta)))
