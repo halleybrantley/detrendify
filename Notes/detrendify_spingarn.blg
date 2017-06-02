@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: detrendify_spingarn.aux
+The style file: plain.bst
+Database file #1: detrendify.bib
+Warning--empty year in Davis2017
+You've used 11 entries,
+            2118 wiz_defined-function locations,
+            578 strings with 6040 characters,
+and the built_in function-call counts, 4051 in all, are:
+= -- 399
+> -- 165
+< -- 3
++ -- 66
+- -- 54
+* -- 293
+:= -- 649
+add.period$ -- 34
+call.type$ -- 11
+change.case$ -- 60
+chr.to.int$ -- 0
+cite$ -- 12
+duplicate$ -- 158
+empty$ -- 330
+format.name$ -- 54
+if$ -- 868
+int.to.chr$ -- 0
+int.to.str$ -- 11
+missing$ -- 11
+newline$ -- 59
+num.names$ -- 22
+pop$ -- 56
+preamble$ -- 1
+purify$ -- 49
+quote$ -- 0
+skip$ -- 120
+stack$ -- 0
+substring$ -- 301
+swap$ -- 43
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 44
+warning$ -- 1
+while$ -- 38
+width$ -- 13
+write$ -- 123
+(There was 1 warning)
