@@ -46,11 +46,58 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// prox
+Rcpp::List prox(arma::vec theta, arma::vec eta, arma::vec y, double lambda, double tau, double step);
+RcppExport SEXP detrendr_prox(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type eta(etaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(prox(theta, eta, y, lambda, tau, step));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_Dk
+double test_Dk(int n, int k, int row, int col);
+RcppExport SEXP detrendr_test_Dk(SEXP nSEXP, SEXP kSEXP, SEXP rowSEXP, SEXP colSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< int >::type col(colSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_Dk(n, k, row, col));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_project_V
+Rcpp::List test_project_V(arma::vec theta, arma::vec eta, int n, int k);
+RcppExport SEXP detrendr_test_project_V(SEXP thetaSEXP, SEXP etaSEXP, SEXP nSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type eta(etaSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_project_V(theta, eta, n, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"detrendr_prox_quantile", (DL_FUNC) &detrendr_prox_quantile, 3},
     {"detrendr_prox_f1", (DL_FUNC) &detrendr_prox_f1, 4},
     {"detrendr_prox_f2", (DL_FUNC) &detrendr_prox_f2, 3},
+    {"detrendr_prox", (DL_FUNC) &detrendr_prox, 6},
+    {"detrendr_test_Dk", (DL_FUNC) &detrendr_test_Dk, 4},
+    {"detrendr_test_project_V", (DL_FUNC) &detrendr_test_project_V, 4},
     {NULL, NULL, 0}
 };
 

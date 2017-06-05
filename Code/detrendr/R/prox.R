@@ -76,23 +76,22 @@ prox_f2_R <- function(eta, lambda, t = 1) {
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param t step-size
-#' @export
 #' @examples
 #' set.seed(12345)
-prox <- function(theta, eta, y, lambda, tau = 0.05, t=1) {
-  return(list(theta=prox_f1(theta, y, tau, t), eta = prox_f2(eta, lambda, t)))
+prox_R <- function(theta, eta, y, lambda, tau = 0.05, t=1) {
+  return(list(theta=prox_f1(theta, y, tau, t), 
+              eta = prox_f2(eta, lambda, t)))
 }
 
 #' First order difference matrix
 #'
-#' \code{get_D1} computes the discrete derivative matrix.
+#' \code{get_D1_R} computes the discrete derivative matrix.
 #'
 #' @param n length of input
-#' @export
 #' @examples
 #' n <- 5
 #' D1 <- get_D1(n)
-get_D1 <- function(n) {
+get_D1_R <- function(n) {
   D1 <- Matrix(data=0, nrow=n-1, ncol=n, sparse = TRUE)
   for (i in 1:(n-1)) {
     D1[i, i] <- 1
@@ -103,19 +102,18 @@ get_D1 <- function(n) {
 
 #' kth order difference matrix
 #'
-#' \code{get_Dk} computes the discrete kth derivative matrix.
+#' \code{get_Dk_R} computes the discrete kth derivative matrix.
 #'
 #' @param n length of input
 #' @param k order of the derivative
-#' @export
 #' @examples
 #' n <- 10
 #' k <- 3
 #' D <- get_Dk(n, k)
-get_Dk <- function(n, k) {
-  D <- get_D1(n)
+get_Dk_R <- function(n, k) {
+  D <- get_D1_R(n)
   for (i in 2:k) {
-    D <- get_D1(n - i + 1) %*% D
+    D <- get_D1_R(n - i + 1) %*% D
   }
   return(D)
 }
@@ -127,7 +125,6 @@ get_Dk <- function(n, k) {
 #' @param theta first input
 #' @param eta second input
 #' @param D differencing matrix
-#' @export
 #' @examples
 #' set.seed(12345)
 #' k <- 3
@@ -144,7 +141,7 @@ get_Dk <- function(n, k) {
 #' angles <- matrix(t(theta - proj$theta)%*%(theta2 - matrix(proj$theta)%*%matrix(1,1,m)))
 #' angles <- angles + matrix(t(eta - proj$eta)%*%(eta2 - matrix(proj$eta)%*%matrix(1,1,m)))
 #' summary(angles)
-project_V <- function(theta, eta, D, M) {
+project_V_R <- function(theta, eta, D, M) {
   theta <- Matrix::solve(M, theta + Matrix::t(D)%*%eta, sparse=TRUE)
   eta <- D%*%theta
   return(list(theta=theta, eta=eta))
@@ -194,7 +191,7 @@ project_V <- function(theta, eta, D, M) {
 #' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
-spingarn_one_step <- function(theta, eta, y, D, lambda, tau=0.05, t=1,M) {
+spingarn_one_step_R <- function(theta, eta, y, D, lambda, tau=0.05, t=1,M) {
   theta_old <- theta
   eta_old <- eta
   prox_sol <- prox(theta, eta, y, lambda, tau, t)

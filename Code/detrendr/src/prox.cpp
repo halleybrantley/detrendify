@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#define ARMA_USE_SUPERLU 1
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <cmath>
 using namespace Rcpp;
@@ -91,4 +92,116 @@ arma::vec prox_f2(arma::vec eta,
                   double lambda, 
                   double step = 1){
   return prox_quantile(eta, 0.5, 2*step*lambda);
+}
+
+//' @title
+//' Proximal mapping
+//' 
+//' \code{prox} computes the block separable proximal mapping. 
+//' @param theta input
+//' @param eta input
+//' @param y response
+//' @param lambda regularization parameter
+//' @param tau quantile parameter
+//' @param step step-size
+//' @export 
+//[[Rcpp::export]]
+Rcpp::List prox(arma::vec theta, 
+                arma::vec eta, 
+                arma::vec y, 
+                double lambda, 
+                double tau = 0.05, 
+                double step = 1.0){
+  return Rcpp::List::create(theta = prox_f1(theta, y, tau, step),
+                            eta = prox_f2(eta, lambda, step));
+}
+
+//' @title 
+//' 
+//' \code{get_D1} computes in the discrete derivative matrix.
+//' 
+//' @param n length of input
+arma::sp_mat get_D1(int n){
+  int numberNonZero = 2*(n-1);
+  arma::vec values = ones<vec>(numberNonZero);
+  values.subvec(n-1, 2*(n-1)-1) = -1*values.subvec(n-1, 2*(n-1)-1);
+  
+  arma::umat locs = repmat(linspace<urowvec>(0,n-2,n-1),2,2);
+  locs.submat(1, n-1, 1, numberNonZero-1) = locs.submat(1, n-1, 1, 
+              numberNonZero-1) + 1;
+  
+  arma::sp_mat D1 = arma::sp_mat(locs, values);
+
+  //Rcout << "D1" << std::endl << D1 << std::endl;
+  
+  return D1;
+}
+
+//' @title
+//' kth order difference matrix
+//' 
+//' \code{get_Dkn} computes the discrete kth derivative matrix
+//' 
+//' @param n length of input
+//' @param k order of the derivative
+arma::sp_mat get_Dk(int n, 
+                     int k){
+  arma::sp_mat D = get_D1(n);
+  for (int i=2; i < k+1; i++){
+    D = get_D1(n-i+1)*D;
+  }
+  // Rcout << "D_k" << std::endl << D << std::endl;
+  return D;
+}
+
+
+//' @title
+//' Function to test differencing matrix, returns single element of Dk(n)
+//' 
+//' @param n length of input
+//' @param k order of the derivative
+//' @param row row of element to return
+//' @param col column of element to return
+//' @export
+//[[Rcpp::export]]
+double test_Dk(int n, 
+               int k, 
+               int row,
+               int col){
+  arma::sp_mat Dk = get_Dk(n,k);
+  return Dk(row, col);
+}
+
+//' @title 
+//' Project onto subspace
+//' 
+//' \code{project_V} projects (theta, eta) onto the subspace eta = D%*%theta
+//' 
+//' @param theta first input
+//' @param eta second input
+//' @param D differencing matrix
+
+// //[[Rcpp::export]]
+// Rcpp::List project_V(arma::vec theta, 
+//                      arma::vec eta, 
+//                      arma::sp_mat D){
+//   int n = D.n_cols;
+//   arma::sp_mat M = speye<sp_mat>(n,n) + D.t()*D;
+//   theta = spSolve(M, theta + D.t()*eta);
+//   eta = D*theta;
+//   return Rcpp::List::create(theta=theta, eta=eta);
+// }
+
+//[[Rcpp::export]]
+Rcpp::List test_project_V(arma::vec theta, 
+                          arma::vec eta, 
+                          int n, 
+                          int k){
+  arma::sp_mat D = get_Dk(n, k);
+  arma::sp_mat M = speye<sp_mat>(n,n) + D.t()*D;
+  arma::vec DtEta = vectorise(D.t()*eta);
+  //Rcout << "DtEta" << std::endl << DtEta << std::endl;
+  theta = spsolve(M, theta + DtEta);
+  arma::vec eta2 = vectorise(D*theta);
+  return Rcpp::List::create(theta=theta, eta=eta);
 }
