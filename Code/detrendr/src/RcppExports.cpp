@@ -6,22 +6,51 @@
 
 using namespace Rcpp;
 
-// prox_quantileC
-arma::vec prox_quantileC(arma::vec w, double tau, double alpha);
-RcppExport SEXP detrendr_prox_quantileC(SEXP wSEXP, SEXP tauSEXP, SEXP alphaSEXP) {
+// prox_quantile
+arma::vec prox_quantile(arma::vec w, double tau, double alpha);
+RcppExport SEXP detrendr_prox_quantile(SEXP wSEXP, SEXP tauSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type w(wSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(prox_quantileC(w, tau, alpha));
+    rcpp_result_gen = Rcpp::wrap(prox_quantile(w, tau, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// prox_f1
+arma::vec prox_f1(arma::vec theta, arma::vec y, double tau, double step);
+RcppExport SEXP detrendr_prox_f1(SEXP thetaSEXP, SEXP ySEXP, SEXP tauSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(prox_f1(theta, y, tau, step));
+    return rcpp_result_gen;
+END_RCPP
+}
+// prox_f2
+arma::vec prox_f2(arma::vec eta, double lambda, double step);
+RcppExport SEXP detrendr_prox_f2(SEXP etaSEXP, SEXP lambdaSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type eta(etaSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(prox_f2(eta, lambda, step));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"detrendr_prox_quantileC", (DL_FUNC) &detrendr_prox_quantileC, 3},
+    {"detrendr_prox_quantile", (DL_FUNC) &detrendr_prox_quantile, 3},
+    {"detrendr_prox_f1", (DL_FUNC) &detrendr_prox_f1, 4},
+    {"detrendr_prox_f2", (DL_FUNC) &detrendr_prox_f2, 3},
     {NULL, NULL, 0}
 };
 

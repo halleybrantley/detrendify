@@ -5,7 +5,6 @@
 #' @param w input
 #' @param tau quantile parameter
 #' @param alpha scale parameter
-#' @export
 #' @examples
 #' set.seed(12345)
 #' n <- 1e3
@@ -19,7 +18,7 @@
 #' alpha <- 2
 #' prox_out <- prox_quantile(w, tau, alpha)
 #' plot(w, prox_out, type='l', main=expression(paste(tau," = ")))
-prox_quantile <- function(w, tau, alpha) {
+prox_quantile_R <- function(w, tau, alpha) {
   n <- length(w)
   prox_out <- double(n)
   threshold1 <- tau*alpha
@@ -28,7 +27,7 @@ prox_quantile <- function(w, tau, alpha) {
   ix2 <- which(w < threshold2)
   prox_out[ix1] <- w[ix1] - threshold1
   prox_out[ix2] <- w[ix2] - threshold2
-  return(prox_out)
+  return(matrix(prox_out, ncol=1))
 }
 
 #' Proximal mapping of f_1
@@ -39,10 +38,9 @@ prox_quantile <- function(w, tau, alpha) {
 #' @param y response
 #' @param tau quantile parameter
 #' @param t step-size
-#' @export
 #' @examples
 #' set.seed(12345)
-prox_f1 <- function(theta, y, tau = 0.05, t = 1) {
+prox_f1_R <- function(theta, y, tau = 0.05, t = 1) {
   n <- length(theta)
   w <- y - theta
   alpha <- t/n
@@ -56,7 +54,6 @@ prox_f1 <- function(theta, y, tau = 0.05, t = 1) {
 #' @param eta input
 #' @param lambda regularization parameter
 #' @param t step-size
-#' @export
 #' @examples
 #' set.seed(12345)
 #' n <- 1e3
@@ -65,7 +62,7 @@ prox_f1 <- function(theta, y, tau = 0.05, t = 1) {
 #' prox_out <- prox_f2(eta, lambda)
 #' plot(eta, prox_out, type = 'l')
 #' abline(0,1)
-prox_f2 <- function(eta, lambda, t = 1) {
+prox_f2_R <- function(eta, lambda, t = 1) {
   return(prox_quantile(eta, tau = 0.5, alpha = 2*t*lambda))
 }
 

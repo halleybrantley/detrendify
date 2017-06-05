@@ -24,7 +24,43 @@
 #' prox_out <- prox_quantile(w, tau, alpha)
 #' plot(w, prox_out, type='l', main=expression(paste(tau," = ")))
 #' @export
-prox_quantileC <- function(w, tau, alpha) {
-    .Call('detrendr_prox_quantileC', PACKAGE = 'detrendr', w, tau, alpha)
+prox_quantile <- function(w, tau, alpha) {
+    .Call('detrendr_prox_quantile', PACKAGE = 'detrendr', w, tau, alpha)
+}
+
+#' @title
+#' Proximal mapping of f_1
+#' 
+#' \code{prox_f1} computes the proximal mapping of the average quantile loss
+#'
+#' @param theta input
+#' @param y response
+#' @param tau quantile parameter
+#' @param step step-size
+#' @examples
+#' @export
+prox_f1 <- function(theta, y, tau = 0.05, step = 1.0) {
+    .Call('detrendr_prox_f1', PACKAGE = 'detrendr', theta, y, tau, step)
+}
+
+#' @title
+#' Proximal mapping of f_2
+#' 
+#' \code{prox_f2} computes the proximal mapping of the L1 penalty
+#' 
+#' @param eta input
+#' @param lambda regularization parameter
+#' @param step step-size
+#' @export
+#' @examples
+#' set.seed(12345)
+#' n <- 1e3
+#' eta <- seq(-3, 3, length.out=n)
+#' lambda <- 1
+#' prox_out <- prox_f2(eta, lambda)
+#' plot(eta, prox_out, type = 'l')
+#' abline(0,1)
+prox_f2 <- function(eta, lambda, step = 1) {
+    .Call('detrendr_prox_f2', PACKAGE = 'detrendr', eta, lambda, step)
 }
 
