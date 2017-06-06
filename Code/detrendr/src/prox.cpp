@@ -166,6 +166,8 @@ arma::sp_mat get_D1(int n){
 //' 
 //' @param n length of input
 //' @param k order of the derivative
+//' 
+//[[Rcpp::export]]
 arma::sp_mat get_Dk(int n, 
                      int k){
   arma::sp_mat D = get_D1(n);
@@ -177,23 +179,6 @@ arma::sp_mat get_Dk(int n,
 }
 
 
-//' @title
-//' Function to test differencing matrix, returns single element of Dk(n)
-//' 
-//' @param n length of input
-//' @param k order of the derivative
-//' @param row row of element to return
-//' @param col column of element to return
-//' @export
-//[[Rcpp::export]]
-double test_Dk(int n, 
-               int k, 
-               int row,
-               int col){
-  arma::sp_mat Dk = get_Dk(n,k);
-  return Dk(row, col);
-}
-
 //' @title 
 //' Project onto subspace (updates values of theta and eta in place)
 //' 
@@ -202,33 +187,17 @@ double test_Dk(int n,
 //' @param theta first input
 //' @param eta second input
 //' @param D differencing matrix
-//' @param M = I + DtD
+//' @param cholM upper triangular cholesky of  I + DtD
+//[[Rcpp::export]]
 void project_V(arma::vec& theta,
                      arma::vec& eta,
                      arma::sp_mat D, 
-                     arma::sp_mat M){
+                     arma::mat cholM){
   arma::vec DtEta = vectorise(D.t()*eta);
-  theta = spsolve(M, theta + DtEta, "lapack");
+  theta = solve(trimatu(cholM), solve(trimatl(cholM.t()), theta + DtEta));
   eta = D*theta;
 }
 
-//' @title 
-//' Test Cpp project_V function
-//' 
-//' \code{test_project_V}
-//' @param theta input 1
-//' @param eta input 2
-//' @param k order of derivative
-//[[Rcpp::export]]
-Rcpp::List test_project_V(arma::vec theta, 
-                          arma::vec eta, 
-                          int k){
-  int n = theta_n.elem;
-  arma::sp_mat D = get_Dk(n, k);
-  arma::sp_mat M = speye<sp_mat>(n,n) + D.t()*D;
-  project_V(theta, eta, D, M);
-  return Rcpp::List::create(theta=theta, eta=eta);
-}
 
 //' @title
 //' One step of Spingarn's algorithm
@@ -238,15 +207,17 @@ Rcpp::List test_project_V(arma::vec theta,
 //' @param eta input 2
 //' @param y response
 //' @param D differencing matrix
-//' @param M = I + DtD
+//' @param cholM upper cholesky of  (I + DtD)
 //' @param lambda regularization parameter
 //' @param tau quantile parameter
 //' @param step step-size
-void spingarn_one_step(arma::vec& theta, 
-                             arma::vec& eta, 
+
+//[[Rcpp::export]]
+Rcpp::List spingarn_one_step(arma::vec theta, 
+                             arma::vec eta, 
                              arma::vec y, 
                              arma::sp_mat D, 
-                             arma::sp_mat M,
+                             arma::mat cholM,
                              double lambda, 
                              double tau = 0.05, 
                              double step = 1){
@@ -255,13 +226,15 @@ void spingarn_one_step(arma::vec& theta,
   prox(theta, eta, y, lambda, tau, step);
   arma::vec thetaMid = 2*theta-theta_old;
   arma::vec etaMid = 2*eta-eta_old;
-  project_V(thetaMid, etaMid, D, M);
+  project_V(thetaMid, etaMid, D, cholM);
+
   theta = theta_old + 1.9*(thetaMid - theta);
   eta = eta_old + 1.9*(etaMid - eta);
+  return Rcpp::List::create(theta=theta, eta=eta);
 }
 
 //' @title
-//' One step of Spingarn's algorithm
+//' Multiple steps of Spingarn's algorithm
 //' 
 //' \code{spingarn_one_step}
 //' @param theta input 1
@@ -275,42 +248,45 @@ void spingarn_one_step(arma::vec& theta,
 //' @export
 //' @examples
 //' set.seed(12345)
-//' n <- 1e3
+//' n <- 4e3
 //' x <- seq(1/n, 1, length.out=n)
 //' f <- 2*(x + 2)^2 + 3*cos(3*pi*x)
-//' tau <- 1e4
-//' g <-100*exp(-tau*(x-0.5)^2)
-//' y <- f + g + rnorm(n)
+//' tau <- 5e4
+//' g1 <- 40*exp(-tau*(x-0.3)^2)
+//' g2 <- 30*exp(-3*tau*(x-0.5)^2)
+//' g3 <- 37*exp(-tau*(x-0.7)^2)
+//' g4 <- 45*exp(-tau/10*(x-0.55)^2)
+//' y <- f + g1 + g2 + g3 + g4 + rnorm(n)
+//' plot(y~x, type="l")
 //' k <- 3
-//' D <- get_Dk_R(n, k)
+//' D <- get_Dk(n, k)
 //' M <- diag(n) + crossprod(D)
+//' cholM <- as.matrix(chol(M))
 //' lambda <- 10
 //' tau <- 0.01
 //' step <- 1
 //' numberIter <- 100
-//' one_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda, 
+//' multi_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda, 
 //' tau, step, numberIter)
-//' theta <- one_step[[1]]
+//' theta <- multi_step[[1]]
 //' theta_last <- prox_f1(theta, y, tau)
 //' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 //' points(x,y,pch=16)
 //' lines(x,theta_last,col='red', lwd=3)
 //[[Rcpp::export]]
-Rcpp::List spingarn_multi_iter(arma::vec theta, 
-                             arma::vec eta, 
-                             arma::vec y, 
-                             int k,
-                             double lambda, 
-                             double tau = 0.05, 
-                             double step = 1, 
+Rcpp::List spingarn_multiple(arma::vec theta,
+                             arma::vec eta,
+                             arma::vec y,
+                             arma::sp_mat D, 
+                             arma::mat cholM,
+                             double lambda,
+                             double tau = 0.05,
+                             double step = 1,
                              double numberIter=1){
-  int n = y.n_elem;
-  arma::sp_mat D = get_Dk(n, k);
-  arma::sp_mat M = speye<sp_mat>(n,n) + D.t()*D;
-  
+
   for (int i = 0; i < numberIter; i++){
-    spingarn_one_step(theta, eta, y, D, M, lambda, tau, step);
+    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step);
   }
-  
+
   return Rcpp::List::create(theta=theta, eta=eta);
-}  
+}

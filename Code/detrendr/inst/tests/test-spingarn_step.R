@@ -11,14 +11,15 @@ test_that("Single Spingarn step produces expected result", {
   k <- 3
   D <- get_Dk_R(n, k)
   M <- diag(n) + crossprod(D)
+  cholM <- as.matrix(chol(M))
   lambda <- 1
   tau <- 0.01
   step <- 1
   theta <- y
   eta <- as.numeric(matrix(D %*% theta))
   
-  expect_that(spingarn_one_step_R(theta, eta, y, D, lambda, tau, step, M), 
+  expect_that(spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step), 
               is_equivalent_to(
-                spingarn_multi_iter(theta, eta, y, n, k, lambda, tau, step, 1)))
+                spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step)))
 })
   

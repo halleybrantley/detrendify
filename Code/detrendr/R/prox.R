@@ -181,7 +181,7 @@ project_V_R <- function(theta, eta, D, M) {
 #' max_iter <- 1e2
 #' THx <- matrix(NA, n, max_iter)
 #' for (iter in 1:max_iter) {
-#'    one_step <- spingarn_one_step_R(theta, eta, y, D, lambda, tau=tau, t=t, M=M)
+#'    one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau=tau, t=t)
 #'    theta <- one_step$theta
 #'    eta <- one_step$eta
 #'    THx[,iter] <- prox_f1(theta, y, tau)
@@ -194,13 +194,13 @@ project_V_R <- function(theta, eta, D, M) {
 #' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
-spingarn_one_step_R <- function(theta, eta, y, D, lambda, tau=0.05, t=1, M) {
+spingarn_one_step_R <- function(theta, eta, y, D, M, lambda, tau=0.05, t=1) {
   theta_old <- theta
   eta_old <- eta
   prox_sol <- prox_R(theta, eta, y, lambda, tau, t)
   theta <- prox_sol$theta
   eta <- prox_sol$eta
-  proj_sol <- project_V_R(2*theta - theta_old, 2*eta - eta_old, D,M)
+  proj_sol <- project_V_R(2*theta - theta_old, 2*eta - eta_old, D, M)
   theta <- theta_old + 1.9*(proj_sol$theta - theta)
   eta <- eta_old + 1.9*(proj_sol$eta - eta)
   return(list(theta=theta, eta=matrix(eta)))

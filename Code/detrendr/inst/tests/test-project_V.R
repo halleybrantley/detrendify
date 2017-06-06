@@ -4,14 +4,20 @@ test_that("Projection onto V produces expected result", {
   set.seed(12345)
   k <- 3
   n <- 1e2
-  D <- get_Dk_R(n,k)
+  D <- get_Dk(n,k)
   M <- diag(n) + crossprod(D)
+  cholM <- as.matrix(chol(M))
   theta <- rnorm(n)
   eta <- as.numeric(D%*%theta) + 0.01*rnorm(n-k)
-  #L1 <- test_project_V(theta, eta, n, k)
-  #L2 <- project_V_R(theta, eta, D, M)
-  expect_that(test_project_V(theta, eta, k), 
-             is_equivalent_to(project_V_R(theta, eta, D, M)))
+  proj1 <- project_V_R(theta, eta, D, M)
+  theta1 <- as.numeric(proj1[[1]])
+  eta1 <- as.numeric(proj1[[2]])
+  # Alters theta and eta in place
+  project_V(theta, eta, D, cholM)
+  expect_that(theta1, 
+             is_equivalent_to(theta))
+  expect_that(eta1, 
+              is_equivalent_to(eta))
   
 })
 
