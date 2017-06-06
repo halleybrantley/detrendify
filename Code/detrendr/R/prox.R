@@ -144,6 +144,8 @@ get_Dk_R <- function(n, k) {
 project_V_R <- function(theta, eta, D, M) {
   theta <- Matrix::solve(M, theta + Matrix::t(D)%*%eta, sparse=TRUE)
   eta <- D%*%theta
+  eta <- matrix(eta, ncol=1)
+  theta <- matrix(theta, ncol=1)
   return(list(theta=theta, eta=eta))
 }
 
@@ -168,7 +170,8 @@ project_V_R <- function(theta, eta, D, M) {
 #' g <-100*exp(-tau*(x-0.5)^2)
 #' y <- f + g + rnorm(n)
 #' k <- 3
-#' D <- get_Dk(n, k)
+#' D <- get_Dk_R(n, k)
+#' M <- diag(n) + crossprod(D)
 #' lambda <- 1
 #' tau <- 0.01
 #' t <- 1
@@ -178,7 +181,7 @@ project_V_R <- function(theta, eta, D, M) {
 #' max_iter <- 1e2
 #' THx <- matrix(NA, n, max_iter)
 #' for (iter in 1:max_iter) {
-#'    one_step <- spingarn_one_step(theta, eta, y, D, lambda, tau=tau, t=t)
+#'    one_step <- spingarn_one_step_R(theta, eta, y, D, lambda, tau=tau, t=t, M=M)
 #'    theta <- one_step$theta
 #'    eta <- one_step$eta
 #'    THx[,iter] <- prox_f1(theta, y, tau)
@@ -191,13 +194,13 @@ project_V_R <- function(theta, eta, D, M) {
 #' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
-spingarn_one_step_R <- function(theta, eta, y, D, lambda, tau=0.05, t=1,M) {
+spingarn_one_step_R <- function(theta, eta, y, D, lambda, tau=0.05, t=1, M) {
   theta_old <- theta
   eta_old <- eta
-  prox_sol <- prox(theta, eta, y, lambda, tau, t)
+  prox_sol <- prox_R(theta, eta, y, lambda, tau, t)
   theta <- prox_sol$theta
   eta <- prox_sol$eta
-  proj_sol <- project_V(2*theta - theta_old, 2*eta - eta_old, D,M)
+  proj_sol <- project_V_R(2*theta - theta_old, 2*eta - eta_old, D,M)
   theta <- theta_old + 1.9*(proj_sol$theta - theta)
   eta <- eta_old + 1.9*(proj_sol$eta - eta)
   return(list(theta=theta, eta=matrix(eta)))

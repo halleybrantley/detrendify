@@ -36,9 +36,9 @@ test_that("prox produces same output as R function", {
   lambda <- 1
   step <- 1
   tau <- 0.05
-  expect_that(prox(theta, eta,  y, lambda, tau, step), 
+  expect_that(prox_test(theta, eta,  y, lambda, tau, step), 
               is_equivalent_to(prox_R(theta, eta,  y, lambda, tau, step)))
-  expect_that(prox(theta, eta,  y, lambda), 
+  expect_that(prox_test(theta, eta,  y, lambda), 
               is_equivalent_to(prox_R(theta, eta,  y, lambda)))
 })
 
