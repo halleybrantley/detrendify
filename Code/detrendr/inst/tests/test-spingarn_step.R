@@ -1,6 +1,7 @@
 context("Spingarn Step")
 
 test_that("Single Spingarn step produces expected result", {
+  require(Matrix)
   set.seed(12345)
   n <- 1e2
   x <- seq(1/n, 1, length.out=n)
@@ -10,7 +11,7 @@ test_that("Single Spingarn step produces expected result", {
   y <- f + g + rnorm(n)
   k <- 3
   D <- get_Dk_R(n, k)
-  M <- diag(n) + crossprod(D)
+  M <- diag(n) + Matrix::crossprod(D)
   cholM <- as.matrix(chol(M))
   lambda <- 1
   tau <- 0.01
@@ -18,8 +19,8 @@ test_that("Single Spingarn step produces expected result", {
   theta <- y
   eta <- as.numeric(matrix(D %*% theta))
   
-  expect_that(spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step), 
+  expect_that(spingarn_multi_step_R(theta, eta, y, D, M, lambda, tau, step,5), 
               is_equivalent_to(
-                spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step)))
+                spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step,5)))
 })
   
