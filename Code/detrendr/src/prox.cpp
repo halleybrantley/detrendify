@@ -119,7 +119,8 @@ void prox(arma::vec& theta,
 //' @title
 //' Proximal Mapping Test
 //' 
-//' \code{prox_test} computes the block separable proximal mapping. 
+//' \code{prox_test} computes the block separable proximal mapping.
+//' Returns values of theta and eta. 
 //' @param theta input
 //' @param eta input
 //' @param y response
@@ -138,35 +139,35 @@ Rcpp::List prox_test(arma::vec theta,
   return Rcpp::List::create(theta = theta, eta = eta);
 }
 
-//' @title 
+//' @title Discrete derivative matrix
 //' 
-//' \code{get_D1} computes in the discrete derivative matrix.
+//' \code{get_D1} computes the sparse discrete derivative matrix.
 //' 
 //' @param n length of input
+//' @examples
+//' n <- 5
+//' D1 <- get_D1(n)
+//' @export
+//[[Rcpp::export]]
 arma::sp_mat get_D1(int n){
   int numberNonZero = 2*(n-1);
   arma::vec values = ones<vec>(numberNonZero);
   values.subvec(n-1, 2*(n-1)-1) = -1*values.subvec(n-1, 2*(n-1)-1);
-  
   arma::umat locs = repmat(linspace<urowvec>(0,n-2,n-1),2,2);
   locs.submat(1, n-1, 1, numberNonZero-1) = locs.submat(1, n-1, 1, 
               numberNonZero-1) + 1;
-  
   arma::sp_mat D1 = arma::sp_mat(locs, values);
-
-  //Rcout << "D1" << std::endl << D1 << std::endl;
-  
   return D1;
 }
 
 //' @title
-//' kth order difference matrix
+//' kth order sparse difference matrix
 //' 
-//' \code{get_Dkn} computes the discrete kth derivative matrix
+//' \code{get_Dkn} computes the sparse discrete kth derivative matrix
 //' 
 //' @param n length of input
 //' @param k order of the derivative
-//' 
+//' @export
 //[[Rcpp::export]]
 arma::sp_mat get_Dk(int n, 
                      int k){
@@ -187,7 +188,8 @@ arma::sp_mat get_Dk(int n,
 //' @param theta first input
 //' @param eta second input
 //' @param D differencing matrix
-//' @param cholM upper triangular cholesky of  I + DtD
+//' @param cholM upper triangular cholesky decomposition of  I + DtD
+//' @export
 //[[Rcpp::export]]
 void project_V(arma::vec& theta,
                      arma::vec& eta,
@@ -202,7 +204,7 @@ void project_V(arma::vec& theta,
 //' @title
 //' One step of Spingarn's algorithm
 //' 
-//' \code{spingarn_one_step}
+//' \code{spingarn_one_step} updates theta and eta in place
 //' @param theta input 1
 //' @param eta input 2
 //' @param y response
@@ -211,10 +213,10 @@ void project_V(arma::vec& theta,
 //' @param lambda regularization parameter
 //' @param tau quantile parameter
 //' @param step step-size
-
+//' @export
 //[[Rcpp::export]]
-Rcpp::List spingarn_one_step(arma::vec theta, 
-                             arma::vec eta, 
+void spingarn_one_step(arma::vec& theta, 
+                             arma::vec& eta, 
                              arma::vec y, 
                              arma::sp_mat D, 
                              arma::mat cholM,
@@ -230,7 +232,6 @@ Rcpp::List spingarn_one_step(arma::vec theta,
 
   theta = theta_old + 1.9*(thetaMid - theta);
   eta = eta_old + 1.9*(etaMid - eta);
-  return Rcpp::List::create(theta=theta, eta=eta);
 }
 
 //' @title
@@ -274,7 +275,7 @@ Rcpp::List spingarn_one_step(arma::vec theta,
 //' points(x,y,pch=16)
 //' lines(x,theta_last,col='red', lwd=3)
 //[[Rcpp::export]]
-Rcpp::List spingarn_multiple(arma::vec theta,
+Rcpp::List spingarn_multi_step(arma::vec theta,
                              arma::vec eta,
                              arma::vec y,
                              arma::sp_mat D, 

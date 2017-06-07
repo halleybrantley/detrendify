@@ -4,7 +4,7 @@
 \alias{spingarn_one_step_R}
 \title{One step of Spingarn's algorithm}
 \usage{
-spingarn_one_step_R(theta, eta, y, D, lambda, tau = 0.05, t = 1, M)
+spingarn_one_step_R(theta, eta, y, D, M, lambda, tau = 0.05, t = 1)
 }
 \arguments{
 \item{theta}{input 1}
@@ -22,7 +22,8 @@ spingarn_one_step_R(theta, eta, y, D, lambda, tau = 0.05, t = 1, M)
 \item{t}{step-size}
 }
 \description{
-\code{spingarn_one_step} computes a single round of Spingarn updates.
+\code{spingarn_one_step_R} computes a single round of Spingarn updates
+using R code.
 }
 \examples{
 set.seed(12345)
@@ -33,7 +34,8 @@ tau <- 1e4
 g <-100*exp(-tau*(x-0.5)^2)
 y <- f + g + rnorm(n)
 k <- 3
-D <- get_Dk(n, k)
+D <- get_Dk_R(n, k)
+M <- diag(n) + crossprod(D)
 lambda <- 1
 tau <- 0.01
 t <- 1
@@ -43,7 +45,7 @@ eta <- matrix(D \%*\% theta)
 max_iter <- 1e2
 THx <- matrix(NA, n, max_iter)
 for (iter in 1:max_iter) {
-   one_step <- spingarn_one_step(theta, eta, y, D, lambda, tau=tau, t=t)
+   one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau=tau, t=t)
    theta <- one_step$theta
    eta <- one_step$eta
    THx[,iter] <- prox_f1(theta, y, tau)

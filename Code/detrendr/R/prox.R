@@ -1,6 +1,6 @@
 #' Quantile Proximal mapping
 #'
-#' \code{prox_quantile} computes the proximal mapping of the check function.
+#' \code{prox_quantile_R} computes the proximal mapping of the check function.
 #'
 #' @param w input
 #' @param tau quantile parameter
@@ -151,7 +151,8 @@ project_V_R <- function(theta, eta, D, M) {
 
 #' One step of Spingarn's algorithm
 #'
-#' \code{spingarn_one_step} computes a single round of Spingarn updates.
+#' \code{spingarn_one_step_R} computes a single round of Spingarn updates
+#' using R code.
 #'
 #' @param theta input 1
 #' @param eta input 2
@@ -203,5 +204,27 @@ spingarn_one_step_R <- function(theta, eta, y, D, M, lambda, tau=0.05, t=1) {
   proj_sol <- project_V_R(2*theta - theta_old, 2*eta - eta_old, D, M)
   theta <- theta_old + 1.9*(proj_sol$theta - theta)
   eta <- eta_old + 1.9*(proj_sol$eta - eta)
+  return(list(theta=theta, eta=matrix(eta)))
+}
+
+#' Multiple step of Spingarn's algorithm
+#'
+#' \code{spingarn_one_step} computes a single round of Spingarn updates.
+#'
+#' @param theta input 1
+#' @param eta input 2
+#' @param y response
+#' @param D differencing matrix
+#' @param lambda regularization parameter
+#' @param tau quantile parameter
+#' @param t step-size
+#' @export
+spingarn_multi_step_R <- function(theta, eta, y, D, M, lambda, 
+                                  tau=0.05, t=1, numberIter=1){
+  for (iter in 1:numberIter) {
+    one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
+    theta <- one_step[[1]]
+    eta <- one_step[[2]]
+  }
   return(list(theta=theta, eta=matrix(eta)))
 }

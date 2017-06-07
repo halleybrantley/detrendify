@@ -14,7 +14,7 @@ prox_quantile_R(w, tau, alpha)
 \item{alpha}{scale parameter}
 }
 \description{
-\code{prox_quantile} computes the proximal mapping of the check function.
+\code{prox_quantile_R} computes the proximal mapping of the check function.
 }
 \examples{
 set.seed(12345)
