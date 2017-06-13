@@ -6,6 +6,20 @@
 
 using namespace Rcpp;
 
+// chol_solve
+arma::vec chol_solve(arma::sp_mat cholM, arma::vec b, int k, bool upper);
+RcppExport SEXP detrendr_chol_solve(SEXP cholMSEXP, SEXP bSEXP, SEXP kSEXP, SEXP upperSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type b(bSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< bool >::type upper(upperSEXP);
+    rcpp_result_gen = Rcpp::wrap(chol_solve(cholM, b, k, upper));
+    return rcpp_result_gen;
+END_RCPP
+}
 // prox_quantile
 arma::vec prox_quantile(arma::vec w, double tau, double alpha);
 RcppExport SEXP detrendr_prox_quantile(SEXP wSEXP, SEXP tauSEXP, SEXP alphaSEXP) {
@@ -101,38 +115,40 @@ BEGIN_RCPP
 END_RCPP
 }
 // project_V
-void project_V(arma::vec& theta, arma::vec& eta, arma::sp_mat D, arma::mat cholM);
-RcppExport SEXP detrendr_project_V(SEXP thetaSEXP, SEXP etaSEXP, SEXP DSEXP, SEXP cholMSEXP) {
+void project_V(arma::vec& theta, arma::vec& eta, arma::sp_mat D, arma::sp_mat cholM, int k);
+RcppExport SEXP detrendr_project_V(SEXP thetaSEXP, SEXP etaSEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type eta(etaSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat >::type D(DSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type cholM(cholMSEXP);
-    project_V(theta, eta, D, cholM);
+    Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    project_V(theta, eta, D, cholM, k);
     return R_NilValue;
 END_RCPP
 }
 // spingarn_one_step
-void spingarn_one_step(arma::vec& theta, arma::vec& eta, arma::vec y, arma::sp_mat D, arma::mat cholM, double lambda, double tau, double step);
-RcppExport SEXP detrendr_spingarn_one_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP) {
+void spingarn_one_step(arma::vec& theta, arma::vec& eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, int k);
+RcppExport SEXP detrendr_spingarn_one_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type eta(etaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::sp_mat >::type D(DSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type cholM(cholMSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
-    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step, k);
     return R_NilValue;
 END_RCPP
 }
 // spingarn_multi_step
-Rcpp::List spingarn_multi_step(arma::vec theta, arma::vec eta, arma::vec y, arma::sp_mat D, arma::mat cholM, double lambda, double tau, double step, double numberIter);
-RcppExport SEXP detrendr_spingarn_multi_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP) {
+Rcpp::List spingarn_multi_step(arma::vec theta, arma::vec eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k);
+RcppExport SEXP detrendr_spingarn_multi_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -140,12 +156,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type eta(etaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::sp_mat >::type D(DSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type cholM(cholMSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
     Rcpp::traits::input_parameter< double >::type numberIter(numberIterSEXP);
-    rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter));
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter, k));
     return rcpp_result_gen;
 END_RCPP
 }

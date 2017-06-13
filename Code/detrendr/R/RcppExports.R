@@ -4,6 +4,20 @@
 #' @useDynLib detrendr
 #' @importFrom Rcpp evalCpp
 #' 
+#' @title 
+#' \code{chol_solve} Solves a linear system cholM%*%x=b 
+#' when cholM is a sparse banded cholesky.
+#' 
+#' @param cholM sparse banded cholseky matrix
+#' @param b dense solution vector
+#' @param k order of trend filtering
+#' @param upper indicates wheter cholM is upper or lower triangular
+#' @export
+#' 
+chol_solve <- function(cholM, b, k, upper = TRUE) {
+    .Call('detrendr_chol_solve', PACKAGE = 'detrendr', cholM, b, k, upper)
+}
+
 #' @title
 #' \code{prox_quantile} computes the proximal mapping of the check function.
 #'
@@ -131,8 +145,8 @@ get_Dk <- function(n, k) {
 #' @param D differencing matrix
 #' @param cholM upper triangular cholesky decomposition of  I + DtD
 #' @export
-project_V <- function(theta, eta, D, cholM) {
-    invisible(.Call('detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM))
+project_V <- function(theta, eta, D, cholM, k) {
+    invisible(.Call('detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM, k))
 }
 
 #' @title
@@ -148,8 +162,8 @@ project_V <- function(theta, eta, D, cholM) {
 #' @param tau quantile parameter
 #' @param step step-size
 #' @export
-spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1) {
-    invisible(.Call('detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step))
+spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, k = 3L) {
+    invisible(.Call('detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, k))
 }
 
 #' @title
@@ -192,7 +206,7 @@ spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step 
 #' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
-spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1) {
-    .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter)
+spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L) {
+    .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k)
 }
 

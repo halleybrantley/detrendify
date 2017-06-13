@@ -7,6 +7,48 @@ using namespace arma;
 //' @useDynLib detrendr
 //' @importFrom Rcpp evalCpp
 //' 
+//' @title 
+//' \code{chol_solve} Solves a linear system cholM%*%x=b 
+//' when cholM is a sparse banded cholesky.
+//' 
+//' @param cholM sparse banded cholseky matrix
+//' @param b dense solution vector
+//' @param k order of trend filtering
+//' @param upper indicates wheter cholM is upper or lower triangular
+//' @export
+//' 
+//[[Rcpp::export]]
+arma::vec chol_solve(arma::sp_mat cholM, 
+                     arma::vec b, 
+                     int k,
+                     bool upper = true){
+  int n = cholM.n_cols;
+  arma::uvec ind;
+  arma::vec x=b;
+  
+  if(upper){
+    ind = regspace<uvec>(n-1, 0);
+  } else {
+    ind = regspace<uvec>(0, n-1);
+  }
+  
+  for (int i=0; i < k+1; i++){
+    for (int j=0; j < i; j++){
+      x(ind(i)) -= cholM(ind(i), ind(j))*x(ind(j));   
+    }
+    x(ind(i)) /= cholM(ind(i), ind(i));
+  }
+  
+  for (int i=k+1; i < n; i++){
+    for (int j = i-k; j < i; j++){
+      x(ind(i)) -= cholM(ind(i), ind(j))*x(ind(j)); 
+    }
+    x(ind(i)) /= cholM(ind(i), ind(i));
+  }
+  return x;
+}
+
+
 //' @title
 //' \code{prox_quantile} computes the proximal mapping of the check function.
 //'
@@ -194,9 +236,11 @@ arma::sp_mat get_Dk(int n,
 void project_V(arma::vec& theta,
                      arma::vec& eta,
                      arma::sp_mat D, 
-                     arma::mat cholM){
+                     arma::sp_mat cholM, 
+                     int k){
   arma::vec DtEta = vectorise(D.t()*eta);
-  theta = solve(trimatu(cholM), solve(trimatl(cholM.t()), theta + DtEta));
+  theta = chol_solve(cholM, chol_solve(cholM.t(), theta + DtEta, k, false), 
+                     k, true);
   eta = D*theta;
 }
 
@@ -219,16 +263,17 @@ void spingarn_one_step(arma::vec& theta,
                              arma::vec& eta, 
                              arma::vec y, 
                              arma::sp_mat D, 
-                             arma::mat cholM,
+                             arma::sp_mat cholM,
                              double lambda, 
                              double tau = 0.05, 
-                             double step = 1){
+                             double step = 1, 
+                             int k = 3){
   arma::vec theta_old = theta;
   arma::vec eta_old = eta;
   prox(theta, eta, y, lambda, tau, step);
   arma::vec thetaMid = 2*theta-theta_old;
   arma::vec etaMid = 2*eta-eta_old;
-  project_V(thetaMid, etaMid, D, cholM);
+  project_V(thetaMid, etaMid, D, cholM, k);
 
   theta = theta_old + 1.9*(thetaMid - theta);
   eta = eta_old + 1.9*(etaMid - eta);
@@ -279,14 +324,15 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              arma::vec eta,
                              arma::vec y,
                              arma::sp_mat D, 
-                             arma::mat cholM,
+                             arma::sp_mat cholM,
                              double lambda,
                              double tau = 0.05,
                              double step = 1,
-                             double numberIter=1){
+                             double numberIter=1, 
+                             int k=3){
 
   for (int i = 0; i < numberIter; i++){
-    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step);
+    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step, k);
   }
 
   return Rcpp::List::create(theta=theta, eta=eta);
