@@ -1,6 +1,8 @@
 context("Spingarn Step")
 
-test_that("Single Spingarn step produces expected result", {
+
+
+test_that("Multiple Spingarn steps produce expected result", {
   require(Matrix)
   set.seed(12345)
   n <- 1e2
@@ -18,10 +20,13 @@ test_that("Single Spingarn step produces expected result", {
   step <- 1
   theta <- y
   eta <- as.numeric(matrix(D %*% theta))
+  multi_step <- spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, 
+                                    step, 5, k)
   
   expect_that(spingarn_multi_step_R(theta, eta, y, D, M, lambda, tau, step,5), 
               is_equivalent_to(
                 spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, 
                                     step, 5, k)))
+  expect_that(theta, equals(y))
 })
   

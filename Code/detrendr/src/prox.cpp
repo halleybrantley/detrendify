@@ -331,10 +331,11 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              double step = 1,
                              double numberIter=1, 
                              int k=3){
-
+  arma::vec theta_cp = theta;
+  arma::vec eta_cp = eta;
   for (int i = 0; i < numberIter; i++){
-    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step, k);
+    spingarn_one_step(theta_cp, eta_cp, y, D, cholM, lambda, tau, step, k);
   }
 
-  return Rcpp::List::create(theta=theta, eta=eta);
+  return Rcpp::List::create(theta=theta_cp, eta=eta_cp);
 }
