@@ -3,22 +3,26 @@
 
 #' @useDynLib detrendr
 #' @importFrom Rcpp evalCpp
+NULL
+
+#' Banded Cholesky Solve
 #' 
-#' @title 
 #' \code{chol_solve} Solves a linear system cholM%*%x=b 
 #' when cholM is a sparse banded cholesky.
 #' 
-#' @param cholM sparse banded cholseky matrix
+#' @param cholM sparse banded cholseky decomposition of discrete derivative 
+#' matrix of order k
 #' @param b dense solution vector
-#' @param k order of trend filtering
-#' @param upper indicates wheter cholM is upper or lower triangular
+#' @param k order of discrete derivative matrix
+#' @param upper boolean indicator of whether cholM is upper or lower triangular
 #' @export
 #' 
 chol_solve <- function(cholM, b, k, upper = TRUE) {
     .Call('detrendr_chol_solve', PACKAGE = 'detrendr', cholM, b, k, upper)
 }
 
-#' @title
+#' Proximal Mapping
+#' 
 #' \code{prox_quantile} computes the proximal mapping of the check function.
 #'
 #' @param w input
@@ -42,7 +46,6 @@ prox_quantile <- function(w, tau, alpha) {
     .Call('detrendr_prox_quantile', PACKAGE = 'detrendr', w, tau, alpha)
 }
 
-#' @title
 #' Proximal mapping of f_1
 #' 
 #' \code{prox_f1} computes the proximal mapping of the average quantile loss
@@ -51,13 +54,11 @@ prox_quantile <- function(w, tau, alpha) {
 #' @param y response
 #' @param tau quantile parameter
 #' @param step step-size
-#' @examples
 #' @export
 prox_f1 <- function(theta, y, tau = 0.05, step = 1.0) {
     .Call('detrendr_prox_f1', PACKAGE = 'detrendr', theta, y, tau, step)
 }
 
-#' @title
 #' Proximal mapping of f_2
 #' 
 #' \code{prox_f2} computes the proximal mapping of the L1 penalty
@@ -78,11 +79,11 @@ prox_f2 <- function(eta, lambda, step = 1) {
     .Call('detrendr_prox_f2', PACKAGE = 'detrendr', eta, lambda, step)
 }
 
-#' @title
 #' Proximal mapping
 #' 
 #' \code{prox} computes the block separable proximal mapping, changes theta
 #' and eta in place
+#' 
 #' @param theta input
 #' @param eta input
 #' @param y response
@@ -94,7 +95,6 @@ prox <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
     invisible(.Call('detrendr_prox', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step))
 }
 
-#' @title
 #' Proximal Mapping Test
 #' 
 #' \code{prox_test} computes the block separable proximal mapping.
@@ -110,7 +110,7 @@ prox_test <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
     .Call('detrendr_prox_test', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step)
 }
 
-#' @title Discrete derivative matrix
+#' Discrete derivative matrix
 #' 
 #' \code{get_D1} computes the sparse discrete derivative matrix.
 #' 
@@ -123,7 +123,6 @@ get_D1 <- function(n) {
     .Call('detrendr_get_D1', PACKAGE = 'detrendr', n)
 }
 
-#' @title
 #' kth order sparse difference matrix
 #' 
 #' \code{get_Dkn} computes the sparse discrete kth derivative matrix
@@ -135,10 +134,10 @@ get_Dk <- function(n, k) {
     .Call('detrendr_get_Dk', PACKAGE = 'detrendr', n, k)
 }
 
-#' @title 
-#' Project onto subspace (updates values of theta and eta in place)
+#' Project onto subspace 
 #' 
-#' \code{project_V} projects (theta, eta) onto the subspace eta = D%*%theta
+#' \code{project_V} projects (theta, eta) onto the subspace eta = D*theta.
+#' Updates values of theta and eta in place.
 #' 
 #' @param theta first input
 #' @param eta second input
@@ -149,7 +148,7 @@ project_V <- function(theta, eta, D, cholM, k) {
     invisible(.Call('detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM, k))
 }
 
-#' @title
+#' 
 #' One step of Spingarn's algorithm
 #' 
 #' \code{spingarn_one_step} updates theta and eta in place
@@ -166,7 +165,7 @@ spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step 
     invisible(.Call('detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, k))
 }
 
-#' @title
+#' 
 #' Multiple steps of Spingarn's algorithm
 #' 
 #' \code{spingarn_one_step}

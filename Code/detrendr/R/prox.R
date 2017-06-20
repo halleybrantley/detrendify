@@ -38,7 +38,6 @@ prox_quantile_R <- function(w, tau, alpha) {
 #' @param y response
 #' @param tau quantile parameter
 #' @param t step-size
-#' @examples
 #' set.seed(12345)
 prox_f1_R <- function(theta, y, tau = 0.05, t = 1) {
   n <- length(theta)

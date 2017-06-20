@@ -2,14 +2,15 @@
 % Please edit documentation in R/RcppExports.R
 \name{get_D1}
 \alias{get_D1}
-\title{Discrete derivative matrix
-
-\code{get_D1} computes the sparse discrete derivative matrix.}
+\title{Discrete derivative matrix}
 \usage{
 get_D1(n)
 }
 \arguments{
 \item{n}{length of input}
+}
+\description{
+\code{get_D1} computes the sparse discrete derivative matrix.
 }
 \examples{
 n <- 5

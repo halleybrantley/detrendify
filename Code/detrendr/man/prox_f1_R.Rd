@@ -13,11 +13,9 @@ prox_f1_R(theta, y, tau = 0.05, t = 1)
 
 \item{tau}{quantile parameter}
 
-\item{t}{step-size}
+\item{t}{step-size
+set.seed(12345)}
 }
 \description{
 \code{prox_f1} computes the proximal mapping of the average quantile loss
-}
-\examples{
-set.seed(12345)
 }

@@ -2,9 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_f2}
 \alias{prox_f2}
-\title{Proximal mapping of f_2
-
-\code{prox_f2} computes the proximal mapping of the L1 penalty}
+\title{Proximal mapping of f_2}
 \usage{
 prox_f2(eta, lambda, step = 1)
 }
@@ -14,6 +12,9 @@ prox_f2(eta, lambda, step = 1)
 \item{lambda}{regularization parameter}
 
 \item{step}{step-size}
+}
+\description{
+\code{prox_f2} computes the proximal mapping of the L1 penalty
 }
 \examples{
 set.seed(12345)

@@ -166,3 +166,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"detrendr_chol_solve", (DL_FUNC) &detrendr_chol_solve, 4},
+    {"detrendr_prox_quantile", (DL_FUNC) &detrendr_prox_quantile, 3},
+    {"detrendr_prox_f1", (DL_FUNC) &detrendr_prox_f1, 4},
+    {"detrendr_prox_f2", (DL_FUNC) &detrendr_prox_f2, 3},
+    {"detrendr_prox", (DL_FUNC) &detrendr_prox, 6},
+    {"detrendr_prox_test", (DL_FUNC) &detrendr_prox_test, 6},
+    {"detrendr_get_D1", (DL_FUNC) &detrendr_get_D1, 1},
+    {"detrendr_get_Dk", (DL_FUNC) &detrendr_get_Dk, 2},
+    {"detrendr_project_V", (DL_FUNC) &detrendr_project_V, 5},
+    {"detrendr_spingarn_one_step", (DL_FUNC) &detrendr_spingarn_one_step, 9},
+    {"detrendr_spingarn_multi_step", (DL_FUNC) &detrendr_spingarn_multi_step, 10},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_detrendr(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

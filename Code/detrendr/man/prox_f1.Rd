@@ -2,9 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_f1}
 \alias{prox_f1}
-\title{Proximal mapping of f_1
-
-\code{prox_f1} computes the proximal mapping of the average quantile loss}
+\title{Proximal mapping of f_1}
 \usage{
 prox_f1(theta, y, tau = 0.05, step = 1)
 }
@@ -16,4 +14,7 @@ prox_f1(theta, y, tau = 0.05, step = 1)
 \item{tau}{quantile parameter}
 
 \item{step}{step-size}
+}
+\description{
+\code{prox_f1} computes the proximal mapping of the average quantile loss
 }

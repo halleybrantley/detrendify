@@ -2,12 +2,10 @@
 % Please edit documentation in R/RcppExports.R
 \name{spingarn_multi_step}
 \alias{spingarn_multi_step}
-\title{Multiple steps of Spingarn's algorithm
-
-\code{spingarn_one_step}}
+\title{Multiple steps of Spingarn's algorithm}
 \usage{
 spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1,
-  numberIter = 1)
+  numberIter = 1, k = 3L)
 }
 \arguments{
 \item{theta}{input 1}
@@ -25,6 +23,9 @@ spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1,
 \item{numberIter}{number of iterations}
 
 \item{k}{order of derivative}
+}
+\description{
+\code{spingarn_one_step}
 }
 \examples{
 set.seed(12345)

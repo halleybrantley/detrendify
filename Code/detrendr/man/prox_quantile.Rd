@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_quantile}
 \alias{prox_quantile}
-\title{\code{prox_quantile} computes the proximal mapping of the check function.}
+\title{Proximal Mapping}
 \usage{
 prox_quantile(w, tau, alpha)
 }
@@ -12,6 +12,9 @@ prox_quantile(w, tau, alpha)
 \item{tau}{quantile parameter}
 
 \item{alpha}{scale parameter}
+}
+\description{
+\code{prox_quantile} computes the proximal mapping of the check function.
 }
 \examples{
 set.seed(12345)

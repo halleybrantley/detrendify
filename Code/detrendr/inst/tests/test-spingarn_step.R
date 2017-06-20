@@ -10,9 +10,9 @@ test_that("Single Spingarn step produces expected result", {
   g <-100*exp(-tau*(x-0.5)^2)
   y <- f + g + rnorm(n)
   k <- 3
-  D <- get_Dk_R(n, k)
+  D <- get_Dk(n, k)
   M <- diag(n) + Matrix::crossprod(D)
-  cholM <- chol(M)
+  cholM <- Matrix::chol(M)
   lambda <- 1
   tau <- 0.01
   step <- 1
