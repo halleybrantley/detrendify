@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
+#include <RcppEigen.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -165,4 +166,49 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter, k));
     return rcpp_result_gen;
 END_RCPP
+}
+// chol_solve_eigen
+Eigen::VectorXd chol_solve_eigen(Eigen::MappedSparseMatrix<double> X, Eigen::VectorXd yy);
+RcppExport SEXP detrendr_chol_solve_eigen(SEXP XSEXP, SEXP yySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MappedSparseMatrix<double> >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type yy(yySEXP);
+    rcpp_result_gen = Rcpp::wrap(chol_solve_eigen(X, yy));
+    return rcpp_result_gen;
+END_RCPP
+}
+// chol_eigen
+SEXP chol_eigen(Eigen::MappedSparseMatrix<double> X);
+RcppExport SEXP detrendr_chol_eigen(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MappedSparseMatrix<double> >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(chol_eigen(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"detrendr_chol_solve", (DL_FUNC) &detrendr_chol_solve, 4},
+    {"detrendr_prox_quantile", (DL_FUNC) &detrendr_prox_quantile, 3},
+    {"detrendr_prox_f1", (DL_FUNC) &detrendr_prox_f1, 4},
+    {"detrendr_prox_f2", (DL_FUNC) &detrendr_prox_f2, 3},
+    {"detrendr_prox", (DL_FUNC) &detrendr_prox, 6},
+    {"detrendr_prox_test", (DL_FUNC) &detrendr_prox_test, 6},
+    {"detrendr_get_D1", (DL_FUNC) &detrendr_get_D1, 1},
+    {"detrendr_get_Dk", (DL_FUNC) &detrendr_get_Dk, 2},
+    {"detrendr_project_V", (DL_FUNC) &detrendr_project_V, 5},
+    {"detrendr_spingarn_one_step", (DL_FUNC) &detrendr_spingarn_one_step, 9},
+    {"detrendr_spingarn_multi_step", (DL_FUNC) &detrendr_spingarn_multi_step, 10},
+    {"detrendr_chol_solve_eigen", (DL_FUNC) &detrendr_chol_solve_eigen, 2},
+    {"detrendr_chol_eigen", (DL_FUNC) &detrendr_chol_eigen, 1},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_detrendr(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

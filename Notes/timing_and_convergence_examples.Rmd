@@ -3,19 +3,56 @@ title: "detrendr examples"
 output: pdf_document
 ---
 
-## Some examples of baseline fitting with detrendr
 
 ```{r load, include=FALSE, echo=FALSE, cache=FALSE}
 library(Matrix)
 library(devtools)
 library(roxygen2)
 library(Rcpp)
+library(microbenchmark)
 load_all("../Code/detrendr")
 
 
 ```
 
-```{r simulate}
+# Compare cholesky decompositions and solvers
+```{r cholesky_comparison}
+nSeq <- seq(500, 20000, 500) 
+k <- 4
+
+timing <- data.frame(n=nSeq, Matrix_chol = NA, Matrix_solve = NA, 
+                     Eigen_chol = NA, chol_solve = NA)
+i <- 1
+for (n in nSeq){
+  D <- get_Dk(n, k)
+  M <-  as(Diagonal(n) + Matrix::crossprod(D), "dgCMatrix")
+  theta <- rnorm(n)
+  
+  timing$Matrix_chol[i] <- median(microbenchmark(cholM <- chol(M))$time*1e-3)
+  timing$Eigen_chol[i] <- median(microbenchmark(cholM2 <- chol_eigen(M))$time*1e-3)
+  timing$Matrix_solve[i] <- median(microbenchmark(
+    x1 <- as.numeric(Matrix::solve(cholM, Matrix::solve(t(cholM), theta))))$time*1e-3)
+  timing$chol_solve[i] <- median(microbenchmark(
+    x2 <- chol_solve(cholM, chol_solve(t(cholM), theta, k, FALSE), 
+                   k, TRUE))$time*1e-3)
+  i <- i+1
+}
+
+plot(Matrix_chol~n, timing, ylab="microseconds", 
+     main="Matrix package sparse cholesky decomposition")
+plot(chol_solve~n, timing, ylab ="microseconds", 
+     main="RcppEigen sparse cholesky decomposition")
+plot(chol_solve~n, timing, ylab = "microseconds", 
+     main="My banded cholesky solver (black) vs. Matrix solver (blue)")
+points(Matrix_solve~n, timing, col="blue")
+
+
+```
+
+
+## Some examples of baseline fitting with detrendr
+
+```{r simulate, include=FALSE, echo=FALSE}
 
 simulate <- function(n, k){
   x <- seq(1/n, 1, length.out=n)
@@ -34,155 +71,155 @@ simulate <- function(n, k){
 ```
 
 
-## Current timing experiments
-```{r timing, include=TRUE, echo=TRUE, cache=TRUE}
-nSeq <- seq(100, 1500, 200)
-timing <- data.frame(n=nSeq, R = NA, C=NA)
-tau <- 0.01
-lambda <- 10
-step <- 1
+<!-- ## Current timing experiments -->
+<!-- ```{r timing, include=FALSE, echo=FALSE, cache=TRUE, } -->
+<!-- nSeq <- seq(100, 1500, 200) -->
+<!-- timing <- data.frame(n=nSeq, R = NA, C=NA) -->
+<!-- tau <- 0.01 -->
+<!-- lambda <- 10 -->
+<!-- step <- 1 -->
 
-for (i in 1:length(nSeq)){
-  simData <- simulate(nSeq[i], 3)
-  y <- simData$y
-  theta <- simData$y
-  D <- simData$D
-  eta <- matrix(D%*%theta)
-  M <- simData$M
-  cholM <- simData$cholM
-  timing$R[i] <- system.time( 
-      multi_step_R <- spingarn_multi_step_R(theta, eta, y, D, M, lambda, 
-                                            tau, step, 100))[3]
-  timing$C[i] <- system.time(
-    multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
-                                     lambda, tau, step, 100))[3]
-}
-
-
-plot(C~n, timing, type="l", col="blue", ylab="Elapsed Time (s) per 100 iterations", main = "R code is in black, C in blue")
-lines(R~n, timing, type="l")
-```
+<!-- for (i in 1:length(nSeq)){ -->
+<!--   simData <- simulate(nSeq[i], 3) -->
+<!--   y <- simData$y -->
+<!--   theta <- simData$y -->
+<!--   D <- simData$D -->
+<!--   eta <- matrix(D%*%theta) -->
+<!--   M <- simData$M -->
+<!--   cholM <- simData$cholM -->
+<!--   timing$R[i] <- system.time(  -->
+<!--       multi_step_R <- spingarn_multi_step_R(theta, eta, y, D, M, lambda,  -->
+<!--                                             tau, step, 100))[3] -->
+<!--   timing$C[i] <- system.time( -->
+<!--     multi_step <- spingarn_multi_step(theta, eta, y, D, cholM, -->
+<!--                                      lambda, tau, step, 100))[3] -->
+<!-- } -->
 
 
-## Convergence when n=100, lambda = 10
-```{r convergence, include=TRUE, echo=TRUE, cache=TRUE}
+<!-- plot(C~n, timing, type="l", col="blue", ylab="Elapsed Time (s) per 100 iterations", main = "R code is in black, C in blue") -->
+<!-- lines(R~n, timing, type="l") -->
+<!-- ``` -->
 
-n <- 500
-simData <- simulate(n, 3)
 
-y <- simData$y
-theta <- simData$y
-D <- simData$D
-eta <- matrix(D%*%theta)
-M <- simData$M
-cholM <- simData$cholM
-tau <- 0.05
-lambda <- 10
-step <- 1
+<!-- ## Convergence when n=100, lambda = 10 -->
+<!-- ```{r convergence, include=TRUE, echo=TRUE, cache=TRUE} -->
 
-max_iter <- 70000
-rerr <- double(max_iter-1)
-THx <- matrix(NA, n, max_iter)
-for (iter in 1:max_iter) {
-  one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
-  theta <- one_step[[1]]
-  eta <- one_step[[2]]
-  THx[,iter] <- prox_f1(theta, y, tau)
-  if (iter > 1){
-    rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/
-                    (1 + norm(THx[,iter,drop=FALSE], 'f'))
-  }
-}
-theta_last <- prox_f1(theta, y, tau)
+<!-- n <- 500 -->
+<!-- simData <- simulate(n, 3) -->
 
-par(mfrow=c(2,1), mar=c(3,4,1,1))
-plot(log(rerr), type="l")
+<!-- y <- simData$y -->
+<!-- theta <- simData$y -->
+<!-- D <- simData$D -->
+<!-- eta <- matrix(D%*%theta) -->
+<!-- M <- simData$M -->
+<!-- cholM <- simData$cholM -->
+<!-- tau <- 0.05 -->
+<!-- lambda <- 10 -->
+<!-- step <- 1 -->
 
-plot(simData$x,simData$f,type='l',col='blue',
-ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="")
-points(simData$x,y, cex=.6)
-lines(simData$x,theta_last,col='red', lwd=3)
+<!-- max_iter <- 70000 -->
+<!-- rerr <- double(max_iter-1) -->
+<!-- THx <- matrix(NA, n, max_iter) -->
+<!-- for (iter in 1:max_iter) { -->
+<!--   one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step) -->
+<!--   theta <- one_step[[1]] -->
+<!--   eta <- one_step[[2]] -->
+<!--   THx[,iter] <- prox_f1(theta, y, tau) -->
+<!--   if (iter > 1){ -->
+<!--     rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/ -->
+<!--                     (1 + norm(THx[,iter,drop=FALSE], 'f')) -->
+<!--   } -->
+<!-- } -->
+<!-- theta_last <- prox_f1(theta, y, tau) -->
 
-```
+<!-- par(mfrow=c(2,1), mar=c(3,4,1,1)) -->
+<!-- plot(log(rerr), type="l") -->
 
-## Convergence when n=1000, lambda = 100
-```{r convergence2, include=TRUE, echo=FALSE, cache=TRUE}
+<!-- plot(simData$x,simData$f,type='l',col='blue', -->
+<!-- ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="") -->
+<!-- points(simData$x,y, cex=.6) -->
+<!-- lines(simData$x,theta_last,col='red', lwd=3) -->
 
-n <- 1000
-simData <- simulate(n, 3)
+<!-- ``` -->
 
-y <- simData$y
-theta <- simData$y
-D <- simData$D
-eta <- matrix(D%*%theta)
-M <- simData$M
-cholM <- simData$cholM
-tau <- 0.05
-lambda <- 100
-step <- 1
+<!-- ## Convergence when n=1000, lambda = 100 -->
+<!-- ```{r convergence2, include=TRUE, echo=FALSE, cache=TRUE} -->
 
-max_iter <- 70000
-rerr <- double(max_iter-1)
-THx <- matrix(NA, n, max_iter)
-for (iter in 1:max_iter) {
-  one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
-  theta <- one_step[[1]]
-  eta <- one_step[[2]]
-  THx[,iter] <- prox_f1(theta, y, tau)
-  if (iter > 1){
-    rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/
-                    (1 + norm(THx[,iter,drop=FALSE], 'f'))
-  }
-}
-theta_last <- prox_f1(theta, y, tau)
+<!-- n <- 1000 -->
+<!-- simData <- simulate(n, 3) -->
 
-par(mfrow=c(2,1), mar=c(3,4,1,1))
-plot(log(rerr), type="l")
+<!-- y <- simData$y -->
+<!-- theta <- simData$y -->
+<!-- D <- simData$D -->
+<!-- eta <- matrix(D%*%theta) -->
+<!-- M <- simData$M -->
+<!-- cholM <- simData$cholM -->
+<!-- tau <- 0.05 -->
+<!-- lambda <- 100 -->
+<!-- step <- 1 -->
 
-plot(simData$x,simData$f,type='l',col='blue',
-ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="")
-points(simData$x,y, cex=.6)
-lines(simData$x,theta_last,col='red', lwd=3)
+<!-- max_iter <- 70000 -->
+<!-- rerr <- double(max_iter-1) -->
+<!-- THx <- matrix(NA, n, max_iter) -->
+<!-- for (iter in 1:max_iter) { -->
+<!--   one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step) -->
+<!--   theta <- one_step[[1]] -->
+<!--   eta <- one_step[[2]] -->
+<!--   THx[,iter] <- prox_f1(theta, y, tau) -->
+<!--   if (iter > 1){ -->
+<!--     rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/ -->
+<!--                     (1 + norm(THx[,iter,drop=FALSE], 'f')) -->
+<!--   } -->
+<!-- } -->
+<!-- theta_last <- prox_f1(theta, y, tau) -->
 
-```
+<!-- par(mfrow=c(2,1), mar=c(3,4,1,1)) -->
+<!-- plot(log(rerr), type="l") -->
 
-## Convergence when n=2000, lambda = 100
-```{r convergence3, include=TRUE, echo=FALSE, cache=TRUE}
+<!-- plot(simData$x,simData$f,type='l',col='blue', -->
+<!-- ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="") -->
+<!-- points(simData$x,y, cex=.6) -->
+<!-- lines(simData$x,theta_last,col='red', lwd=3) -->
 
-n <- 2000
-simData <- simulate(n, 3)
+<!-- ``` -->
 
-y <- simData$y
-theta <- simData$y
-D <- simData$D
-eta <- matrix(D%*%theta)
-M <- simData$M
-cholM <- simData$cholM
-tau <- 0.05
-lambda <- 100
-step <- 1
+<!-- ## Convergence when n=2000, lambda = 100 -->
+<!-- ```{r convergence3, include=TRUE, echo=FALSE, cache=TRUE} -->
 
-max_iter <- 70000
-rerr <- double(max_iter-1)
-THx <- matrix(NA, n, max_iter)
-for (iter in 1:max_iter) {
-  one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
-  theta <- one_step[[1]]
-  eta <- one_step[[2]]
-  THx[,iter] <- prox_f1(theta, y, tau)
-  if (iter > 1){
-    rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/
-                    (1 + norm(THx[,iter,drop=FALSE], 'f'))
-  }
-}
-theta_last <- prox_f1(theta, y, tau)
+<!-- n <- 2000 -->
+<!-- simData <- simulate(n, 3) -->
 
-par(mfrow=c(2,1), mar=c(3,4,1,1))
-plot(log(rerr), type="l")
+<!-- y <- simData$y -->
+<!-- theta <- simData$y -->
+<!-- D <- simData$D -->
+<!-- eta <- matrix(D%*%theta) -->
+<!-- M <- simData$M -->
+<!-- cholM <- simData$cholM -->
+<!-- tau <- 0.05 -->
+<!-- lambda <- 100 -->
+<!-- step <- 1 -->
 
-plot(simData$x,simData$f,type='l',col='blue',
-ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="")
-points(simData$x,y, cex=.6)
-lines(simData$x,theta_last,col='red', lwd=3)
+<!-- max_iter <- 70000 -->
+<!-- rerr <- double(max_iter-1) -->
+<!-- THx <- matrix(NA, n, max_iter) -->
+<!-- for (iter in 1:max_iter) { -->
+<!--   one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step) -->
+<!--   theta <- one_step[[1]] -->
+<!--   eta <- one_step[[2]] -->
+<!--   THx[,iter] <- prox_f1(theta, y, tau) -->
+<!--   if (iter > 1){ -->
+<!--     rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/ -->
+<!--                     (1 + norm(THx[,iter,drop=FALSE], 'f')) -->
+<!--   } -->
+<!-- } -->
+<!-- theta_last <- prox_f1(theta, y, tau) -->
 
-```
+<!-- par(mfrow=c(2,1), mar=c(3,4,1,1)) -->
+<!-- plot(log(rerr), type="l") -->
+
+<!-- plot(simData$x,simData$f,type='l',col='blue', -->
+<!-- ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="") -->
+<!-- points(simData$x,y, cex=.6) -->
+<!-- lines(simData$x,theta_last,col='red', lwd=3) -->
+
+<!-- ``` -->

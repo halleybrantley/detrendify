@@ -17,7 +17,7 @@ using namespace arma;
 //' @param upper indicates wheter cholM is upper or lower triangular
 //' @export
 //' 
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 arma::vec chol_solve(arma::sp_mat cholM, 
                      arma::vec b, 
                      int k,
@@ -147,7 +147,7 @@ arma::vec prox_f2(arma::vec eta,
 //' @param tau quantile parameter
 //' @param step step-size
 //' @export 
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 void prox(arma::vec& theta, 
                 arma::vec& eta, 
                 arma::vec y, 
@@ -170,7 +170,7 @@ void prox(arma::vec& theta,
 //' @param tau quantile parameter
 //' @param step step-size
 //' @export 
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 Rcpp::List prox_test(arma::vec theta, 
                      arma::vec eta, 
                      arma::vec y, 
@@ -190,7 +190,7 @@ Rcpp::List prox_test(arma::vec theta,
 //' n <- 5
 //' D1 <- get_D1(n)
 //' @export
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 arma::sp_mat get_D1(int n){
   int numberNonZero = 2*(n-1);
   arma::vec values = ones<vec>(numberNonZero);
@@ -210,7 +210,7 @@ arma::sp_mat get_D1(int n){
 //' @param n length of input
 //' @param k order of the derivative
 //' @export
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 arma::sp_mat get_Dk(int n, 
                      int k){
   arma::sp_mat D = get_D1(n);
@@ -232,7 +232,7 @@ arma::sp_mat get_Dk(int n,
 //' @param D differencing matrix
 //' @param cholM upper triangular cholesky decomposition of  I + DtD
 //' @export
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 void project_V(arma::vec& theta,
                      arma::vec& eta,
                      arma::sp_mat D, 
@@ -258,7 +258,7 @@ void project_V(arma::vec& theta,
 //' @param tau quantile parameter
 //' @param step step-size
 //' @export
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 void spingarn_one_step(arma::vec& theta, 
                              arma::vec& eta, 
                              arma::vec y, 
@@ -319,7 +319,7 @@ void spingarn_one_step(arma::vec& theta,
 //' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 //' points(x,y,pch=16)
 //' lines(x,theta_last,col='red', lwd=3)
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 Rcpp::List spingarn_multi_step(arma::vec theta,
                              arma::vec eta,
                              arma::vec y,

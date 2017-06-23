@@ -210,3 +210,16 @@ spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, ste
     .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k)
 }
 
+#' @title
+#' Perform cholesky decomposition and solve linear system
+#' @param X sparse matrix
+#' @param yy vector 
+#' @export
+chol_solve_eigen <- function(X, yy) {
+    .Call('detrendr_chol_solve_eigen', PACKAGE = 'detrendr', X, yy)
+}
+
+chol_eigen <- function(X) {
+    .Call('detrendr_chol_eigen', PACKAGE = 'detrendr', X)
+}
+
