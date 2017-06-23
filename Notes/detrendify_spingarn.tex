@@ -295,6 +295,14 @@ The estimation of the quantile trend filtering model can be posed as the followi
 \end{eqnarray}
 where $\lambda$ is a nonnegative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem can be solved by a linear program. We argue that it is better solved by Spingarn's method of partial inverses.
 
+
+\section{Related Work}
+
+\begin{itemize}
+	\item Quantile splines \cite{Oh2011}
+	\item BEADS 
+\end{itemize}
+
 %% ----------------------------------------------------------------------
 %% Spingarn's method of partial inverses
 %% ----------------------------------------------------------------------
@@ -473,6 +481,10 @@ Difference with version 1: If we are interested in a 3rd order penalization, the
 	\item Do wind polar plots with and without removing trends
 	\item Compare with Splines
 \end{itemize}
+
+\section{Numerical Studies}
+
+We compare our detrending method with BEADS and the more general nonparametric quantile method introduced in  \cite{Oh2011}.
 
 \bibliographystyle{plain}
 \bibliography{detrendify}

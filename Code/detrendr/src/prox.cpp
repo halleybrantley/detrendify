@@ -6,15 +6,18 @@ using namespace arma;
 
 //' @useDynLib detrendr
 //' @importFrom Rcpp evalCpp
+
+
+//' Banded Cholesky Solve
 //' 
-//' @title 
 //' \code{chol_solve} Solves a linear system cholM%*%x=b 
 //' when cholM is a sparse banded cholesky.
 //' 
-//' @param cholM sparse banded cholseky matrix
+//' @param cholM sparse banded cholseky decomposition of discrete derivative 
+//' matrix of order k
 //' @param b dense solution vector
-//' @param k order of trend filtering
-//' @param upper indicates wheter cholM is upper or lower triangular
+//' @param k order of discrete derivative matrix
+//' @param upper boolean indicator of whether cholM is upper or lower triangular
 //' @export
 //' 
 // [[Rcpp::export]]
@@ -49,7 +52,8 @@ arma::vec chol_solve(arma::sp_mat cholM,
 }
 
 
-//' @title
+//' Proximal Mapping
+//' 
 //' \code{prox_quantile} computes the proximal mapping of the check function.
 //'
 //' @param w input
@@ -89,7 +93,7 @@ arma::vec prox_quantile(arma::vec w,
 }
 
 
-//' @title
+
 //' Proximal mapping of f_1
 //' 
 //' \code{prox_f1} computes the proximal mapping of the average quantile loss
@@ -98,7 +102,6 @@ arma::vec prox_quantile(arma::vec w,
 //' @param y response
 //' @param tau quantile parameter
 //' @param step step-size
-//' @examples
 //' @export
 // [[Rcpp::export]]
 arma::vec prox_f1(arma::vec theta, 
@@ -111,7 +114,7 @@ arma::vec prox_f1(arma::vec theta,
   return y - prox_quantile(w, tau, alpha);
 }
 
-//' @title
+
 //' Proximal mapping of f_2
 //' 
 //' \code{prox_f2} computes the proximal mapping of the L1 penalty
@@ -135,11 +138,12 @@ arma::vec prox_f2(arma::vec eta,
   return prox_quantile(eta, 0.5, 2*step*lambda);
 }
 
-//' @title
+
 //' Proximal mapping
 //' 
 //' \code{prox} computes the block separable proximal mapping, changes theta
 //' and eta in place
+//' 
 //' @param theta input
 //' @param eta input
 //' @param y response
@@ -158,7 +162,6 @@ void prox(arma::vec& theta,
   eta = prox_f2(eta, lambda, step);
 }
 
-//' @title
 //' Proximal Mapping Test
 //' 
 //' \code{prox_test} computes the block separable proximal mapping.
@@ -181,7 +184,7 @@ Rcpp::List prox_test(arma::vec theta,
   return Rcpp::List::create(theta = theta, eta = eta);
 }
 
-//' @title Discrete derivative matrix
+//' Discrete derivative matrix
 //' 
 //' \code{get_D1} computes the sparse discrete derivative matrix.
 //' 
@@ -202,7 +205,6 @@ arma::sp_mat get_D1(int n){
   return D1;
 }
 
-//' @title
 //' kth order sparse difference matrix
 //' 
 //' \code{get_Dkn} computes the sparse discrete kth derivative matrix
@@ -221,11 +223,10 @@ arma::sp_mat get_Dk(int n,
   return D;
 }
 
-
-//' @title 
-//' Project onto subspace (updates values of theta and eta in place)
+//' Project onto subspace 
 //' 
-//' \code{project_V} projects (theta, eta) onto the subspace eta = D%*%theta
+//' \code{project_V} projects (theta, eta) onto the subspace eta = D*theta.
+//' Updates values of theta and eta in place.
 //' 
 //' @param theta first input
 //' @param eta second input
@@ -245,7 +246,7 @@ void project_V(arma::vec& theta,
 }
 
 
-//' @title
+//' 
 //' One step of Spingarn's algorithm
 //' 
 //' \code{spingarn_one_step} updates theta and eta in place
@@ -279,7 +280,7 @@ void spingarn_one_step(arma::vec& theta,
   eta = eta_old + 1.9*(etaMid - eta);
 }
 
-//' @title
+//' 
 //' Multiple steps of Spingarn's algorithm
 //' 
 //' \code{spingarn_one_step}
@@ -330,10 +331,11 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              double step = 1,
                              double numberIter=1, 
                              int k=3){
-
+  arma::vec theta_cp = theta;
+  arma::vec eta_cp = eta;
   for (int i = 0; i < numberIter; i++){
-    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step, k);
+    spingarn_one_step(theta_cp, eta_cp, y, D, cholM, lambda, tau, step, k);
   }
 
-  return Rcpp::List::create(theta=theta, eta=eta);
+  return Rcpp::List::create(theta=theta_cp, eta=eta_cp);
 }

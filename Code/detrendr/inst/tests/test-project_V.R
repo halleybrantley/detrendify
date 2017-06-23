@@ -7,7 +7,7 @@ test_that("Projection onto V produces expected result", {
   n <- 1e2
   D <- get_Dk(n,k)
   M <- diag(n) + Matrix::crossprod(D)
-  cholM <- chol(M)
+  cholM <- Matrix::chol(M)
   theta <- rnorm(n)
   eta <- as.numeric(D%*%theta) + 0.01*rnorm(n-k)
   proj1 <- project_V_R(theta, eta, D, M)

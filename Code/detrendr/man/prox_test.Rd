@@ -2,10 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_test}
 \alias{prox_test}
-\title{Proximal Mapping Test
-
-\code{prox_test} computes the block separable proximal mapping.
-Returns values of theta and eta.}
+\title{Proximal Mapping Test}
 \usage{
 prox_test(theta, eta, y, lambda, tau = 0.05, step = 1)
 }
@@ -21,4 +18,8 @@ prox_test(theta, eta, y, lambda, tau = 0.05, step = 1)
 \item{tau}{quantile parameter}
 
 \item{step}{step-size}
+}
+\description{
+\code{prox_test} computes the block separable proximal mapping.
+Returns values of theta and eta.
 }

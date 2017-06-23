@@ -2,11 +2,9 @@
 % Please edit documentation in R/RcppExports.R
 \name{project_V}
 \alias{project_V}
-\title{Project onto subspace (updates values of theta and eta in place)
-
-\code{project_V} projects (theta, eta) onto the subspace eta = D%*%theta}
+\title{Project onto subspace}
 \usage{
-project_V(theta, eta, D, cholM)
+project_V(theta, eta, D, cholM, k)
 }
 \arguments{
 \item{theta}{first input}
@@ -16,4 +14,8 @@ project_V(theta, eta, D, cholM)
 \item{D}{differencing matrix}
 
 \item{cholM}{upper triangular cholesky decomposition of  I + DtD}
+}
+\description{
+\code{project_V} projects (theta, eta) onto the subspace eta = D*theta.
+Updates values of theta and eta in place.
 }

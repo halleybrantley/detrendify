@@ -38,7 +38,6 @@ prox_quantile_R <- function(w, tau, alpha) {
 #' @param y response
 #' @param tau quantile parameter
 #' @param t step-size
-#' @examples
 #' set.seed(12345)
 prox_f1_R <- function(theta, y, tau = 0.05, t = 1) {
   n <- length(theta)
@@ -79,8 +78,8 @@ prox_f2_R <- function(eta, lambda, t = 1) {
 #' @examples
 #' set.seed(12345)
 prox_R <- function(theta, eta, y, lambda, tau = 0.05, t=1) {
-  return(list(theta=prox_f1(theta, y, tau, t), 
-              eta = prox_f2(eta, lambda, t)))
+  return(list(theta=prox_f1_R(theta, y, tau, t), 
+              eta = prox_f2_R(eta, lambda, t)))
 }
 
 #' First order difference matrix

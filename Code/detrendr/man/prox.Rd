@@ -2,10 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox}
 \alias{prox}
-\title{Proximal mapping
-
-\code{prox} computes the block separable proximal mapping, changes theta
-and eta in place}
+\title{Proximal mapping}
 \usage{
 prox(theta, eta, y, lambda, tau = 0.05, step = 1)
 }
@@ -21,4 +18,8 @@ prox(theta, eta, y, lambda, tau = 0.05, step = 1)
 \item{tau}{quantile parameter}
 
 \item{step}{step-size}
+}
+\description{
+\code{prox} computes the block separable proximal mapping, changes theta
+and eta in place
 }

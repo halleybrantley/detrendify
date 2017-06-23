@@ -2,9 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{get_Dk}
 \alias{get_Dk}
-\title{kth order sparse difference matrix
-
-\code{get_Dkn} computes the sparse discrete kth derivative matrix}
+\title{kth order sparse difference matrix}
 \usage{
 get_Dk(n, k)
 }
@@ -12,4 +10,7 @@ get_Dk(n, k)
 \item{n}{length of input}
 
 \item{k}{order of the derivative}
+}
+\description{
+\code{get_Dkn} computes the sparse discrete kth derivative matrix
 }

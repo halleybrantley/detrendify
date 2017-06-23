@@ -2,11 +2,10 @@
 % Please edit documentation in R/RcppExports.R
 \name{spingarn_one_step}
 \alias{spingarn_one_step}
-\title{One step of Spingarn's algorithm
-
-\code{spingarn_one_step} updates theta and eta in place}
+\title{One step of Spingarn's algorithm}
 \usage{
-spingarn_one_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1)
+spingarn_one_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1,
+  k = 3L)
 }
 \arguments{
 \item{theta}{input 1}
@@ -24,4 +23,7 @@ spingarn_one_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1)
 \item{tau}{quantile parameter}
 
 \item{step}{step-size}
+}
+\description{
+\code{spingarn_one_step} updates theta and eta in place
 }
