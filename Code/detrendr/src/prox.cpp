@@ -332,10 +332,21 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              double numberIter=1, 
                              int k=3){
   arma::vec theta_cp = theta;
+  arma::vec theta_cur = theta_cp;
   arma::vec eta_cp = eta;
+  double rerr = 1;
   for (int i = 0; i < numberIter; i++){
     spingarn_one_step(theta_cp, eta_cp, y, D, cholM, lambda, tau, step, k);
+    if (i % 10 == 0){
+      Rcpp::checkUserInterrupt();
+      rerr = norm(theta_cp - theta_cur,2)/
+        (1+norm(theta_cp,2));
+      if (rerr < pow(10, -6)){
+        break;
+      }
+      theta_cur = theta_cp;
+    }
   }
 
-  return Rcpp::List::create(theta=theta_cp, eta=eta_cp);
+  return Rcpp::List::create(theta_cp, eta_cp, rerr);
 }

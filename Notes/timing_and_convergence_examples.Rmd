@@ -15,15 +15,47 @@ load_all("../Code/detrendr")
 
 ```
 
-# Compare cholesky decompositions and solvers
-```{r cholesky_comparison}
-nSeq <- seq(500, 20000, 500) 
-k <- 4
+# Compare cholesky decompositions and solvers as n increases
+```{r cholesky_comparison, cache=TRUE}
+nSeq <- seq(500, 50000, 500) 
+k <- 3
 
 timing <- data.frame(n=nSeq, Matrix_chol = NA, Matrix_solve = NA, 
                      Eigen_chol = NA, chol_solve = NA)
 i <- 1
 for (n in nSeq){
+  D <- get_Dk(n, k)
+  M <-  as(Diagonal(n) + Matrix::crossprod(D), "dgCMatrix")
+  theta <- rnorm(n)
+  
+  cholM <- chol(M)
+  timing$Matrix_solve[i] <- median(microbenchmark(
+    x1 <- as.numeric(Matrix::solve(cholM, Matrix::solve(t(cholM), theta))))$time*1e-3)
+  timing$chol_solve[i] <- median(microbenchmark(
+    x2 <- chol_solve(cholM, chol_solve(t(cholM), theta, k, FALSE), 
+                   k, TRUE))$time*1e-3)
+  i <- i+1
+}
+
+t1 <- M%*%x1
+plot(as.numeric(t1)~theta)
+
+plot(chol_solve~n, timing, ylab = "microseconds", 
+     main="My banded cholesky solver (black) vs. Matrix solver (blue)")
+points(Matrix_solve~n, timing, col="blue")
+abline(0, .12)
+
+```
+
+# Compare cholesky decompositions and solvers as k increases
+```{r cholesky_comparison_k, cache=TRUE}
+n <- 40
+kSeq <- seq(2, 10, 1)
+
+timing <- data.frame(k=kSeq, Matrix_chol = NA, Matrix_solve = NA, 
+                     Eigen_chol = NA, chol_solve = NA)
+i <- 1
+for (k in kSeq){
   D <- get_Dk(n, k)
   M <-  as(Diagonal(n) + Matrix::crossprod(D), "dgCMatrix")
   theta <- rnorm(n)
@@ -38,214 +70,47 @@ for (n in nSeq){
   i <- i+1
 }
 
-plot(Matrix_chol~n, timing, ylab="microseconds", 
+t1 <- M%*%x1
+plot(as.numeric(t1)~theta)
+
+plot(Matrix_chol~k, timing, ylab="microseconds", 
      main="Matrix package sparse cholesky decomposition")
-plot(chol_solve~n, timing, ylab ="microseconds", 
+plot(Eigen_chol~k, timing, ylab ="microseconds", 
      main="RcppEigen sparse cholesky decomposition")
-plot(chol_solve~n, timing, ylab = "microseconds", 
+plot(chol_solve~k, timing, ylab = "microseconds", 
      main="My banded cholesky solver (black) vs. Matrix solver (blue)")
-points(Matrix_solve~n, timing, col="blue")
+points(Matrix_solve~k, timing, col="blue")
 
 
 ```
-
-
-## Some examples of baseline fitting with detrendr
-
-```{r simulate, include=FALSE, echo=FALSE}
-
-simulate <- function(n, k){
-  x <- seq(1/n, 1, length.out=n)
-  f <- 2*(x + 2)^2 + 3*cos(3*pi*x)
-  tau <- 5e4
-  g1 <- 40*exp(-tau*(x-0.3)^2)
-  g2 <- 30*exp(-tau/2*(x-0.58)^2)
-  g4 <- 45*exp(-tau/7*(x-0.6)^2)
-  g3 <- 37*exp(-tau*(x-0.63)^2)
-  y <- f + g1 + g2 + g3 + g4 + rnorm(n)
-  D <- get_Dk(n, k)
-  M <- diag(n) + crossprod(D)
-  cholM <- Matrix::chol(M)
-  return(list(y=y, f=f, x=x, D=D, M=M, cholM=cholM))
-}
-
-compareTimeR <- function(n){
-  simData <- simulate(n, k)
-  lambda <- lambda0*n^k/factorial(k)
-  y <- simData$y
-  theta <- simData$y
-  D <- simData$D
-  eta <- matrix(D%*%theta)
-  M <- simData$M
-  cholM <- simData$cholM
-  spingarn_multi_step_R(theta, eta, y, D, M, lambda, tau, step, 500)
-}
-
-compareTimeC <- function(n){
-  simData <- simulate(n, k)
-  lambda <- lambda0*n^k/factorial(k)
-  y <- simData$y
-  theta <- simData$y
-  D <- simData$D
-  eta <- matrix(D%*%theta)
-  M <- simData$M
-  cholM <- simData$cholM
-  spingarn_multi_step(theta, eta, y, D, M, lambda, tau, step, 500)
-}
-```
-
-
-## Current timing experiments
-```{r timing, include=TRUE, echo=TRUE, cache=TRUE}
-nSeq <- seq(200, 3000, 200)
-timing <- data.frame(n=nSeq, R_mean = NA, R_lq = NA, R_uq = NA,
-                             C_mean=NA, C_lq=NA, C_uq = NA)
-tau <- 0.01
-lambda0 <- 1e-8
-step <- 1
+# Algorithm order
+```{r algorithm order, cache=TRUE}
+nSeq <- seq(500, 15000, 500) 
 k <- 3
 
-for (i in 1:length(nSeq)){
- 
-  set.seed(38912498)
-  Rbench <- microbenchmark(compareTimeR(nSeq[i]), times=100)
-  set.seed(38912498)
-  Cbench <- microbenchmark(compareTimeC(nSeq[i]), times=100)
-  
-  timing$R_mean[i] <- median(Rbench$time*1e-9)
-  timing$R_lq[i] <- quantile(Rbench$time*1e-9, .25)
-  timing$R_uq[i] <- quantile(Rbench$time*1e-9, .75)
-  timing$C_mean[i] <- median(Cbench$time*1e-9)
-  timing$C_lq[i] <- quantile(Cbench$time*1e-9, .25)
-  timing$C_uq[i] <- quantile(Cbench$time*1e-9, .75)
+timing <- data.frame(n=nSeq, multistep = NA)
+i <- 1
+for (n in nSeq){
+  D <- get_Dk(n, k)
+  M <-  as(Diagonal(n) + Matrix::crossprod(D), "dgCMatrix")
+  theta <- rnorm(n)
+  lambda0 <- 2*10^(-6)
+  lambda <- lambda0*n^(k-1)/factorial(k-1)
+  y <- rnorm(n)
+  eta <- matrix(D%*%theta)
+  tau <- 0.05
+  cholM <- chol(M)
+  timing$multistep[i] <- median(microbenchmark(
+      multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
+                                 lambda, tau, 1, 100, k)
+  )$time*1e-9)
+
+  i <- i+1
   print(i)
 }
 
-library(microbenchmark)
 
-
-
-
-
-plot(C_mean~n, timing, type="l", col="blue", ylab="Elapsed Time (s)' per 500 iterations", main = "R code is in black, C in blue")
-lines(C_lq~n, timing, col="blue")
-lines(C_uq~n, timing, col="blue")
-lines(R_mean~n, timing, type="l")
-```
-
-
-## Convergence when n=100, lambda = 10
-```{r convergence, include=TRUE, echo=TRUE, cache=TRUE}
-
-n <- 500
-simData <- simulate(n, 3)
-
-y <- simData$y
-theta <- simData$y
-D <- simData$D
-eta <- matrix(D%*%theta)
-M <- simData$M
-cholM <- simData$cholM
-tau <- 0.05
-lambda <- 10
-step <- 1
-
-max_iter <- 70000
-rerr <- double(max_iter-1)
-THx <- matrix(NA, n, max_iter)
-for (iter in 1:max_iter) {
-  one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
-  theta <- one_step[[1]]
-  eta <- one_step[[2]]
-  THx[,iter] <- prox_f1(theta, y, tau)
-  if (iter > 1){
-    rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/
-                    (1 + norm(THx[,iter,drop=FALSE], 'f'))
-  }
-}
-theta_last <- prox_f1(theta, y, tau)
-
-par(mfrow=c(2,1), mar=c(3,4,1,1))
-plot(log(rerr), type="l")
-
-plot(simData$x,simData$f,type='l',col='blue',
-ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="")
-points(simData$x,y, cex=.6)
-lines(simData$x,theta_last,col='red', lwd=3)
+plot(multistep~n, timing, ylab="Seconds", xlab = "n", main = "100 steps of algorithm")
+abline(0, 2.95*1e-6)
 
 ```
-
-## Convergence when n=1000, lambda = 100
-```{r convergence2, include=TRUE, echo=FALSE, cache=TRUE}
-
-n <- 1000
-simData <- simulate(n, 3)
-
-y <- simData$y
-theta <- simData$y
-D <- simData$D
-eta <- matrix(D%*%theta)
-M <- simData$M
-cholM <- simData$cholM
-tau <- 0.05
-lambda <- 100
-step <- 1
-
-max_iter <- 70000
-rerr <- double(max_iter-1)
-THx <- matrix(NA, n, max_iter)
-for (iter in 1:max_iter) {
-  one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
-  theta <- one_step[[1]]
-  eta <- one_step[[2]]
-  THx[,iter] <- prox_f1(theta, y, tau)
-  if (iter > 1){
-    rerr[iter] <- norm(as.matrix(THx[,iter] - THx[,iter-1]),'f')/
-                    (1 + norm(THx[,iter,drop=FALSE], 'f'))
-  }
-}
-theta_last <- prox_f1(theta, y, tau)
-
-par(mfrow=c(2,1), mar=c(3,4,1,1))
-plot(log(rerr), type="l")
-
-plot(simData$x,simData$f,type='l',col='blue',
-ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="")
-points(simData$x,y, cex=.6)
-lines(simData$x,theta_last,col='red', lwd=3)
-
-```
-
-## Convergence when n=2000, lambda = 100
-```{r convergence3, include=TRUE, echo=FALSE, cache=TRUE}
-lambda0 <- 2*10^(-6)
-n <- 1000
-k <- 3
-simData <- simulate(n, k)
-
-y <- simData$y
-theta <- simData$y
-D <- simData$D
-eta <- matrix(D%*%theta)
-M <- simData$M
-cholM <- simData$cholM
-tau <- 0.05
-lambda <- lambda0*n^k/factorial(k)
-step <- 1
-
-max_iter <- 100000
-
-multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
-                                 lambda, tau, step, max_iter, k)
-
-theta <- multi_step[[1]]
-eta <- multi_step[[2]]
-theta_last <- prox_f1(theta, y, tau)
-
-plot(simData$x,simData$f,type='l',col='blue',
-ylim=c(min(y),max(y)), lwd=3,ylab="", xlab="")
-points(simData$x,y, cex=.6)
-lines(simData$x,theta_last,col='purple', lwd=3)
-
-```
-

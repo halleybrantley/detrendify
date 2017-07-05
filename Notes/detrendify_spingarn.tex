@@ -15,6 +15,7 @@
 \usepackage{amsmath,amsfonts,amssymb,amsthm}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\graphicspath{{./Figures/}}
 
 %% For special lists like inparaenum, compactenum, compactitem
 \usepackage{paralist}
@@ -202,7 +203,26 @@
 %% ----------------------------------------------------------------------
 \section{Introduction}
 
-We introduce a linear time algorithm for removing trends in time series.
+\subsection{Background}
+
+\textbf{Oh, Lee, and Nychka 2011 - Fast Nonparametric Quantile Regression With Arbitrary Smoothing Method} Unified framework for non-parametric quantile regression by approximating check loss function with quadratic loss near zero.\\
+\textbf{Kim, Koh, Boyd, and Gorinevsky 2009} - Introduce the concept of l1 trend filtering.\\
+\textbf{Tibshirani, 2014 - Adaptive piecewise polynomial estimation via trend filtering} Describes properties of trend filtering using quadratic loss. Shows that trend filtering estimates adapt to the local level of smoothness much better than smoothing splines, and exhibit
+a remarkable similarity to locally adaptive regression splines. Prove that (with the right choice of tuning parameter) the trend filtering estimate
+converges to the true underlying function at the minimax rate for functions whose kth derivative is of bounded variation.\\
+\textbf{Ning, Selesnick, Duval 2014 - Chromatogram baseline estimation and denoising using sparsity (BEADS)} Address problem of estimating a smooth baseline in noisy data with drift. \\
+We propose to use the trend filtering penalty with the check loss function to produce a non-parametric quantile regression estimate that can be computes using a linear time algorithm for removing trends in time series. Can be extended to model multiple quantiles and ensure non-crossing. 
+
+\subsection{Application}
+
+	 \begin{figure}[!h] 
+	 	\caption{Raw Data - three collocated sensors}
+		\includegraphics[width = 5in]{spodRaw.png}
+	\end{figure}
+	 \begin{figure}[!h] 
+	 	\caption{Detrended data - three collocated sensors}
+	\includegraphics[width = 5in]{spodDetrended.png}
+	\end{figure}
 
 Examples:
 \begin{itemize}
