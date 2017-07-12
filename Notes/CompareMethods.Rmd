@@ -12,9 +12,14 @@ library(roxygen2)
 library(Rcpp)
 library(microbenchmark)
 load_all("../Code/detrendr")
-################################################################################
-n <- 24*60*60/20
+```
 
+```{r Sim}
+################################################################################
+set.seed(39207491)
+n <- 24*60*60/20
+x <- seq(1, n, 1)
+distmat <- rdist(x)
 COV <- exp(-distmat^2/(n*5)) + 0.000001*diag(n)
 L <- chol(COV)  
 
@@ -22,9 +27,8 @@ numberOfPeaks <- round(runif(1)*n/30)
 peakCenters <- round(runif(numberOfPeaks)*n)
 peakHeight <- runif(numberOfPeaks)*10
 peakWidths <- round(runif(numberOfPeaks)*20) + 2
-wn <- .5*matrix(rnorm(n), ncol=1)
-x <- seq(1, n, 1)
-distmat <- rdist(x)
+wn <- .2*matrix(rnorm(n), ncol=1)
+
 
 baseline <- t(L)%*%wn
 y <- baseline 
@@ -33,32 +37,37 @@ for (i in 1:numberOfPeaks){
   y <- y + peakHeight[i]*dnorm(x, mean=peakCenters[i], sd = peakWidths[i])
 }
 
+noise <- .03*rnorm(n)
+y <- y + noise
+df <- data.frame(y=y, baseline=baseline, noise=noise)
 plot(y~x, type="l")
 lines(baseline~x, col="blue")
 
 k <- 3
-lambda0 <- 2*1e-5
-theta <- y
+lambda0 <- 3*1e-5
+lambda <- lambda0*n^k/factorial(k)
+tau <- .05
+theta <- warmStart(y, k, lambda, tau, 5)
 D <- get_Dk(n, k)
 eta <- matrix(D%*%theta)
 M <- Diagonal(n) + crossprod(D)
 cholM <- Matrix::chol(M)
-lambda <- lambda0*n^k/factorial(k)
+
 
 multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
-                                 lambda, tau, 1, 50000, k)
+                                 lambda, .05, 1, 30000, k)
 
 multi_step[[3]]
 
-
-theta <- multi_step[[1]]
-eta <- multi_step[[2]]
-theta_last <- prox_f1(theta, y, tau)
+theta_last <- prox_f1(multi_step[[1]], y, tau)
 
 plot(y~x, type="l")
 lines(baseline~x, col="red")
 lines(theta_last~x, col="blue")
 
+mean((baseline-theta_last)^2)
+
+write.csv(df, file="Sim1.csv")
 ```
 
 
