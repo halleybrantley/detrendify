@@ -9,12 +9,14 @@
 #' @param tau quantile level
 #' @param reduction number of observations to aggregate
 #' @export
-warmStart <- function(y, k, lambda, tau, reduction){
+warmStart <- function(y, k, lambda0, tau, reduction){
+  require(dplyr)
   x <- seq(1, length(y), 1)
   df <- data.frame(y=y, x=x)
-  df$xBreaks <- cut(df$x, seq(1, length(x), reduction))
+  df$xBreaks <- cut(df$x, seq(0, length(x)+reduction, reduction))
   dfAgg <- ddply(df, .(xBreaks), summarize, 
-                 yMean = mean(y))
+                 yMean = quantile(y, probs=get("tau"))
+                 )
   
   y2 <- dfAgg$yMean
   theta <- y2
@@ -23,12 +25,15 @@ warmStart <- function(y, k, lambda, tau, reduction){
   M <- Diagonal(n) + Matrix::crossprod(D)
   cholM <- Matrix::chol(M)
   eta <- matrix(D%*%theta)
-  multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
-                                    lambda, tau, 1, 10000, k)
-  dfAgg$theta <- prox_f1(multi_step[[1]], y2, tau)
-  # plot(y2, type="l")
-  # lines(dfAgg$theta, col="red")
+  lambda <- lambda0*n^(k-1)/factorial(k-1)
   
-  dfAll <- merge(df, dfAgg)
+  multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
+                                    lambda, tau, 1, 20000, k)
+  dfAgg$theta <- prox_f1(multi_step[[1]], y2, tau)
+  plot(y2, type="l")
+  lines(dfAgg$theta, col="red")
+  
+  dfAll <- merge(df, dfAgg, by = "xBreaks")
+  dfAll <- dfAll[order(dfAll$x), ]
   return(dfAll$theta)
 }
