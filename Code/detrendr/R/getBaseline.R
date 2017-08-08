@@ -12,11 +12,11 @@
 #' @examples 
 #' 
 #' @export
-getBaseline <- function(y, lambda0 = 1e-7, maxiter = 20000){
+getBaseline <- function(y, lambda0 = 1e-7, maxiter = 30000){
   y0 <- y
   if(is.na(y[length(y)])) {y[length(y)] <- y[max(which(!is.na(y)))]}
   y <- zoo::na.locf(y, fromLast = TRUE)
-  tau <- .02
+  tau <- .10
   k <- 3
   n <- length(y)
   theta <- y
