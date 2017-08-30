@@ -28,7 +28,7 @@ warmStart <- function(y, k, lambda0, tau, reduction){
   lambda <- lambda0*n^(k-1)/factorial(k-1)
   
   multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
-                                    lambda, tau, 1, 20000, k)
+                                    lambda, tau, 1, 10000, k)
   dfAgg$theta <- prox_f1(multi_step[[1]], y2, tau)
   plot(y2, type="l")
   lines(dfAgg$theta, col="red")
