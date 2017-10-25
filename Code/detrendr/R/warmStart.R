@@ -15,8 +15,7 @@ warmStart <- function(y, k, lambda0, tau, reduction){
   df <- data.frame(y=y, x=x)
   df$xBreaks <- cut(df$x, seq(0, length(x)+reduction, reduction))
   dfAgg <- ddply(df, .(xBreaks), summarize, 
-                 yMean = quantile(y, probs=get("tau"))
-                 )
+                 yMean = quantile(y, probs=get("tau")))
   
   y2 <- dfAgg$yMean
   theta <- y2
@@ -28,7 +27,10 @@ warmStart <- function(y, k, lambda0, tau, reduction){
   lambda <- lambda0*n^(k-1)/factorial(k-1)
   
   multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
-                                    lambda, tau, 1, 10000, k)
+                                    lambda, tau, (max(y2)-min(y2))/5, 10000, k)
+  
+  plot(log(multi_step[[3]]), type="l")
+  
   dfAgg$theta <- prox_f1(multi_step[[1]], y2, tau)
   plot(y2, type="l")
   lines(dfAgg$theta, col="red")

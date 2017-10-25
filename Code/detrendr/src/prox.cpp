@@ -334,14 +334,15 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
   arma::vec theta_cp = theta;
   arma::vec theta_cur = theta_cp;
   arma::vec eta_cp = eta;
-  arma::vec rerr = exp(-13)*ones<vec>(numberIter);
+  double thresh = -13;
+  arma::vec rerr = exp(thresh)*ones<vec>(numberIter);
   for (int i = 0; i < numberIter; i++){
     spingarn_one_step(theta_cp, eta_cp, y, D, cholM, 
                       lambda, tau, step, k);
     Rcpp::checkUserInterrupt();
     rerr(i) = norm(theta_cp - theta_cur,2)/
       (1+norm(theta_cp,2));
-    if (log(rerr(i)) < -13){
+    if (log(rerr(i)) < thresh){
       break;
     }
     theta_cur = theta_cp;

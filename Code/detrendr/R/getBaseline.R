@@ -13,7 +13,7 @@
 #' 
 #' @export
 
-getBaseline <- function(y, lambda0 = 0.1, maxiter = 20000, tau=0.05){
+getBaseline <- function(y, lambda0 = 1e-10, maxiter = 20000, tau=0.05){
   y0 <- y
   if(is.na(y[length(y)])) {y[length(y)] <- y[max(which(!is.na(y)))]}
   y <- zoo::na.locf(y, fromLast = TRUE)
@@ -25,13 +25,14 @@ getBaseline <- function(y, lambda0 = 0.1, maxiter = 20000, tau=0.05){
   M <- Diagonal(n) + Matrix::crossprod(D)
   cholM <- Matrix::chol(M)
   lambda <- lambda0*n^(k-1)/factorial(k-1)
+  theta <- warmStart(y, k, lambda0, tau, 5)
   multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
-                                  lambda, tau, 1, 50000, k)
-
+                                    lambda, tau, (max(y)-min(y))/5, maxiter, k)
+  plot(log(multi_step[[3]]), type="l")
   theta <- multi_step[[1]]
   theta_last <- prox_f1(theta, y, tau)
+  theta_last[which(is.na(y0))] <- NA
   plot(y, type="l")
   lines(theta_last, col="red")
-
   return(theta_last)
 }
