@@ -276,8 +276,8 @@ void spingarn_one_step(arma::vec& theta,
   arma::vec etaMid = 2*eta-eta_old;
   project_V(thetaMid, etaMid, D, cholM, k);
 
-  theta = theta_old + 1.9*(thetaMid - theta);
-  eta = eta_old + 1.9*(etaMid - eta);
+  theta = theta_old + 1*(thetaMid - theta);
+  eta = eta_old + 1*(etaMid - eta);
 }
 
 //' 
@@ -334,18 +334,17 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
   arma::vec theta_cp = theta;
   arma::vec theta_cur = theta_cp;
   arma::vec eta_cp = eta;
-  double rerr = 1;
+  arma::vec rerr = exp(-13)*ones<vec>(numberIter);
   for (int i = 0; i < numberIter; i++){
-    spingarn_one_step(theta_cp, eta_cp, y, D, cholM, lambda, tau, step, k);
-    if (i % 10 == 0){
-      Rcpp::checkUserInterrupt();
-      rerr = norm(theta_cp - theta_cur,2)/
-        (1+norm(theta_cp,2));
-      if (rerr < pow(10, -6)){
-        break;
-      }
-      theta_cur = theta_cp;
+    spingarn_one_step(theta_cp, eta_cp, y, D, cholM, 
+                      lambda, tau, step, k);
+    Rcpp::checkUserInterrupt();
+    rerr(i) = norm(theta_cp - theta_cur,2)/
+      (1+norm(theta_cp,2));
+    if (log(rerr(i)) < -13){
+      break;
     }
+    theta_cur = theta_cp;
   }
 
   return Rcpp::List::create(theta_cp, eta_cp, rerr);
