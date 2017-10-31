@@ -7,6 +7,26 @@ using namespace arma;
 //' @useDynLib detrendr
 //' @importFrom Rcpp evalCpp
 
+//' Check loss function
+//' \code{check_loss} Evaluates check loss function 
+//' @param r vector of residuals
+//' @param tau quantile level must be in [0,1]
+//' @export 
+//' 
+// [[Rcpp::export]]
+double check_loss(arma::vec r, 
+                  double tau){
+  double f = 0.0;
+  for (int i = 0; i < r.n_elem; i++){
+    if (r(i) > 0){
+      f += tau*r(i);
+    } else {
+      f += (tau-1)*r(i);
+    }
+  }
+  return f;
+}
+
 
 //' Banded Cholesky Solve
 //' 
@@ -110,8 +130,7 @@ arma::vec prox_f1(arma::vec theta,
                   double step = 1.0){
   int n = theta.n_elem;
   arma::vec w = y - theta;
-  double alpha = step/n;
-  return y - prox_quantile(w, tau, alpha);
+  return y - prox_quantile(w, tau, step);
 }
 
 
@@ -334,19 +353,26 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
   arma::vec theta_cp = theta;
   arma::vec theta_cur = theta_cp;
   arma::vec eta_cp = eta;
-  double thresh = -13;
-  arma::vec rerr = exp(thresh)*ones<vec>(numberIter);
-  for (int i = 0; i < numberIter; i++){
+  arma::vec f1 = zeros<vec>(numberIter);
+  arma::vec f2 = zeros<vec>(numberIter);
+  arma::vec fmean = zeros<vec>(numberIter);
+  f1(0) = check_loss(y-theta_cp, tau);
+  f2(0) = lambda*norm(eta_cp,1);
+  fmean(0) =  f1(0)+f2(0);
+  
+  for (int i = 1; i < numberIter; i++){
     spingarn_one_step(theta_cp, eta_cp, y, D, cholM, 
                       lambda, tau, step, k);
-    Rcpp::checkUserInterrupt();
-    rerr(i) = norm(theta_cp - theta_cur,2)/
-      (1+norm(theta_cp,2));
-    if (log(rerr(i)) < thresh){
+    f1(i) = check_loss(y-prox_f1(theta_cp, y, tau), tau);
+    f2(i) = lambda*norm(prox_f2(eta_cp, lambda, step),1);
+    fmean(i) = (fmean(i-1)*i + f1(i) + f2(i))/(i+1);
+    if (fmean(i)-fmean(i-1) > 0) {
       break;
     }
-    theta_cur = theta_cp;
+    if (i % 100 == 0){
+      Rcpp::checkUserInterrupt(); 
+    }
   }
-
-  return Rcpp::List::create(theta_cp, eta_cp, rerr);
+  
+  return Rcpp::List::create(theta_cp, eta_cp, fmean, f1, f2);
 }

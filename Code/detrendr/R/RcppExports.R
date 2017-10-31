@@ -5,6 +5,16 @@
 #' @importFrom Rcpp evalCpp
 NULL
 
+#' Check loss function
+#' \code{check_loss} Evaluates check loss function 
+#' @param r vector of residuals
+#' @param tau quantile level must be in [0,1]
+#' @export 
+#' 
+check_loss <- function(r, tau) {
+    .Call('detrendr_check_loss', PACKAGE = 'detrendr', r, tau)
+}
+
 #' Banded Cholesky Solve
 #' 
 #' \code{chol_solve} Solves a linear system cholM%*%x=b 
