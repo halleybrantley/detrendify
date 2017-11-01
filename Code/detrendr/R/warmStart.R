@@ -24,7 +24,7 @@ warmStart <- function(y, k, lambda0, tau, reduction){
   M <- Diagonal(n) + Matrix::crossprod(D)
   cholM <- Matrix::chol(M)
   eta <- matrix(D%*%theta)
-  lambda <- lambda0*n^2/(1000^2)
+  lambda <- lambda0*n^2/(factorial(k)*1000^2)
 
   multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
                                     lambda, tau, .2, 

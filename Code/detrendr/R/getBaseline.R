@@ -28,7 +28,7 @@ getBaseline <- function(y, lambda0 = 1e-10, maxiter = 20000, tau=0.05){
   # theta <- y
   # eta <- matrix(D%*%theta)
   
-  lambda <- lambda0*n^2/(1000^2)
+  lambda <- lambda0*n^2/(factorial(k)*1000^2)
   step <- .2
   multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
                                      lambda, tau, step, 10000, k)
