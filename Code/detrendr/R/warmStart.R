@@ -24,16 +24,16 @@ warmStart <- function(y, k, lambda0, tau, reduction){
   M <- Diagonal(n) + Matrix::crossprod(D)
   cholM <- Matrix::chol(M)
   eta <- matrix(D%*%theta)
-  lambda <- lambda0*n^2/(factorial(k)*1000^2)
+  lambda <- lambda0
 
   multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
-                                    lambda, tau, .2, 
-                                    5000, k)
+                                    lambda, tau, 1, 
+                                    10000, k)
   
   dfAgg$theta <- prox_f1(multi_step[[1]], y2, tau)
   # plot(y2, type="l")
-  # lines(dfAgg$theta, col="blue")
-  
+  # lines(dfAgg$theta, col="red")
+
   dfAll <- merge(df, dfAgg, by = "xBreaks")
   dfAll <- dfAll[order(dfAll$x), ]
   return(dfAll$theta)
