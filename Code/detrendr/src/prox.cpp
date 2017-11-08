@@ -356,23 +356,32 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
   arma::vec f1 = zeros<vec>(numberIter);
   arma::vec f2 = zeros<vec>(numberIter);
   arma::vec fmean = zeros<vec>(numberIter);
-  f1(0) = check_loss(y-theta_cp, tau);
-  f2(0) = lambda*norm(eta_cp,1);
+  f1(0) = check_loss(y-prox_f1(theta_cp, y, tau, step), tau);
+  f2(0) = lambda*norm(prox_f2(eta_cp, lambda, step),1);
   fmean(0) =  f1(0)+f2(0);
-  
+  int endIter = numberIter;
+  int avgNum = 200;
+  int n = theta.n_elem;
+  if (lambda/n > 200){
+    avgNum = lambda/n;
+  }
   for (int i = 1; i < numberIter; i++){
     spingarn_one_step(theta_cp, eta_cp, y, D, cholM, 
                       lambda, tau, step, k);
-    f1(i) = check_loss(y-prox_f1(theta_cp, y, tau), tau);
-    f2(i) = lambda*norm(prox_f2(eta_cp, lambda, step),1);
-    fmean(i) = (fmean(i-1)*i + f1(i) + f2(i))/(i+1);
-    if (fmean(i)-fmean(i-1) > 0) {
-      break;
-    }
+    f1(i) = norm(theta_cp);
+    // f1(i) = check_loss(y-prox_f1(theta_cp, y, tau, step), tau);
+    // f2(i) = lambda*norm(prox_f2(eta_cp, lambda, step),1);
+    // fmean(i) = (fmean(i-1)*(avgNum-1) + f1(i) + f2(i))/(avgNum);
+    // if(i > avgNum){
+    //   if (fmean(i)-fmean(i-1) > 0) {
+    //     endIter = i;
+    //     break;
+    //   }
+    // }
     if (i % 100 == 0){
       Rcpp::checkUserInterrupt(); 
     }
   }
   
-  return Rcpp::List::create(theta_cp, eta_cp, fmean, f1, f2);
+  return Rcpp::List::create(theta_cp, eta_cp, fmean, f1, f2, endIter);
 }

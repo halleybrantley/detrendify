@@ -20,7 +20,11 @@ getBaseline <- function(y, lambda0 = 1e-10, maxiter = 20000, tau=0.05){
   k <- 4
   n <- length(y)
   D <- get_Dk(n, k)
-  theta <- warmStart(y, k, lambda0, tau, 10)
+  lambda <- 1
+  step <- 1
+  tau <- .1
+  theta20 <- warmStart(y, k, lambda, step, tau, 20)
+  
   eta <- matrix(D%*%theta)
   M <- Diagonal(n) + Matrix::crossprod(D)
   cholM <- Matrix::chol(M)
@@ -42,7 +46,7 @@ getBaseline <- function(y, lambda0 = 1e-10, maxiter = 20000, tau=0.05){
   
   theta_last[which(is.na(y0))] <- NA
   plot(y, type="l")
-  lines(theta, col="red")
+  lines(theta20, col="red")
   lines(theta_last, col="blue")
   
   return(theta_last)
