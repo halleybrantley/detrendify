@@ -219,6 +219,22 @@ spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, ste
     .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k)
 }
 
+#' 
+#' Spingarn's algorithm multiple initial values
+#' 
+#' \code{spingarn_multistart}
+#' @param y response
+#' @param k order of derivative 
+#' @param lambda regularization parameter
+#' @param tau quantile parameter
+#' @param step step-size
+#' @param numberIter number of iterations
+#' @export
+#' @examples
+spingarn_multistart <- function(theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L) {
+    .Call('detrendr_spingarn_multistart', PACKAGE = 'detrendr', theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau, step, numberIter, k)
+}
+
 #' @title
 #' Perform cholesky decomposition and solve linear system
 #' @param X sparse matrix

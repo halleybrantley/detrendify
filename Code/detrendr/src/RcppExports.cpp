@@ -179,6 +179,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// spingarn_multistart
+Rcpp::List spingarn_multistart(arma::vec theta1, arma::vec eta1, arma::vec theta2, arma::vec eta2, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k);
+RcppExport SEXP detrendr_spingarn_multistart(SEXP theta1SEXP, SEXP eta1SEXP, SEXP theta2SEXP, SEXP eta2SEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type theta1(theta1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type eta1(eta1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta2(theta2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type eta2(eta2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat >::type D(DSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< double >::type numberIter(numberIterSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(spingarn_multistart(theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau, step, numberIter, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // chol_solve_eigen
 Eigen::VectorXd chol_solve_eigen(Eigen::MappedSparseMatrix<double> X, Eigen::VectorXd yy);
 RcppExport SEXP detrendr_chol_solve_eigen(SEXP XSEXP, SEXP yySEXP) {
@@ -216,6 +238,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"detrendr_project_V", (DL_FUNC) &detrendr_project_V, 5},
     {"detrendr_spingarn_one_step", (DL_FUNC) &detrendr_spingarn_one_step, 9},
     {"detrendr_spingarn_multi_step", (DL_FUNC) &detrendr_spingarn_multi_step, 10},
+    {"detrendr_spingarn_multistart", (DL_FUNC) &detrendr_spingarn_multistart, 12},
     {"detrendr_chol_solve_eigen", (DL_FUNC) &detrendr_chol_solve_eigen, 2},
     {"detrendr_chol_eigen", (DL_FUNC) &detrendr_chol_eigen, 1},
     {NULL, NULL, 0}
