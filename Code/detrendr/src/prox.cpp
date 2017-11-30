@@ -281,6 +281,7 @@ void project_V(arma::vec& theta,
 // [[Rcpp::export]]
 void spingarn_one_step(arma::vec& theta, 
                              arma::vec& eta, 
+                             arma::vec& Vdiff,
                              arma::vec y, 
                              arma::sp_mat D, 
                              arma::sp_mat cholM,
@@ -291,6 +292,7 @@ void spingarn_one_step(arma::vec& theta,
   arma::vec theta_old = theta;
   arma::vec eta_old = eta;
   prox(theta, eta, y, lambda, tau, step);
+  Vdiff(0) = norm(D*theta - eta, "inf");
   arma::vec thetaMid = 2*theta-theta_old;
   arma::vec etaMid = 2*eta-eta_old;
   project_V(thetaMid, etaMid, D, cholM, k);
@@ -351,6 +353,7 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              double numberIter=1, 
                              int k=3){
   double thetaMean = mean(theta);
+  arma::vec Vdiff = zeros<vec>(1);
   arma::vec theta_cp = theta;
   arma::vec eta_cp = eta;
   arma::vec theta_norm = zeros<vec>(numberIter);
@@ -361,7 +364,7 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
   eta_norm(0) = norm(eta_cp,1);
   int j = numberIter;
   for (int i = 1; i < numberIter; i++){
-    spingarn_one_step(theta_cp, eta_cp, y, D, cholM, 
+    spingarn_one_step(theta_cp, eta_cp, Vdiff, y, D, cholM, 
                       lambda, tau, step, k);
     theta_norm(i) = norm(theta_cp,1);
     rel_norm(i) =  log((std::abs(theta_norm(i)-theta_norm(i-1)))) - 
@@ -412,13 +415,16 @@ Rcpp::List spingarn_multistart(arma::vec theta1,
                                int k=3){
   
   int n = y.n_elem;
+  arma::vec Vdiff = zeros<vec>(1);
   arma::vec normDiff = zeros<vec>(numberIter);
+  arma::vec diffVec = zeros<vec>(numberIter);
   int j = numberIter-1;
   double meanY = mean(y);
   for (int i = 0; i < numberIter; i++){
-    spingarn_one_step(theta1, eta1, y, D, cholM, 
+    spingarn_one_step(theta1, eta1, Vdiff, y, D, cholM, 
                       lambda, tau, step, k);
-    spingarn_one_step(theta2, eta2, y, D, cholM, 
+    diffVec(i) = Vdiff(0);
+    spingarn_one_step(theta2, eta2, Vdiff, y, D, cholM, 
                       lambda, tau, step, k);
     normDiff(i) = norm(theta1 - theta2, "inf");
     if (i % 100 == 0){
@@ -430,11 +436,13 @@ Rcpp::List spingarn_multistart(arma::vec theta1,
     }
   }
   normDiff = normDiff.subvec(0, j);
+  diffVec = diffVec.subvec(0, j);
   prox(theta1, eta1, y, lambda, tau, step);
   prox(theta2, eta2, y, lambda, tau, step);
   return Rcpp::List::create(Named("theta1")=theta1, 
                             _["eta1"]=eta1, 
                             _["theta2"]=theta2, 
                             _["eta2"]=eta2, 
-                            _["normDiff"] = normDiff);
+                            _["normDiff"] = normDiff, 
+                            _["vDiff"] = diffVec);
 }

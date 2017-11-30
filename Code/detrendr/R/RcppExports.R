@@ -171,8 +171,8 @@ project_V <- function(theta, eta, D, cholM, k) {
 #' @param tau quantile parameter
 #' @param step step-size
 #' @export
-spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, k = 3L) {
-    invisible(.Call('detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, k))
+spingarn_one_step <- function(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05, step = 1, k = 3L) {
+    invisible(.Call('detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, Vdiff, y, D, cholM, lambda, tau, step, k))
 }
 
 #' 
