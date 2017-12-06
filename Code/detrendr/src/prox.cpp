@@ -130,7 +130,7 @@ arma::vec prox_f1(arma::vec theta,
                   double step = 1.0){
   int n = theta.n_elem;
   arma::vec w = y - theta;
-  return y - prox_quantile(w, tau, step);
+  return y - prox_quantile(w, tau, step/n);
 }
 
 
