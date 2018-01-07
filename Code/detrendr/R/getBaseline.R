@@ -13,30 +13,22 @@
 #' 
 #' @export
 
-getBaseline <- function(y, lambda0 = 1e-10, maxiter = 20000, tau=0.05){
+getBaseline <- function(y, lambda0 = 1e-10, tau=0.05){
   y0 <- y
   if(is.na(y[length(y)])) {y[length(y)] <- y[max(which(!is.na(y)))]}
   y <- zoo::na.locf(y, fromLast = TRUE)
-  k <- 4
+  k <- 3
   n <- length(y)
   D <- get_Dk(n, k)
-  lambda <- 1
-  step <- 1
-  tau <- .1
-  theta20 <- warmStart(y, k, lambda, step, tau, 20)
+  lambda <- lambda0
+  theta <- warmStart(y, k, lambda, 5/n, tau, 5, n*600/5)
   
   eta <- matrix(D%*%theta)
   M <- Diagonal(n) + Matrix::crossprod(D)
   cholM <- Matrix::chol(M)
 
-  # theta <- y
-  # eta <- matrix(D%*%theta)
-  
-  lambda <- lambda0*1000*k
-  step <- 10^(-log(lambda, 10)+1)
-  maxiter <- 30000
-  multi_step <- spingarn_multi_step(theta, eta, y, D, cholM,
-                                     lambda, tau, step, maxiter, k)
+  multi_step <- spingarn_multi_step(theta, eta, y, D, 
+                                    cholM, lambda, tau, 1/n, n*50, k)
   
   # plot(diff(multi_step[[3]][20000:maxiter]), type="l")
   # plot(multi_step[[4]][100:maxiter], type="l")
@@ -46,8 +38,7 @@ getBaseline <- function(y, lambda0 = 1e-10, maxiter = 20000, tau=0.05){
   
   theta_last[which(is.na(y0))] <- NA
   plot(y, type="l")
-  lines(theta20, col="red")
   lines(theta_last, col="blue")
-  
+  lines(theta, col="red")
   return(theta_last)
 }

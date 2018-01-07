@@ -9,7 +9,7 @@
 #' @param tau quantile level
 #' @param reduction number of observations to aggregate
 #' @export
-warmStart <- function(y, k, lambda, step, tau, reduction){
+warmStart <- function(y, k, lambda, step, tau, reduction, maxiter){
   require(dplyr)
   x <- seq(1, length(y), 1)
   df <- data.frame(y=y, x=x)
@@ -27,7 +27,7 @@ warmStart <- function(y, k, lambda, step, tau, reduction){
   
   multi_step <- spingarn_multi_step(theta, eta, y2, D, cholM,
                                     lambda, tau, step, 
-                                    80000, k)
+                                    maxiter, k)
   #print(paste("converged in", multi_step[[6]], "iterations."))
   #plot(multi_step[[3]], type="l")
   
