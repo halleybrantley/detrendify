@@ -17,20 +17,27 @@ quantreg_trendfilter = function(y, q=0.5, k=3L, lambda = 1, rel_tol = 1e-4, max_
   # Cheap and easy approach
   # For a "real" version we really should be checking convergence
   converged = FALSE
+  rel_norm = numeric(max_it)
   travel = max(1, 2*rel_tol)
   residual = y - beta_hat
   it_counter = 0
   while(!converged && it_counter <= max_it) {
     # Compute the weights and pseudo-data in Taylor approximation of log likelihood
-    weights = sign(residual)/(residual) + 1e-6
+
+    weights = sign(residual)/(residual + 1e-10) 
+    weights[is.na(weights)]
     z = y - kappa/weights
-    tfk = glmgen::trendfilter(z, weights=weights, k = k, family='gaussian', lambda=lambda)
-    beta_hat = tfk@beta
+    tfk = glmgen::trendfilter(z, weights=weights, k = k, 
+                              family='gaussian', lambda=2*lambda)
+    beta_hat = tfk$beta
     new_residual = drop(y - beta_hat)
     travel = sum( (residual - new_residual)^2 )
     residual = new_residual
-    converged = travel/(sum(new_residual^2) + rel_tol) < rel_tol
+    rel_norm[it_counter+1] = travel/(sum(new_residual^2) + rel_tol)
+    converged =  rel_norm[it_counter+1] < rel_tol
     it_counter = it_counter + 1
+    #points(weights)
+    lines(beta_hat, col="red")
   }
-  list(beta = beta_hat, tfk=tfk)
+  list(beta = beta_hat, tfk=tfk, rel_norm = rel_norm)
 }

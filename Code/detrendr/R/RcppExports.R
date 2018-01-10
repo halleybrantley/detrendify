@@ -215,8 +215,8 @@ spingarn_one_step <- function(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05
 #' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
-spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L) {
-    .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k)
+spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L, rel_tol = 0.0001) {
+    .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k, rel_tol)
 }
 
 #' 

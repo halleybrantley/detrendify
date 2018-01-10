@@ -130,7 +130,7 @@ arma::vec prox_f1(arma::vec theta,
                   double step = 1.0){
   int n = theta.n_elem;
   arma::vec w = y - theta;
-  return y - prox_quantile(w, tau, step/n);
+  return y - prox_quantile(w, tau, step);
 }
 
 
@@ -351,39 +351,37 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              double tau = 0.05,
                              double step = 1,
                              double numberIter=1, 
-                             int k=3){
+                             int k=3,
+                             double rel_tol = 0.0001){
   double thetaMean = mean(theta);
   arma::vec Vdiff = zeros<vec>(1);
   arma::vec theta_cp = theta;
+  arma::vec resid = y - theta;
+  arma::vec newresid = y-theta;
   arma::vec eta_cp = eta;
-  arma::vec theta_norm = zeros<vec>(numberIter);
   arma::vec rel_norm = zeros<vec>(numberIter);
-  arma::vec eta_norm = zeros<vec>(numberIter);
-  theta_norm(0) = norm(theta_cp,2);
+  
   rel_norm(0) = norm(theta_cp,2);
-  eta_norm(0) = norm(eta_cp,1);
-  int j = numberIter;
+  int j = 0;
   for (int i = 1; i < numberIter; i++){
     spingarn_one_step(theta_cp, eta_cp, Vdiff, y, D, cholM, 
                       lambda, tau, step, k);
-    theta_norm(i) = norm(theta_cp,1);
-    rel_norm(i) =  log((std::abs(theta_norm(i)-theta_norm(i-1)))) - 
-      log((theta_norm(i)+.01));
-    eta_norm(i) = norm(eta_cp,1);
+    newresid = y - theta_cp;
+    double travel = norm(resid-newresid,2);
+    rel_norm(i) =  travel/(norm(newresid,2) + rel_tol);
+    resid = newresid;
+    j += 1;
     if (i % 100 == 0){
       Rcpp::checkUserInterrupt(); 
     }
-    if (rel_norm(i) < -25){
-      j = i;
+    if (rel_norm(i) < rel_tol){
       break;
     }
   }
   rel_norm = rel_norm.subvec(1,j);
-  theta_norm = theta_norm.subvec(1,j);
   prox(theta_cp, eta_cp, y, lambda, tau, step);
   return Rcpp::List::create(Named("theta")=theta_cp, 
                             _["eta"]=eta_cp, 
-                            _["theta_norm"] = theta_norm,
                             _["rel_norm"] = rel_norm);
 }
 
