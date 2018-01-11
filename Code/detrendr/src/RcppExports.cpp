@@ -161,8 +161,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // spingarn_multi_step
-Rcpp::List spingarn_multi_step(arma::vec theta, arma::vec eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k);
-RcppExport SEXP detrendr_spingarn_multi_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP) {
+Rcpp::List spingarn_multi_step(arma::vec theta, arma::vec eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k, double rel_tol);
+RcppExport SEXP detrendr_spingarn_multi_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP, SEXP rel_tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -176,7 +176,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
     Rcpp::traits::input_parameter< double >::type numberIter(numberIterSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter, k));
+    Rcpp::traits::input_parameter< double >::type rel_tol(rel_tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter, k, rel_tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -238,7 +239,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"detrendr_get_Dk", (DL_FUNC) &detrendr_get_Dk, 2},
     {"detrendr_project_V", (DL_FUNC) &detrendr_project_V, 5},
     {"detrendr_spingarn_one_step", (DL_FUNC) &detrendr_spingarn_one_step, 10},
-    {"detrendr_spingarn_multi_step", (DL_FUNC) &detrendr_spingarn_multi_step, 10},
+    {"detrendr_spingarn_multi_step", (DL_FUNC) &detrendr_spingarn_multi_step, 11},
     {"detrendr_spingarn_multistart", (DL_FUNC) &detrendr_spingarn_multistart, 12},
     {"detrendr_chol_solve_eigen", (DL_FUNC) &detrendr_chol_solve_eigen, 2},
     {"detrendr_chol_eigen", (DL_FUNC) &detrendr_chol_eigen, 1},
