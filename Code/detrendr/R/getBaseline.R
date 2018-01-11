@@ -20,8 +20,11 @@ getBaseline <- function(y, lambda0 = 1e-10, tau=0.05){
   k <- 3
   n <- length(y)
   D <- get_Dk(n, k)
-  lambda <- lambda0
-  theta <- warmStart(y, k, lambda, 5/n, tau, 5, n*600/5)
+
+  lambda <- 1
+  step <- 1
+  tau <- .1
+  theta <- warmStart(y, k, lambda, step, tau, 20)
   
   eta <- matrix(D%*%theta)
   M <- Diagonal(n) + Matrix::crossprod(D)

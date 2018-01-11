@@ -130,7 +130,7 @@ arma::vec prox_f1(arma::vec theta,
                   double step = 1.0){
   int n = theta.n_elem;
   arma::vec w = y - theta;
-  return y - prox_quantile(w, tau, step);
+  return y - prox_quantile(w, tau, step/n);
 }
 
 
@@ -281,6 +281,7 @@ void project_V(arma::vec& theta,
 // [[Rcpp::export]]
 void spingarn_one_step(arma::vec& theta, 
                              arma::vec& eta, 
+                             arma::vec& Vdiff,
                              arma::vec y, 
                              arma::sp_mat D, 
                              arma::sp_mat cholM,
@@ -291,6 +292,7 @@ void spingarn_one_step(arma::vec& theta,
   arma::vec theta_old = theta;
   arma::vec eta_old = eta;
   prox(theta, eta, y, lambda, tau, step);
+  Vdiff(0) = norm(D*theta - eta, "inf");
   arma::vec thetaMid = 2*theta-theta_old;
   arma::vec etaMid = 2*eta-eta_old;
   project_V(thetaMid, etaMid, D, cholM, k);
@@ -350,38 +352,97 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
                              double step = 1,
                              double numberIter=1, 
                              int k=3){
+  double thetaMean = mean(theta);
+  arma::vec Vdiff = zeros<vec>(1);
   arma::vec theta_cp = theta;
-  arma::vec theta_cur = theta_cp;
   arma::vec eta_cp = eta;
-  arma::vec f1 = zeros<vec>(numberIter);
-  arma::vec f2 = zeros<vec>(numberIter);
-  arma::vec fmean = zeros<vec>(numberIter);
-  f1(0) = check_loss(y-prox_f1(theta_cp, y, tau, step), tau);
-  f2(0) = lambda*norm(prox_f2(eta_cp, lambda, step),1);
-  fmean(0) =  f1(0)+f2(0);
-  int endIter = numberIter;
-  int avgNum = 200;
-  int n = theta.n_elem;
-  if (lambda/n > 200){
-    avgNum = lambda/n;
-  }
+  arma::vec theta_norm = zeros<vec>(numberIter);
+  arma::vec rel_norm = zeros<vec>(numberIter);
+  arma::vec eta_norm = zeros<vec>(numberIter);
+  theta_norm(0) = norm(theta_cp,2);
+  rel_norm(0) = norm(theta_cp,2);
+  eta_norm(0) = norm(eta_cp,1);
+  int j = numberIter;
   for (int i = 1; i < numberIter; i++){
-    spingarn_one_step(theta_cp, eta_cp, y, D, cholM, 
+    spingarn_one_step(theta_cp, eta_cp, Vdiff, y, D, cholM, 
                       lambda, tau, step, k);
-    f1(i) = norm(theta_cp);
-    // f1(i) = check_loss(y-prox_f1(theta_cp, y, tau, step), tau);
-    // f2(i) = lambda*norm(prox_f2(eta_cp, lambda, step),1);
-    // fmean(i) = (fmean(i-1)*(avgNum-1) + f1(i) + f2(i))/(avgNum);
-    // if(i > avgNum){
-    //   if (fmean(i)-fmean(i-1) > 0) {
-    //     endIter = i;
-    //     break;
-    //   }
-    // }
+    theta_norm(i) = norm(theta_cp,1);
+    rel_norm(i) =  log((std::abs(theta_norm(i)-theta_norm(i-1)))) - 
+      log((theta_norm(i)+.01));
+    eta_norm(i) = norm(eta_cp,1);
     if (i % 100 == 0){
       Rcpp::checkUserInterrupt(); 
     }
+    if (rel_norm(i) < -25){
+      j = i;
+      break;
+    }
   }
+  rel_norm = rel_norm.subvec(1,j);
+  theta_norm = theta_norm.subvec(1,j);
+  prox(theta_cp, eta_cp, y, lambda, tau, step);
+  return Rcpp::List::create(Named("theta")=theta_cp, 
+                            _["eta"]=eta_cp, 
+                            _["theta_norm"] = theta_norm,
+                            _["rel_norm"] = rel_norm);
+}
+
+
+//' 
+//' Spingarn's algorithm multiple initial values
+//' 
+//' \code{spingarn_multistart}
+//' @param y response
+//' @param k order of derivative 
+//' @param lambda regularization parameter
+//' @param tau quantile parameter
+//' @param step step-size
+//' @param numberIter number of iterations
+//' @export
+//' @examples
+// [[Rcpp::export]]
+Rcpp::List spingarn_multistart(arma::vec theta1,
+                               arma::vec eta1,
+                               arma::vec theta2,
+                               arma::vec eta2,
+                               arma::vec y,
+                               arma::sp_mat D, 
+                               arma::sp_mat cholM,
+                               double lambda,
+                               double tau = 0.05,
+                               double step = 1,
+                               double numberIter=1, 
+                               int k=3){
   
-  return Rcpp::List::create(theta_cp, eta_cp, fmean, f1, f2, endIter);
+  int n = y.n_elem;
+  arma::vec Vdiff = zeros<vec>(1);
+  arma::vec normDiff = zeros<vec>(numberIter);
+  arma::vec diffVec = zeros<vec>(numberIter);
+  int j = numberIter-1;
+  double meanY = mean(y);
+  for (int i = 0; i < numberIter; i++){
+    spingarn_one_step(theta1, eta1, Vdiff, y, D, cholM, 
+                      lambda, tau, step, k);
+    diffVec(i) = Vdiff(0);
+    spingarn_one_step(theta2, eta2, Vdiff, y, D, cholM, 
+                      lambda, tau, step, k);
+    normDiff(i) = norm(theta1 - theta2, "inf");
+    if (i % 100 == 0){
+      Rcpp::checkUserInterrupt(); 
+    }
+    if (normDiff(i) < .002*mean(y)){
+      j = i;
+      break;
+    }
+  }
+  normDiff = normDiff.subvec(0, j);
+  diffVec = diffVec.subvec(0, j);
+  prox(theta1, eta1, y, lambda, tau, step);
+  prox(theta2, eta2, y, lambda, tau, step);
+  return Rcpp::List::create(Named("theta1")=theta1, 
+                            _["eta1"]=eta1, 
+                            _["theta2"]=theta2, 
+                            _["eta2"]=eta2, 
+                            _["normDiff"] = normDiff, 
+                            _["vDiff"] = diffVec);
 }
