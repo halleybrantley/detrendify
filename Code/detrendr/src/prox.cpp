@@ -374,9 +374,9 @@ Rcpp::List spingarn_multi_step(arma::vec theta,
     if (i % 100 == 0){
       Rcpp::checkUserInterrupt(); 
     }
-    if (rel_norm(i) < rel_tol){
-      break;
-    }
+    // if (rel_norm(i) < rel_tol){
+    //   break;
+    // }
   }
   rel_norm = rel_norm.subvec(1,j);
   prox(theta_cp, eta_cp, y, lambda, tau, step);
@@ -428,10 +428,10 @@ Rcpp::List spingarn_multistart(arma::vec theta1,
     if (i % 100 == 0){
       Rcpp::checkUserInterrupt(); 
     }
-    if (normDiff(i) < .002*mean(y)){
-      j = i;
-      break;
-    }
+    // if (normDiff(i) < .002*mean(y)){
+    //   j = i;
+    //   break;
+    // }
   }
   normDiff = normDiff.subvec(0, j);
   diffVec = diffVec.subvec(0, j);
