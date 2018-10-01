@@ -4,8 +4,8 @@
 \alias{spingarn_one_step}
 \title{One step of Spingarn's algorithm}
 \usage{
-spingarn_one_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1,
-  k = 3L)
+spingarn_one_step(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05,
+  step = 1, k = 3L)
 }
 \arguments{
 \item{theta}{input 1}

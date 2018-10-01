@@ -4,17 +4,17 @@
 \alias{getBaseline}
 \title{Get baseline using trend filtering}
 \usage{
-getBaseline(y, lambda0 = 1e-07, maxiter = 20000)
+getBaseline(y, lambda0 = 1e-10, tau = 0.05)
 }
 \arguments{
 \item{y}{vector of numbers to fit baseline}
 
-\item{maxiter}{number of iterations to use in algorithm}
+\item{tau}{quantile level}
 
 \item{lambda}{regularization parameter, larger values produce 
 smoother baselines}
 
-\item{tau}{quantile level}
+\item{maxiter}{number of iterations to use in algorithm}
 }
 \description{
 Get smooth baseline of data. Prints data and baseline estimate every 5000

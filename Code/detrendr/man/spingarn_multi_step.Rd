@@ -5,7 +5,7 @@
 \title{Multiple steps of Spingarn's algorithm}
 \usage{
 spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1,
-  numberIter = 1, k = 3L)
+  numberIter = 1, k = 3L, rel_tol = 1e-04)
 }
 \arguments{
 \item{theta}{input 1}

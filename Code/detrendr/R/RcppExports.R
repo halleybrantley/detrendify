@@ -12,7 +12,7 @@ NULL
 #' @export 
 #' 
 check_loss <- function(r, tau) {
-    .Call('detrendr_check_loss', PACKAGE = 'detrendr', r, tau)
+    .Call('_detrendr_check_loss', PACKAGE = 'detrendr', r, tau)
 }
 
 #' Banded Cholesky Solve
@@ -28,7 +28,7 @@ check_loss <- function(r, tau) {
 #' @export
 #' 
 chol_solve <- function(cholM, b, k, upper = TRUE) {
-    .Call('detrendr_chol_solve', PACKAGE = 'detrendr', cholM, b, k, upper)
+    .Call('_detrendr_chol_solve', PACKAGE = 'detrendr', cholM, b, k, upper)
 }
 
 #' Proximal Mapping
@@ -53,7 +53,7 @@ chol_solve <- function(cholM, b, k, upper = TRUE) {
 #' plot(w, prox_out, type='l', main=expression(paste(tau," = ")))
 #' @export
 prox_quantile <- function(w, tau, alpha) {
-    .Call('detrendr_prox_quantile', PACKAGE = 'detrendr', w, tau, alpha)
+    .Call('_detrendr_prox_quantile', PACKAGE = 'detrendr', w, tau, alpha)
 }
 
 #' Proximal mapping of f_1
@@ -66,7 +66,7 @@ prox_quantile <- function(w, tau, alpha) {
 #' @param step step-size
 #' @export
 prox_f1 <- function(theta, y, tau = 0.05, step = 1.0) {
-    .Call('detrendr_prox_f1', PACKAGE = 'detrendr', theta, y, tau, step)
+    .Call('_detrendr_prox_f1', PACKAGE = 'detrendr', theta, y, tau, step)
 }
 
 #' Proximal mapping of f_2
@@ -86,7 +86,7 @@ prox_f1 <- function(theta, y, tau = 0.05, step = 1.0) {
 #' plot(eta, prox_out, type = 'l')
 #' abline(0,1)
 prox_f2 <- function(eta, lambda, step = 1) {
-    .Call('detrendr_prox_f2', PACKAGE = 'detrendr', eta, lambda, step)
+    .Call('_detrendr_prox_f2', PACKAGE = 'detrendr', eta, lambda, step)
 }
 
 #' Proximal mapping
@@ -102,7 +102,7 @@ prox_f2 <- function(eta, lambda, step = 1) {
 #' @param step step-size
 #' @export 
 prox <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
-    invisible(.Call('detrendr_prox', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step))
+    invisible(.Call('_detrendr_prox', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step))
 }
 
 #' Proximal Mapping Test
@@ -117,7 +117,7 @@ prox <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
 #' @param step step-size
 #' @export 
 prox_test <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
-    .Call('detrendr_prox_test', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step)
+    .Call('_detrendr_prox_test', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step)
 }
 
 #' Discrete derivative matrix
@@ -130,7 +130,7 @@ prox_test <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
 #' D1 <- get_D1(n)
 #' @export
 get_D1 <- function(n) {
-    .Call('detrendr_get_D1', PACKAGE = 'detrendr', n)
+    .Call('_detrendr_get_D1', PACKAGE = 'detrendr', n)
 }
 
 #' kth order sparse difference matrix
@@ -141,7 +141,7 @@ get_D1 <- function(n) {
 #' @param k order of the derivative
 #' @export
 get_Dk <- function(n, k) {
-    .Call('detrendr_get_Dk', PACKAGE = 'detrendr', n, k)
+    .Call('_detrendr_get_Dk', PACKAGE = 'detrendr', n, k)
 }
 
 #' Project onto subspace 
@@ -155,7 +155,7 @@ get_Dk <- function(n, k) {
 #' @param cholM upper triangular cholesky decomposition of  I + DtD
 #' @export
 project_V <- function(theta, eta, D, cholM, k) {
-    invisible(.Call('detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM, k))
+    invisible(.Call('_detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM, k))
 }
 
 #' 
@@ -172,7 +172,7 @@ project_V <- function(theta, eta, D, cholM, k) {
 #' @param step step-size
 #' @export
 spingarn_one_step <- function(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05, step = 1, k = 3L) {
-    invisible(.Call('detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, Vdiff, y, D, cholM, lambda, tau, step, k))
+    invisible(.Call('_detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, Vdiff, y, D, cholM, lambda, tau, step, k))
 }
 
 #' 
@@ -216,7 +216,7 @@ spingarn_one_step <- function(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05
 #' points(x,y,pch=16)
 #' lines(x,theta_last,col='red', lwd=3)
 spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L, rel_tol = 0.0001) {
-    .Call('detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k, rel_tol)
+    .Call('_detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k, rel_tol)
 }
 
 #' 
@@ -232,19 +232,6 @@ spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, ste
 #' @export
 #' @examples
 spingarn_multistart <- function(theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L) {
-    .Call('detrendr_spingarn_multistart', PACKAGE = 'detrendr', theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau, step, numberIter, k)
-}
-
-#' @title
-#' Perform cholesky decomposition and solve linear system
-#' @param X sparse matrix
-#' @param yy vector 
-#' @export
-chol_solve_eigen <- function(X, yy) {
-    .Call('detrendr_chol_solve_eigen', PACKAGE = 'detrendr', X, yy)
-}
-
-chol_eigen <- function(X) {
-    .Call('detrendr_chol_eigen', PACKAGE = 'detrendr', X)
+    .Call('_detrendr_spingarn_multistart', PACKAGE = 'detrendr', theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau, step, numberIter, k)
 }
 

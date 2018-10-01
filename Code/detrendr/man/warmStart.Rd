@@ -4,18 +4,18 @@
 \alias{warmStart}
 \title{Warm start for Spingarn algorithm}
 \usage{
-warmStart(y, k, lambda0, tau, reduction)
+warmStart(y, k, lambda, step, tau, reduction, maxiter)
 }
 \arguments{
 \item{y}{original data to fit baseline}
 
 \item{k}{order of differencing matrix}
 
+\item{lambda}{regularization parameter}
+
 \item{tau}{quantile level}
 
 \item{reduction}{number of observations to aggregate}
-
-\item{lambda}{regularization parameter}
 }
 \description{
 Get approximation of initial values by aggregating data and fitting on 

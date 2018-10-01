@@ -1,3 +1,6 @@
+#' @title 
+#' Envelope method 
+#' @export
 quantreg_trendfilter = function(y, q=0.5, k=3L, lambda = 1, rel_tol = 1e-4, max_it = 100) {
   # fits a nonparametric quantile regression model via polynomial trend filtering
   # y: ordered data points, assumed to be on a regularly spaced grid
@@ -24,7 +27,7 @@ quantreg_trendfilter = function(y, q=0.5, k=3L, lambda = 1, rel_tol = 1e-4, max_
   while(!converged && it_counter <= max_it) {
     # Compute the weights and pseudo-data in Taylor approximation of log likelihood
 
-    weights = sign(residual)/(residual + 1e-10) 
+    weights = sign(residual)/(residual + 1e-10) + 1e-11
     weights[is.na(weights)]
     z = y - kappa/weights
     tfk = glmgen::trendfilter(z, weights=weights, k = k, 
@@ -36,8 +39,6 @@ quantreg_trendfilter = function(y, q=0.5, k=3L, lambda = 1, rel_tol = 1e-4, max_
     rel_norm[it_counter+1] = travel/(sum(new_residual^2) + rel_tol)
     converged =  rel_norm[it_counter+1] < rel_tol
     it_counter = it_counter + 1
-    #points(weights)
-    lines(beta_hat, col="red")
   }
   list(beta = beta_hat, tfk=tfk, rel_norm = rel_norm)
 }

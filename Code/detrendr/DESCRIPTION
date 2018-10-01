@@ -10,8 +10,8 @@ Depends:
     Matrix
 License: What license is it under?
 Imports:
-    Rcpp (>= 0.12.06), testthat, RcppEigen (>= 0.3.3.3.0)
-LinkingTo: Rcpp, RcppArmadillo, RcppEigen
+    Rcpp (>= 0.12.06), testthat
+LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
