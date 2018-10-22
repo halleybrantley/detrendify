@@ -1,6 +1,7 @@
 # Spingarn Experiments
 
 library(Rglpk)
+library(gurobi)
 library(plyr)
 library(devtools)
 library(microbenchmark)
@@ -31,14 +32,20 @@ spod10 <- ddply(subset(spodNode, !is.na(timeCut)), .(timeCut),
 
 
 k <- 3
-tau <- .2
-lambda <- 600
-y <- spod10$pid[1:200]
-D <- as.matrix(get_Dk(length(y), k))
+tau <- c(0.05, .1, .2)
+lambda <- 200
+y <- spod10$pid[1:2000]
+y[seq(1, length(y), 10)] <- NA
 
-microbenchmark(
-theta_gurobi <- gurobi_lp(y, tau, lambda, D),
-theta_lpgl <- lpglpk_trendfilter(y, tau, lambda, D))
+
+theta_gurobi <- gurobi_trend(y, tau, lambda, k)
+plot(y, type="l")
+colors <- heat.colors(5)
+for(i in 1:length(tau)){
+  lines(theta_gurobi[,i], col=colors[i])
+}
+
+theta_lpgl <- lpglpk_trendfilter(y, tau, lambda, D)
 
 plot(y, type="l")
 lines(theta_gurobi, col="red")
