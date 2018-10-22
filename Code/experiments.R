@@ -2,6 +2,8 @@
 
 library(Rglpk)
 library(plyr)
+library(devtools)
+library(microbenchmark)
 load_all("detrendr")
 
 rm(list=ls())
@@ -30,7 +32,18 @@ spod10 <- ddply(subset(spodNode, !is.na(timeCut)), .(timeCut),
 
 k <- 3
 tau <- .2
-lambda <- 1
+lambda <- 600
+y <- spod10$pid[1:200]
+D <- as.matrix(get_Dk(length(y), k))
+
+microbenchmark(
+theta_gurobi <- gurobi_lp(y, tau, lambda, D),
+theta_lpgl <- lpglpk_trendfilter(y, tau, lambda, D))
+
+plot(y, type="l")
+lines(theta_gurobi, col="red")
+lines(theta_lpgl, col="blue")
+
 theta_lpgl <- list()
 
 n <- 1000

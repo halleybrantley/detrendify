@@ -1,5 +1,5 @@
 
-.DS_Store
+*.DS_Store
 Code/detrendr/R/.Rhistory
 .Rproj.user
 .Rhistory
