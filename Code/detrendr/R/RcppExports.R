@@ -6,33 +6,33 @@
 NULL
 
 #' Check loss function
-#' \code{check_loss} Evaluates check loss function 
+#' \code{check_loss} Evaluates check loss function
 #' @param r vector of residuals
 #' @param tau quantile level must be in [0,1]
-#' @export 
-#' 
+#' @export
+#'
 check_loss <- function(r, tau) {
     .Call('_detrendr_check_loss', PACKAGE = 'detrendr', r, tau)
 }
 
 #' Banded Cholesky Solve
-#' 
-#' \code{chol_solve} Solves a linear system cholM%*%x=b 
+#'
+#' \code{chol_solve} Solves a linear system cholM%*%x=b
 #' when cholM is a sparse banded cholesky.
-#' 
-#' @param cholM sparse banded cholseky decomposition of discrete derivative 
+#'
+#' @param cholM sparse banded cholseky decomposition of discrete derivative
 #' matrix of order k
 #' @param b dense solution vector
 #' @param k order of discrete derivative matrix
 #' @param upper boolean indicator of whether cholM is upper or lower triangular
 #' @export
-#' 
+#'
 chol_solve <- function(cholM, b, k, upper = TRUE) {
     .Call('_detrendr_chol_solve', PACKAGE = 'detrendr', cholM, b, k, upper)
 }
 
 #' Proximal Mapping
-#' 
+#'
 #' \code{prox_quantile} computes the proximal mapping of the check function.
 #'
 #' @param w input
@@ -57,7 +57,7 @@ prox_quantile <- function(w, tau, alpha) {
 }
 
 #' Proximal mapping of f_1
-#' 
+#'
 #' \code{prox_f1} computes the proximal mapping of the average quantile loss
 #'
 #' @param theta input
@@ -70,9 +70,9 @@ prox_f1 <- function(theta, y, tau = 0.05, step = 1.0) {
 }
 
 #' Proximal mapping of f_2
-#' 
+#'
 #' \code{prox_f2} computes the proximal mapping of the L1 penalty
-#' 
+#'
 #' @param eta input
 #' @param lambda regularization parameter
 #' @param step step-size
@@ -90,40 +90,40 @@ prox_f2 <- function(eta, lambda, step = 1) {
 }
 
 #' Proximal mapping
-#' 
+#'
 #' \code{prox} computes the block separable proximal mapping, changes theta
 #' and eta in place
-#' 
+#'
 #' @param theta input
 #' @param eta input
 #' @param y response
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param step step-size
-#' @export 
+#' @export
 prox <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
     invisible(.Call('_detrendr_prox', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step))
 }
 
 #' Proximal Mapping Test
-#' 
+#'
 #' \code{prox_test} computes the block separable proximal mapping.
-#' Returns values of theta and eta. 
+#' Returns values of theta and eta.
 #' @param theta input
 #' @param eta input
 #' @param y response
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param step step-size
-#' @export 
+#' @export
 prox_test <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
     .Call('_detrendr_prox_test', PACKAGE = 'detrendr', theta, eta, y, lambda, tau, step)
 }
 
 #' Discrete derivative matrix
-#' 
+#'
 #' \code{get_D1} computes the sparse discrete derivative matrix.
-#' 
+#'
 #' @param n length of input
 #' @examples
 #' n <- 5
@@ -134,9 +134,9 @@ get_D1 <- function(n) {
 }
 
 #' kth order sparse difference matrix
-#' 
+#'
 #' \code{get_Dkn} computes the sparse discrete kth derivative matrix
-#' 
+#'
 #' @param n length of input
 #' @param k order of the derivative
 #' @export
@@ -144,11 +144,11 @@ get_Dk <- function(n, k) {
     .Call('_detrendr_get_Dk', PACKAGE = 'detrendr', n, k)
 }
 
-#' Project onto subspace 
-#' 
+#' Project onto subspace
+#'
 #' \code{project_V} projects (theta, eta) onto the subspace eta = D*theta.
 #' Updates values of theta and eta in place.
-#' 
+#'
 #' @param theta first input
 #' @param eta second input
 #' @param D differencing matrix
@@ -158,9 +158,9 @@ project_V <- function(theta, eta, D, cholM, k) {
     invisible(.Call('_detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM, k))
 }
 
-#' 
+#'
 #' One step of Spingarn's algorithm
-#' 
+#'
 #' \code{spingarn_one_step} updates theta and eta in place
 #' @param theta input 1
 #' @param eta input 2
@@ -175,14 +175,14 @@ spingarn_one_step <- function(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05
     invisible(.Call('_detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, Vdiff, y, D, cholM, lambda, tau, step, k))
 }
 
-#' 
+#'
 #' Multiple steps of Spingarn's algorithm
-#' 
+#'
 #' \code{spingarn_one_step}
 #' @param theta input 1
 #' @param eta input 2
 #' @param y response
-#' @param k order of derivative 
+#' @param k order of derivative
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param step step-size
@@ -208,7 +208,7 @@ spingarn_one_step <- function(theta, eta, Vdiff, y, D, cholM, lambda, tau = 0.05
 #' tau <- 0.01
 #' step <- 1
 #' numberIter <- 100
-#' multi_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda, 
+#' multi_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda,
 #' tau, step, numberIter)
 #' theta <- multi_step[[1]]
 #' theta_last <- prox_f1(theta, y, tau)
@@ -219,12 +219,12 @@ spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, ste
     .Call('_detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k, rel_tol)
 }
 
-#' 
+#'
 #' Spingarn's algorithm multiple initial values
-#' 
+#'
 #' \code{spingarn_multistart}
 #' @param y response
-#' @param k order of derivative 
+#' @param k order of derivative
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param step step-size

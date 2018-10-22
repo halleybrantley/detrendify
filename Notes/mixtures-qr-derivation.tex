@@ -64,4 +64,25 @@ $$u_i^{(t)} = \frac{sgn(y_i - \theta_i^{(t-1)})}{y_i - \theta_i^{(t-1)}}$$
 $$z_i^{(t)} = y_i - (1-2\tau)/w_i^{(t)}$$
 $$\theta^{(t)} = \underset{\theta}{\text{argmin}} \sum_{i=1}^n \frac{u_i^{(t)}}{2}(z_i - \theta_i)^2 + \lambda||D^{k+1}\theta||_1$$
 
+
+\section{FASTA}
+
+Fix $\nu = 1, .1, .001, .001$ want to minimize:
+$$f(\eta,\theta) + g(\eta)$$
+$$f(\eta, \theta) = \frac{1}{n}\tilde{\rho_{\tau}}(y_i - \theta_i) + \frac{1}{2\nu}||\eta-D\theta||_2^2$$
+$$g(\eta) = \lambda||\eta||_1$$
+
+\begin{align*}
+\rho_{\tau}(z) =& z[\tau - I(z < 0)] \\
+=& \frac{1}{2}|z| + \frac{2\tau-1}{2} z \\
+\rho'_{\tau}(z) =& \begin{cases}
+\tau & z > 0 \\
+\tau - 1 & z < 0
+\end{cases}
+\end{align*}
+$$\frac{\partial}{\partial\theta_i}\frac{1}{n}\rho_{\tau}(y_i-\theta_i) = \frac{-1}{n}\rho_{\tau}'(y_i-\theta_i) = \begin{cases}
+-\tau/n & y_i - \theta_i > 0 \\
+(1-\tau)/n  & y_i - \theta_i < 0
+\end{cases}$$
+
 \end{document}

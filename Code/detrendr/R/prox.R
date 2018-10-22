@@ -20,13 +20,11 @@
 #' plot(w, prox_out, type='l', main=expression(paste(tau," = ")))
 prox_quantile_R <- function(w, tau, alpha) {
   n <- length(w)
-  prox_out <- double(n)
+  prox_out <- rep(0,n)
   threshold1 <- tau*alpha
   threshold2 <- -(1 - tau)*alpha
-  ix1 <- which(w > threshold1)
-  ix2 <- which(w < threshold2)
-  prox_out[ix1] <- w[ix1] - threshold1
-  prox_out[ix2] <- w[ix2] - threshold2
+  prox_out[w > threshold1] <- w[w > threshold1] - tau*alpha
+  prox_out[w < threshold2] <- w[w < threshold2] + (1 - tau)*alpha
   return(matrix(prox_out, ncol=1))
 }
 
@@ -39,10 +37,10 @@ prox_quantile_R <- function(w, tau, alpha) {
 #' @param tau quantile parameter
 #' @param t step-size
 #' set.seed(12345)
-prox_f1_R <- function(theta, y, tau = 0.05, t = 1) {
+prox_f1_R <- function(theta, y, tau, step) {
   n <- length(theta)
   w <- y - theta
-  alpha <- t/n
+  alpha <- step
   return(y - prox_quantile(w, tau, alpha))
 }
 
@@ -61,8 +59,8 @@ prox_f1_R <- function(theta, y, tau = 0.05, t = 1) {
 #' prox_out <- prox_f2(eta, lambda)
 #' plot(eta, prox_out, type = 'l')
 #' abline(0,1)
-prox_f2_R <- function(eta, lambda, t = 1) {
-  return(prox_quantile(eta, tau = 0.5, alpha = 2*t*lambda))
+prox_f2_R <- function(eta, lambda, step) {
+  return(prox_quantile(eta, tau = 0.5, alpha = 2*step*lambda))
 }
 
 #' Proximal mapping
@@ -77,9 +75,9 @@ prox_f2_R <- function(eta, lambda, t = 1) {
 #' @param t step-size
 #' @examples
 #' set.seed(12345)
-prox_R <- function(theta, eta, y, lambda, tau = 0.05, t=1) {
-  return(list(theta=prox_f1_R(theta, y, tau, t), 
-              eta = prox_f2_R(eta, lambda, t)))
+prox_R <- function(theta, eta, y, lambda, tau, step) {
+  return(list(theta=prox_f1_R(theta, y, tau, step),
+              eta = prox_f2_R(eta, lambda, step)))
 }
 
 #' First order difference matrix
@@ -124,11 +122,13 @@ get_Dk_R <- function(n, k) {
 #' @param theta first input
 #' @param eta second input
 #' @param D differencing matrix
+#' @param M Cholesky factorization of DtD + I
 #' @examples
 #' set.seed(12345)
 #' k <- 3
 #' n <- 1e2
 #' D <- get_Dk(n, k)
+#' M <- Cholesky(diag(n) + crossprod(D))
 #' theta <- rnorm(n)
 #' eta <- D %*% theta
 #' proj <- project_V(theta, eta, D)
@@ -141,12 +141,13 @@ get_Dk_R <- function(n, k) {
 #' angles <- angles + matrix(t(eta - proj$eta)%*%(eta2 - matrix(proj$eta)%*%matrix(1,1,m)))
 #' summary(angles)
 project_V_R <- function(theta, eta, D, M) {
-  theta <- Matrix::solve(M, theta + Matrix::t(D)%*%eta, sparse=TRUE)
+  theta <- Matrix::solve(M, theta + Matrix::crossprod(D,eta))
   eta <- D%*%theta
   eta <- matrix(eta, ncol=1)
   theta <- matrix(theta, ncol=1)
   return(list(theta=theta, eta=eta))
 }
+
 
 #' One step of Spingarn's algorithm
 #'
@@ -201,8 +202,8 @@ spingarn_one_step_R <- function(theta, eta, y, D, M, lambda, tau=0.05, t=1) {
   theta <- prox_sol$theta
   eta <- prox_sol$eta
   proj_sol <- project_V_R(2*theta - theta_old, 2*eta - eta_old, D, M)
-  theta <- theta_old + 1.9*(proj_sol$theta - theta)
-  eta <- eta_old + 1.9*(proj_sol$eta - eta)
+  theta <- theta_old + 1*(proj_sol$theta - theta)
+  eta <- eta_old + 1*(proj_sol$eta - eta)
   return(list(theta=theta, eta=matrix(eta)))
 }
 
@@ -218,12 +219,23 @@ spingarn_one_step_R <- function(theta, eta, y, D, M, lambda, tau=0.05, t=1) {
 #' @param tau quantile parameter
 #' @param t step-size
 #' @export
-spingarn_multi_step_R <- function(theta, eta, y, D, M, lambda, 
-                                  tau=0.05, t=1, numberIter=1){
+spingarn_multi_step_R <- function(theta, eta, y, D, M, lambda,
+                                  tau, step, numberIter=1,
+                                  stepUpdate){
+  diff_theta <- double(numberIter)
+  steps <- double(numberIter)
   for (iter in 1:numberIter) {
-    one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step)
+    step_k <- stepUpdate(step, iter)
+    one_step <- spingarn_one_step_R(theta, eta, y, D, M, lambda, tau, step_k)
+    diff_theta[iter] <- sum((theta - one_step$theta)^2)
     theta <- one_step[[1]]
     eta <- one_step[[2]]
+    steps[iter] <- step_k
   }
-  return(list(theta=theta, eta=matrix(eta)))
+
+  prox_sol <- prox_R(theta, eta, y, lambda, tau, step_k)
+  theta <- prox_sol$theta
+  eta <- prox_sol$eta
+  return(list(theta=theta, eta=matrix(eta), diff_theta=diff_theta,
+              steps = steps))
 }
