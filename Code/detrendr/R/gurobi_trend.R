@@ -7,6 +7,12 @@
 #' @param lambda penalty paramter controlling smoothness
 #' @param k order of differencing
 gurobi_trend <- function(y, tau, lambda, k){
+
+  if(tau >= 1 || tau <= 0){
+    stop("tau must be between 0 and 1.")
+  }
+
+  tau <- sort(tau)
   D <- as.matrix(get_Dk(length(y), k))
   n <- length(y)
   m <- nrow(D)
@@ -56,8 +62,6 @@ gurobi_trend <- function(y, tau, lambda, k){
   # Type of variables (binary)
   params <- list(OutputFlag=0)
   result <- gurobi(model, params)
-  print('Solution:')
-  print(result$objval)
 
   theta <- matrix(0, nrow=n, ncol = nT)
   for (i in 1:nT){
@@ -66,3 +70,6 @@ gurobi_trend <- function(y, tau, lambda, k){
   }
   return(theta)
 }
+
+
+

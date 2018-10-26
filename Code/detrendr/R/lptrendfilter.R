@@ -23,8 +23,9 @@ lptrendfilter <- function(y, tau, lambda, D){
   return(theta)
 }
 
-lpglpk_trendfilter <- function(y, tau, lambda, D){
+lpglpk_trendfilter <- function(y, tau, lambda, k){
   n <- length(y)
+  D <- get_Dk(n, k)
   m <- nrow(D)
   f.obj <- c(rep(lambda, 2*m), rep(tau, n), rep((1-tau), n))
   f.con <- as.matrix(rbind(cbind(diag(m),matrix(0, nrow=m, ncol=m+2*n)),

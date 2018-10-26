@@ -1,0 +1,248 @@
+---
+title: "detrendr Meeting notes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(gurobi)
+library(plyr)
+library(devtools)
+library(microbenchmark)
+library(trustOptim)
+library(Rglpk)
+library(tidyverse)
+library(parallel)
+library(lubridate)
+library(lbfgs)
+load_all("../Code/detrendr")
+```
+
+```{r load, include = FALSE}
+dataDir <- "~/Desktop/EPA/SPod_Data/TestRange_Dec2017"
+datafiles <- dir(dataDir, pattern=".csv", full.names=TRUE)
+spod <- read.csv(datafiles[3], header=TRUE,  na.strings = "N/A")
+spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
+                                 format= "%m/%d/%Y %H:%M:%S")) 
+
+node <- "h"
+pidCol <- paste(node, "SPOD.PID..V.", sep=".")
+spodNode <- spod[, c("time", pidCol)]
+names(spodNode)[2] <- c("pid")
+spodNode <- subset(spodNode, !is.na(pid))
+spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
+```
+
+## Gurobi vs Rglpk Timing Experiments
+
+```{r, cache = TRUE}
+tau <- 0.05
+k <- 3
+
+m_gurobi <- microbenchmark(
+   gurobi_trend(spodNode$pid[1:200], tau, 200, k),
+   gurobi_trend(spodNode$pid[1:400], tau, 400, k),
+   gurobi_trend(spodNode$pid[1:1000], tau, 1000, k),
+   gurobi_trend(spodNode$pid[1:2000], tau, 2000, k),
+   times = 10
+)
+
+m_Rglpk <- microbenchmark(
+  lpglpk_trendfilter(spodNode$pid[1:200], tau, 200, k),
+  lpglpk_trendfilter(spodNode$pid[1:400], tau, 400, k),
+  lpglpk_trendfilter(spodNode$pid[1:1000], tau, 1000, k),
+  lpglpk_trendfilter(spodNode$pid[1:2000], tau, 2000, k),
+  times = 10
+) 
+
+knitr::kable(data.frame(n = c(200, 400, 1000, 2000), gurobi = summary(m_gurobi)$mean, Rglpk = summary(m_Rglpk)$mean), digits = 0)
+```
+
+### Approximation to objective function
+Trend filtering objective:
+min $\sum_i\rho_{\tau}(y_i - \theta_i) + ||D\theta||_1$
+
+Approximate objective: 
+Define $\tilde{f}(x, \tau) = \sum_i \frac{1}{2*100\pi}log[cosh(100\pi x_i)] + (\tau - \frac{1}{2}) x_i$
+
+min $\tilde{f}(y - \theta, \tau) + \tilde{f}(D\theta, 0.5)$
+
+Both gradient and Hessian are easy to compute. Hessian is banded and sparse. 
+
+```{r, cache = TRUE}
+lambda <- 400/2
+y <- spodNode$pid[1:400]
+theta_g <- gurobi_trend(y, tau, 400, k)
+D <- get_Dk(length(y), k)
+
+phi0 <- y - quantile(y, tau)
+
+m2 <- microbenchmark(
+lbfgs_sol <- lbfgs(obj, grad_obj, vars = phi0,  y=y, tau=tau, D=D, 
+                lambda = lambda, invisible = 1),
+trust_sol <- trust.optim(phi0, obj, grad_obj, hess_obj, 
+                      method = "Sparse", 
+                      control = list(report.level = 0), 
+                      y=y, tau=tau, 
+                      D=D, lambda=lambda),
+times = 1
+)
+
+theta_lbfgs <- y-lbfgs_sol$par
+theta_trust <- y-trust_sol$solution
+
+knitr::kable(data.frame(method = c("LBFGS", "Trust Region"), 
+                        time = summary(m2)$mean), digits = 1)
+```
+
+```{r}
+plot(y, type="l", col="grey")
+lines(theta_g, col="red")
+lines(theta_lbfgs, col="blue")
+lines(theta_trust, col = "darkgreen")
+```
+
+## Cross validation to choose lambda - simulated data
+
+```{r, cache = TRUE, echo = TRUE, message = FALSE, results=FALSE}
+n <- 400
+x <- seq(1, n, 1)
+y <- sin(x*2*pi/n) + rnorm(n, 0, .5)
+
+k <- 3
+tau <- c(0.05, 0.5)
+
+lambdaSeq <- seq(50, 1600, 50)
+loss_cv <- lambda_cv(y, tau, k, lambdaSeq,
+                     numFolds = 5, parallel = TRUE)
+plot(rowSums(loss_cv$loss)~lambdaSeq, 
+     ylab = "Check loss of validation data", 
+     xlab = "Lambda")
+
+theta_df <- get_windows(y, x, k, tau, loss_cv$lambda, n, 0)
+plot.df <- left_join(theta_df, 
+                     data.frame(time=x, y=y, 
+                                true = sin(x*2*pi/n))) 
+```
+
+
+```{r, echo = FALSE}
+# Chosen lambda
+loss_cv$lambda
+
+ggplot(plot.df, aes(x = time, y = y)) +
+  geom_line(alpha = 0.2) +
+  geom_line(aes(y=true), col="blue")+
+  geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+  theme_bw() + 
+  guides(col = "none")
+
+```
+
+## Cross-validation on real data
+
+```{r, cache = TRUE}
+k <- 3
+tau <- c(0.05, 0.5)
+df <- spodNode
+y <- df$pid[1:3600]
+n <- length(y)
+lambdaSeq <- c(5*n, 10*n, 11*n, 12*n, 13*n, 14*n, 15*n)
+
+spod_cv <- lambda_cv(y, tau, k, lambdaSeq,
+          numFolds = 5, parallel = TRUE)
+plot(rowSums(spod_cv$loss)~lambdaSeq, 
+     ylab = "Check loss of validation data", 
+     xlab = "Lambda")
+spod_cv$lambda
+```
+
+```{r, include=FALSE}
+theta_df <- get_windows(y, df$time[1:n], k, tau, loss_cv$lambda, n, 0)
+plot.df <- left_join(theta_df, spodNode) 
+```
+
+```{r, echo = FALSE, message = FALSE}
+ggplot(plot.df, aes(x = time, y = pid)) +
+  geom_line(alpha = 0.2) +
+  geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+  theme_bw() + 
+  guides(col = "none")
+```
+
+# Complete day using hour long windows 
+```{r, eval= TRUE, cache = TRUE, include = FALSE}
+theta_df <- get_windows(df$pid, df$time, k, tau, spod_cv$lambda, 
+                        length(y), 600)
+plot.df <- left_join(theta_df, spodNode) 
+```
+
+```{r, message = FALSE}
+ggplot(plot.df, aes(x = time, y = pid)) +
+    geom_line(alpha = 0.2) +
+    geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+    theme_bw()
+```
+
+```{r, message=FALSE}
+ggplot(plot.df, aes(x = time, y = pid)) +
+    geom_line(alpha = 0.2) +
+    geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+    xlim(c(ymd_hms("2017-11-30 9:00:00", tz = "EST"), 
+           ymd_hms("2017-11-30 11:30:00", tz = "EST")))+
+    theme_bw()
+```
+
+
+# Compare all 3 nodes
+
+```{r, message = FALSE}
+spod_pid <- spod %>%
+  select(time, contains("SPOD.PID..V.")) %>%
+  mutate_at(vars(-time), function(x) as.numeric(scale(x, center=TRUE))) %>%
+  gather("node", "pid", -time) %>%
+  mutate(node_name = substr(node, 1, 1))
+
+ggplot(spod_pid, aes(x=time, y=pid, col=node_name)) + 
+  geom_line(alpha = 0.2) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme_bw()
+```
+
+
+## Use selected lambda to detrend
+
+```{r, cache = TRUE, message = FALSE}
+nodes <- c("f", "g", "h")
+plot_df <- data.frame(time = spodNode$time)
+tau <- 0.05
+for (node in nodes){
+  pidCol <- paste(node, "SPOD.PID..V.", sep=".")
+  spodNode <- spod[, c("time", pidCol)]
+  names(spodNode)[2] <- c("pid")
+  spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
+  theta_df <- get_windows(spodNode$pid, spodNode$time, k, tau,
+                          43200, 3600, 600)
+  theta_comb <- theta_df %>% 
+    group_by(time) %>% 
+    summarise(
+      theta = mean(theta)
+      )
+  
+  spodNode[,sprintf("pidC_%s", node)] <- spodNode$pid - theta_comb$theta
+  plot_df <- left_join(plot_df, spodNode[,c(1,3)]) 
+}
+
+plot_long <- plot_df %>% gather("node", "pid", -time) 
+
+ggplot(plot_long, aes(x=time, y=pid, col=node)) + 
+  geom_line(alpha = 0.2) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme_bw()
+
+ggplot(plot_long, aes(x=time, y=pid, col=node)) + 
+  geom_line(alpha = 0.3) + 
+  scale_color_brewer(palette = "Set1") + 
+  xlim(c(ymd_hms("2017-11-30 9:30:00", tz = "EST"), 
+         ymd_hms("2017-11-30 11:00:00", tz = "EST")))+
+  theme_bw()
+```

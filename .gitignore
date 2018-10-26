@@ -12,7 +12,8 @@ Code/detrendr/R/.Rhistory
 *.out
 *.synctex.gz
 *~
-
+*chunk*
+*cache*
 
 *.o
 Notes/timing_and_convergence_examples_cache

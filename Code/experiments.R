@@ -5,6 +5,7 @@ library(gurobi)
 library(plyr)
 library(devtools)
 library(microbenchmark)
+library(trustOptim)
 load_all("detrendr")
 
 rm(list=ls())
@@ -15,75 +16,105 @@ spod <- read.csv(datafiles[3], header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
 
-node <- "f"
+node <- "h"
 pidCol <- paste(node, "SPOD.PID..V.", sep=".")
 spodNode <- spod[, c("time", pidCol)]
 names(spodNode)[2] <- c("pid")
 spodNode <- subset(spodNode, !is.na(pid))
-spodNode$pid <- scale(spodNode$pid, center = TRUE)
+spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
 
-timeBase <- "10 sec"
+timeBase <- "5 sec"
 timeBreaks <- seq(round(min(spodNode$time), "min"), 
                   round(max(spodNode$time), "min"), timeBase)
 spodNode$timeCut <- cut(spodNode$time, timeBreaks)
-spod10 <- ddply(subset(spodNode, !is.na(timeCut)), .(timeCut), 
+spod_agg <- ddply(subset(spodNode, !is.na(timeCut)), .(timeCut), 
                 summarize, 
                 pid = mean(pid, na.rm=TRUE))
-
+spod_agg$time <- as.POSIXct(as.factor(spod_agg$timeCut))
 
 k <- 3
-tau <- c(0.05, .1, .2)
-lambda <- 200
-y <- spod10$pid[1:2000]
-y[seq(1, length(y), 10)] <- NA
+tau <- c(0.05, 0.1, 0.5)
+df <- spod_agg
+y <- df$pid[1:4500]
+n <- length(y)
+lambdaSeq <- c(n/10, n/5, n/2, n, 2*n, 5*n, 10*n)
+
+loss_cv <- lambda_cv(y, tau, k, lambdaSeq,
+          numFolds = 10, parallel = TRUE)
+plot(rowSums(loss_cv$loss))
+loss_cv$lambda
+
+theta_df <- get_windows(df$pid, df$time, k, tau, loss_cv$lambda, 
+                        length(y), 0)
+
+plot.df <- left_join(theta_df, spod_agg) 
+
+ggplot(plot.df, aes(x = time, y = pid)) +
+    geom_line(alpha = 0.2) +
+    geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+    theme_bw()
 
 
-theta_gurobi <- gurobi_trend(y, tau, lambda, k)
-plot(y, type="l")
-colors <- heat.colors(5)
-for(i in 1:length(tau)){
-  lines(theta_gurobi[,i], col=colors[i])
-}
+df$cor <- df$pid - theta_df[which(theta_df$tau== "tau_0.05"), "theta"]
 
-theta_lpgl <- lpglpk_trendfilter(y, tau, lambda, D)
-
-plot(y, type="l")
-lines(theta_gurobi, col="red")
-lines(theta_lpgl, col="blue")
-
-theta_lpgl <- list()
-
-n <- 1000
-i <- 0
-for (lambda in c(1, 10, 100, 1000)){
-  i <- i + 1
-  y <- spod10$pid[1:n]
-  D <- as.matrix(get_Dk(length(y), k))
-  theta_lpgl[[i]] <- lpglpk_trendfilter(y, tau, lambda, D)
-}
+# node_f <- df
+# node_g <- df
+ggplot(df[7000:8000,], aes(x=time, y=cor)) + geom_line() + 
+  theme_bw() + 
+  geom_line(data=node_f[7000:8000,], col="blue", alpha = .5)+ 
+  geom_line(data=node_g[7000:8000,], col="red", alpha = .5)
 
 
-plot(y, type="l", col="grey", main = "LP solver")
-lines(theta_lpgl[[1]], col = "red")
-lines(theta_lpgl[[2]], col = "orange")
-lines(theta_lpgl[[3]], col = "blue")
-lines(theta_lpgl[[4]], col = "green")
+#####################################################################
+tau <- 0.05
+lambda <- 10*length(y)
+phi0 <- y- quantile(y, tau)
+phiHat <- lbfgs(obj, grad_obj, vars = phi0,  y=y, tau=tau, D=D, 
+                lambda = lambda, invisible = 1)
+D <- get_Dk(length(y), k)
+thetaHat <- y-phiHat$par
+plot(y, type="l", col="grey")
+lines(thetaHat)
 
-# df <- data.frame(n = c(200, 400, 800), 
-#                  cl = NA, 
-#                  normD = NA)
-# 
-# i <- 0
-# for (n in df$n){
-#   i <- i + 1
-#   y <- spod10$pid[1:n]
-#   D <- as.matrix(get_Dk(length(y), k))
-#   df$cl[i] <- check_loss(y-theta_lpgl[[i]], tau)
-#   df$normD[i] <- norm(D%*%theta_lpgl[[i]], "1")
-# 
-# }
+phiHat <- trust.optim(phi0, obj, grad_obj, hess_obj, 
+                      method = "Sparse", 
+                      control = list(maxit = 50, 
+                                     report.level = 4, 
+                                     start.trust.radius = 0.04, 
+                                     trust.iter = 5000), 
+                      y=y, tau=tau, 
+                      D=D, lambda=lambda)
 
+thetaHat <- y-phiHat$solution
+phi0 <- phiHat$solution
+plot(y, type="l", col="grey")
+lines(thetaHat)
 
+theta2 <- gurobi_trend(y, tau, lambda, k)
+lines(theta2, col="red")
+
+phi <- phi0[1:10]
+y <- y[1:10]
+D <- get_Dk(length(y), k)
+
+g1 <- grad(obj, phi, y=y, tau=tau, D=D, lambda=lambda)
+g2 <- grad_obj(phi, y, tau, D, lambda)
+
+H1 <- genD(grad_obj, phi, y=y, 
+              tau=tau, D=D, lambda=lambda, 
+              )
+H2 <- hess_obj(phi, y, tau, D, lambda)
+
+tmp <- seq(-1, 1, .01)
+h1 <- approx_checkLoss(tmp, .1)
+
+f1 <- sapply(tmp, check_loss, tau=tau)
+f2 <- approx_checkLoss(tmp, tau)
+plot(f2~tmp, type="l")
+lines(f1~tmp, col="red")
+f2[201]
+f1[201]
+###############################################################################
 
 step_size <- 1
 theta0 <- y

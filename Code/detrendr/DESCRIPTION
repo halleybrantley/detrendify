@@ -10,7 +10,7 @@ Depends:
     Matrix
 License: What license is it under?
 Imports:
-    Rcpp (>= 0.12.06), testthat
+    Rcpp (>= 0.12.06), testthat, tidyverse, gurobi, Rglpk 
 LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: true
