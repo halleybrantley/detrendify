@@ -62,37 +62,40 @@ Trend filtering objective:
 min $\sum_i\rho_{\tau}(y_i - \theta_i) + ||D\theta||_1$
 
 Approximate objective: 
-Define $\tilde{f}(x, \tau) = \sum_i \frac{1}{2*100\pi}log[cosh(100\pi x_i)] + (\tau - \frac{1}{2}) x_i$
+Define $\hat{f}(x, \tau) = \sum_i \frac{1}{2*10^4\pi}log[cosh(10^4\pi x_i)] + (\tau - \frac{1}{2}) x_i$
 
-min $\tilde{f}(y - \theta, \tau) + \tilde{f}(D\theta, 0.5)$
+min $\hat{f}(y - \theta, \tau) + \hat{f}(D\theta, 0.5)$
 
 Both gradient and Hessian are easy to compute. Hessian is banded and sparse. 
 
+## Compare times on n=200
 ```{r, cache = TRUE}
-lambda <- 400/2
-y <- spodNode$pid[1:400]
-theta_g <- gurobi_trend(y, tau, 400, k)
+lambda <- 200/2
+y <- spodNode$pid[1:200]
+theta_g <- gurobi_trend(y, tau, 200, k)
 D <- get_Dk(length(y), k)
 
 phi0 <- y - quantile(y, tau)
 
 m2 <- microbenchmark(
-lbfgs_sol <- lbfgs(obj, grad_obj, vars = phi0,  y=y, tau=tau, D=D, 
-                lambda = lambda, invisible = 1),
-trust_sol <- trust.optim(phi0, obj, grad_obj, hess_obj, 
-                      method = "Sparse", 
-                      control = list(report.level = 0), 
-                      y=y, tau=tau, 
-                      D=D, lambda=lambda),
-times = 1
+  theta_g <- gurobi_trend(y, tau, 200, k),
+  lbfgs_sol <- lbfgs(obj, grad_obj, vars = phi0,  y=y, tau=tau, D=D, 
+                  lambda = lambda, invisible = 1),
+  trust_sol <- trust.optim(phi0, obj, grad_obj, hess_obj, 
+                        method = "Sparse", 
+                        control = list(report.level = 0), 
+                        y=y, tau=tau, 
+                        D=D, lambda=lambda),
+  times = 5
 )
 
 theta_lbfgs <- y-lbfgs_sol$par
 theta_trust <- y-trust_sol$solution
 
-knitr::kable(data.frame(method = c("LBFGS", "Trust Region"), 
+knitr::kable(data.frame(method = c("Gurobi", "LBFGS", "Trust Region"), 
                         time = summary(m2)$mean), digits = 1)
 ```
+## Compare results
 
 ```{r}
 plot(y, type="l", col="grey")
@@ -146,7 +149,7 @@ tau <- c(0.05, 0.5)
 df <- spodNode
 y <- df$pid[1:3600]
 n <- length(y)
-lambdaSeq <- c(5*n, 10*n, 11*n, 12*n, 13*n, 14*n, 15*n)
+lambdaSeq <- c(10*n, 12*n, 14*n, 16*n)
 
 spod_cv <- lambda_cv(y, tau, k, lambdaSeq,
           numFolds = 5, parallel = TRUE)
@@ -221,7 +224,7 @@ for (node in nodes){
   names(spodNode)[2] <- c("pid")
   spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
   theta_df <- get_windows(spodNode$pid, spodNode$time, k, tau,
-                          43200, 3600, 600)
+                          spod_cv$lambda, 3600, 600)
   theta_comb <- theta_df %>% 
     group_by(time) %>% 
     summarise(
