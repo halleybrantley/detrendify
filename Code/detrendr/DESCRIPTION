@@ -7,7 +7,7 @@ Maintainer: Halley Brantley <hlbrantl@ncsu.edu>
 Description: This package implements a method for estimating baseline drift in
     spikey and noisy univariate signals.
 Depends:
-    Matrix
+    Matrix, gurobi
 License: What license is it under?
 Imports:
     Rcpp (>= 0.12.06), testthat, tidyverse, gurobi, Rglpk 
