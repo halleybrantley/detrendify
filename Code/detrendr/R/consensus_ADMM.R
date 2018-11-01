@@ -29,7 +29,7 @@
 #' lines(result$theta)
 #' plot(result$primal_norm)
 #' plot(result$dual_norm)
-consensus_ADMM <- function(y, tau, lambda, k, rho, overlap, max_iter, eps = 0.01){
+consensus_ADMM2 <- function(y, tau, lambda, k, rho, overlap, max_iter, eps = 0.01){
   y_n <- length(y)
   nT <- length(tau)
   if( (y_n + overlap) %% 2 != 0 ){
@@ -120,6 +120,152 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, overlap, max_iter, eps = 0.01
 
   theta <- y - phiBar
   return(list(theta = theta, phiBar = phiBar, phi1 = phi1, phi2 = phi2,
+              primal_norm = primal_norm, dual_norm = dual_norm,
+              iter = iter))
+}
+
+
+#' Consensus ADMM for overlapping windows
+#'
+#' \code{consensus ADMM} Uses ADMM to smooth overlapping windows
+#'
+#' @param y observed data
+#' @param tau quantile levels at which to evaluate trend
+#' @param lambda smoothing penalty parameter
+#' @param k order of differencing
+#' @param rho step size for ADMM
+#' @param window_size size of windows to use
+#' @param overlap integer length of overlap between windows
+#' @param max_iter Maximum number of iterations
+#' @examples
+#' n <- 100
+#' x <- seq(1, n, 1)
+#' y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
+#' lambda <- 10
+#' k <- 3
+#' tau <- c(0.05)
+#' overlap <- 20
+#' rho <- 1
+#' result <- consensus_ADMM(y, tau, lambda, k, rho, overlap, 300)
+#' y_n <- length(y)
+#' window_size <- floor((y_n+overlap)/2)
+#' plot(result$phiBar~x, type="l")
+#' points(result$phi1~x[1:window_size])
+#' points(result$phi2~x[(y_n-window_size+1):y_n], col="blue")
+#' plot(y~x)
+#' lines(result$theta)
+#' plot(result$primal_norm)
+#' plot(result$dual_norm)
+consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
+                           overlap, max_iter, eps = 0.01){
+  y_n <- length(y)
+  nT <- length(tau)
+  if( (y_n + overlap) %% 2 != 0 ){
+    stop("length of y plus overlap must be even")
+  }
+
+  n_windows <- ceiling(y_n/(window_size-overlap))
+  windows <- matrix(FALSE, y_n, n_windows)
+  y_list <- list()
+  w_list <- list()
+  phi_list <- list()
+
+  # Initial values
+
+  for (i in 1:n_windows){
+    start_I <- 1+(window_size-overlap)*(i-1)
+    end_I <- min((window_size + (window_size-overlap)*(i-1)), y_n)
+    windows[start_I:end_I,i] <- TRUE
+    y_list[[i]] <- y[start_I:end_I]
+    w_list[[i]] <- numeric(length(y_list[[i]])*length(tau))
+    phi_list[[i]] <- matrix(0,length(y_list[[i]]),length(tau))
+  }
+
+
+  phiBar <- matrix(0, nrow = y_n, ncol = length(tau))
+  overlapInd <- rowSums(windows) > 1
+
+  # Window update
+  for (i in 1:n_windows){
+    phi_list[[i]] <- quad_update(y_list[[i]], tau, lambda, k, w_list[[i]],
+                        as.numeric(phiBar[windows[,i],]),
+                        0, first = TRUE)
+  }
+
+  # Consensus update
+  for (i in 1:n_windows){
+    phiBar[windows[,i],] <- phiBar[windows[,i],] + phi_list[[i]]
+  }
+  phiBar[overlapInd, ] <- phiBar[overlapInd, ]/2
+
+
+  # Dual update
+  for (i in 1:n_windows){
+    w_list[[i]] <- w_list[[i]] +
+      as.numeric(rho*(phi_list[[i]] - phiBar[windows[,i],]))
+  }
+
+  phiBar_k <- phiBar
+
+  dual_norm <- double(max_iter)
+  primal_norm <- double(max_iter)
+
+  iter <- 1
+
+  while(iter <= max_iter){
+
+    # Window update
+    for (i in 1:n_windows){
+      phi_list[[i]] <- quad_update(y_list[[i]], tau, lambda, k, w_list[[i]],
+                                   as.numeric(phiBar[windows[,i],]),
+                                   rho, first = TRUE)
+    }
+
+    # Consensus update
+    phiBar[] <- 0
+    for (i in 1:n_windows){
+      phiBar[windows[,i],] <- phiBar[windows[,i],] + phi_list[[i]]
+    }
+    phiBar[overlapInd, ] <- phiBar[overlapInd, ]/2
+
+
+    # Dual update
+    for (i in 1:n_windows){
+      w_list[[i]] <- w_list[[i]] +
+        as.numeric(rho*(phi_list[[i]] - phiBar[windows[,i],]))
+    }
+
+    # Convergence Metrics
+    dual_resid <- phiBar - phiBar_k
+    dual_norm[iter] <- 2*rho*Matrix::norm(dual_resid, type = "F")
+    phiBar_k <- phiBar
+
+    primal_resid <- 0
+    for (i in 1:n_windows){
+      primal_resid <- primal_resid +
+        norm(phi_list[[i]] - phiBar[windows[,i],], "F")
+    }
+
+    primal_norm[iter] <- primal_resid
+
+    if (iter %% 20 == 0){
+      print(sprintf("Iteration: %d Primal Resid Norm: %.3f Dual Resid Norm: %.3f", iter,
+                    primal_norm[iter],
+                    dual_norm[iter]))
+
+    }
+
+    if(dual_norm[iter] < eps*nT & primal_norm[iter] < eps*nT){
+      primal_norm <- primal_norm[1:iter]
+      dual_norm <- dual_norm[1:iter]
+      print(sprintf("Converged in %d iterations", iter))
+      break
+    }
+    iter <- iter+1
+  }
+
+  theta <- y - phiBar
+  return(list(theta = theta, phiBar = phiBar, phi = phi_list,
               primal_norm = primal_norm, dual_norm = dual_norm,
               iter = iter))
 }
