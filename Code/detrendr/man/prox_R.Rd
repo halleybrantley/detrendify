@@ -4,7 +4,7 @@
 \alias{prox_R}
 \title{Proximal mapping}
 \usage{
-prox_R(theta, eta, y, lambda, tau = 0.05, t = 1)
+prox_R(theta, eta, y, lambda, tau, step)
 }
 \arguments{
 \item{theta}{input}

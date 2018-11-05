@@ -4,7 +4,7 @@
 \alias{prox_f2_R}
 \title{Proximal mapping of f_2}
 \usage{
-prox_f2_R(eta, lambda, t = 1)
+prox_f2_R(eta, lambda, step)
 }
 \arguments{
 \item{eta}{input}

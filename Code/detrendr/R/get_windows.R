@@ -9,6 +9,7 @@
 #' @param lambda smoothing penalty parameter
 #' @param window_size integer length of window
 #' @param overlap integer length of overlap between windows
+#' @export
 get_windows <- function(y, time, k, tau, lambda, 
                         window_size, overlap){
   y_n <- length(y)

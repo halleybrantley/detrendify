@@ -7,7 +7,7 @@
 chol_solve(cholM, b, k, upper = TRUE)
 }
 \arguments{
-\item{cholM}{sparse banded cholseky decomposition of discrete derivative 
+\item{cholM}{sparse banded cholseky decomposition of discrete derivative
 matrix of order k}
 
 \item{b}{dense solution vector}
@@ -17,6 +17,6 @@ matrix of order k}
 \item{upper}{boolean indicator of whether cholM is upper or lower triangular}
 }
 \description{
-\code{chol_solve} Solves a linear system cholM%*%x=b 
+\code{chol_solve} Solves a linear system cholM%*%x=b
 when cholM is a sparse banded cholesky.
 }

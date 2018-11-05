@@ -8,6 +8,7 @@
 #' @param lambdaSeq smoothing penalty parameter options to compare
 #' @param numFolds number of cross-validation folds to use
 #' @param parallel TRUE/FALSE run in lambdas in parallel
+#' @export
 lambda_cv <- function(y, tau, k,
                       lambdaSeq = c(length(y)/10, length(y), length(y)*10),
                       numFolds = 5,

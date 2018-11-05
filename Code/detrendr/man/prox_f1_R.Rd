@@ -4,7 +4,7 @@
 \alias{prox_f1_R}
 \title{Proximal mapping of f_1}
 \usage{
-prox_f1_R(theta, y, tau = 0.05, t = 1)
+prox_f1_R(theta, y, tau, step)
 }
 \arguments{
 \item{theta}{input}

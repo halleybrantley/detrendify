@@ -12,6 +12,8 @@ project_V_R(theta, eta, D, M)
 \item{eta}{second input}
 
 \item{D}{differencing matrix}
+
+\item{M}{Cholesky factorization of DtD + I}
 }
 \description{
 \code{project_V} projects (theta, eta) onto the subspace eta = D%*%theta
@@ -21,6 +23,7 @@ set.seed(12345)
 k <- 3
 n <- 1e2
 D <- get_Dk(n, k)
+M <- Cholesky(diag(n) + crossprod(D))
 theta <- rnorm(n)
 eta <- D \%*\% theta
 proj <- project_V(theta, eta, D)

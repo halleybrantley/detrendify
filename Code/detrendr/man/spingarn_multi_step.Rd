@@ -4,8 +4,8 @@
 \alias{spingarn_multi_step}
 \title{Multiple steps of Spingarn's algorithm}
 \usage{
-spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1,
-  numberIter = 1, k = 3L, rel_tol = 1e-04)
+spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau = 0.05,
+  step = 1, numberIter = 1, k = 3L, rel_tol = 1e-04)
 }
 \arguments{
 \item{theta}{input 1}
@@ -47,7 +47,7 @@ lambda <- 10
 tau <- 0.01
 step <- 1
 numberIter <- 100
-multi_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda, 
+multi_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda,
 tau, step, numberIter)
 theta <- multi_step[[1]]
 theta_last <- prox_f1(theta, y, tau)

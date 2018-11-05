@@ -4,8 +4,8 @@
 \alias{spingarn_multi_step_R}
 \title{Multiple step of Spingarn's algorithm}
 \usage{
-spingarn_multi_step_R(theta, eta, y, D, M, lambda, tau = 0.05, t = 1,
-  numberIter = 1)
+spingarn_multi_step_R(theta, eta, y, D, M, lambda, tau, step,
+  numberIter = 1, stepUpdate)
 }
 \arguments{
 \item{theta}{input 1}

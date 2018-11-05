@@ -7,23 +7,47 @@ library(tidyverse)
 
 rm(list=ls())
 # Application
-dataDir <- "~/Desktop/EPA/SPod_Data/TestRange_Dec2017"
+dataDir <- "~/Desktop/EPA/SPod_Data/PHL_2017"
 datafiles <- dir(dataDir, pattern=".csv", full.names=TRUE)
-spod <- read.csv(datafiles[3], header=TRUE,  na.strings = "N/A")
+spod <- read.csv(datafiles[2], header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
 
-node <- "h"
+
+node <- "c"
 pidCol <- paste(node, "SPOD.PID..V.", sep=".")
 spodNode <- spod[, c("time", pidCol)]
 names(spodNode)[2] <- c("pid")
 spodNode <- subset(spodNode, !is.na(pid))
 spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
+plot(pid~time, spodNode, type="l")
 
-plot(pid~time, spodNode[35000:36500, ], type="l")
+y <- spodNode[, "pid"]
+x <- spodNode[, "time"]
+k <- 3
+tau <- c(0.1, 0.5)
+overlap <- 300
+window_size <- 3600
+lambda <- 10*window_size
 
-y <- spodNode[12000:52000, "pid"]
-x <- spodNode[12000:52000, "time"]
+theta.df <- get_windows(y, x, k, tau, lambda, window_size, overlap)
+plot.df <- left_join(theta.df, spodNode) 
+
+ggplot(plot.df, aes(x = time, y = pid)) +
+  geom_line(alpha = 0.2) +
+  geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+  theme_bw() + 
+  guides(col = "none") + 
+  ggtitle("Finished in 64 s")
+
+ggsave("windows_fit.png", width = 8, height = 4)
+
+
+
+
+
+
+
 
 k <- 3
 tau <- c(0.05, 0.5)
@@ -60,5 +84,32 @@ for (i in 2:n_windows){
 dev.copy(png, "consensus_fig.png", width = 800, height = 400)
 dev.off()
 
-theta.df <- get_windows(y, x, k, tau, lambda, window_size, overlap)
+system.time(theta.df <- get_windows(y, x, k, tau, lambda, window_size, overlap))
+plot.df <- left_join(theta.df, spodNode) 
 
+ggplot(plot.df, aes(x = time, y = pid)) +
+  geom_line(alpha = 0.2) +
+  geom_line(aes(y=theta, col = factor(window), linetype=tau)) +
+  theme_bw() + 
+  guides(col = "none") + 
+  ggtitle("Finished in 64 s")
+
+ggsave("windows_fit.png", width = 8, height = 4)
+
+
+y <- spodNode[12000:13000, "pid"]
+x <- spodNode[12000:13000, "time"]
+k <- 3
+tau <- c(0.05, 0.5)
+lambda <- 5*window_size
+rho <- 1
+w <- numeric(length(y)*length(tau))
+phiBar <- numeric(length(y)*length(tau))
+D <- as.matrix(get_Dk(length(y), k))
+library(microbenchmark)
+
+microbenchmark(
+  theta1 <-  quad_update(y, tau, lambda, D, w, phiBar, rho),
+  theta2 <- gurobi_trend(y, tau, lambda, k),
+  times = 10
+)
