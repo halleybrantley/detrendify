@@ -31,20 +31,20 @@
 #' plot(result$dual_norm)
 #' @export
 consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
-                           overlap, max_iter, eps = 0.01, update=10, cl){
+                           overlap, max_iter, eps = 0.01, update=10){
   y_n <- length(y)
+  tau <- sort(tau)
   nT <- length(tau)
   D <- as.matrix(get_Dk(window_size, k))
-  
   n_windows <- ceiling(y_n/(window_size-overlap))
   windows <- matrix(FALSE, y_n, n_windows)
   y_list <- list()
   w_list <- list()
   phi_list <- list()
   
-  if (!is.null(cl)){
-    registerDoParallel(cl)
-  }
+  # if (!is.null(cl)){
+  #   registerDoParallel(cl)
+  # }
   
   # Initial values
 
@@ -57,12 +57,13 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
     phi_list[[i]] <- matrix(0,length(y_list[[i]]),length(tau))
   }
 
-
+  model_list <- lapply(y_list, create_model, tau, lambda, D)
+  
   overlapInd <- rowSums(windows) > 1
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
 
   # Window update
-  phi_list <- update_windows(y_list, w_list, phiBar_list, tau, lambda, D, rho=0)
+  phi_list <- update_windows(w_list, phiBar_list, model_list, 0, nT)
 
   # Consensus update
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
@@ -71,7 +72,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
   w_list <- mapply(update_dual, w_list, phi_list, phiBar_list,
                    MoreArgs = list(rho=rho))
 
-  phiBar_k <- get_phiBar(phi_list, windows)
+  phiBar_k <- get_phiBar(phiBar_list, windows)
 
   dual_norm <- double(max_iter)
   primal_norm <- double(max_iter)
@@ -81,8 +82,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
   while(iter <= max_iter){
 
     # Window update
-    phi_list <- update_windows(y_list, w_list, phiBar_list, tau, lambda, D, rho)
-
+    phi_list <- update_windows(w_list, phiBar_list, model_list, rho, nT)
     # Consensus update
     phiBar_list <- update_consensus(phi_list, windows, overlapInd)
 
@@ -121,6 +121,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
   }
   
   theta <- y - phiBar
+  stopImplicitCluster()
   return(list(theta = theta, phiBar = phiBar, phi = phi_list,
               primal_norm = primal_norm, dual_norm = dual_norm,
               iter = iter))

@@ -6,6 +6,7 @@
 #' @param tau quantile levels at which to evaluate trend
 #' @param lambda penalty paramter controlling smoothness
 #' @param k order of differencing
+#' @export
 gurobi_trend <- function(y, tau, lambda, k){
 
   if(tau >= 1 || tau <= 0){

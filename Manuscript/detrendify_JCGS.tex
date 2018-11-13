@@ -288,7 +288,7 @@
 
 \if0\blind
 {
-  \title{\bf Drift Removal for Time Series Data Using Quantile Trend Filtering via Spingarn's Method}
+  \title{\bf Drift Removal for Time Series Data Using Quantile Trend Filtering}
   \author{Halley Brantley\thanks{
     Department of Statistics, North Carolina State University, Raleigh, NC 27695-8203 (E-mail: hlbrantl@ncsu.edu)} \,
          Joseph Guinness\thanks{
@@ -336,6 +336,8 @@ Abstract
 \item \cite{Tib2014} describes properties of trend filtering using quadratic loss. Shows that trend filtering estimates adapt to the local level of smoothness much better than smoothing splines, and exhibit a remarkable similarity to locally adaptive regression splines. Prove that (with the right choice of tuning parameter) the trend filtering estimate
 converges to the true underlying function at the minimax rate for functions whose kth derivative is of bounded variation.
 \item \cite{Ning2014} address problem of estimating a smooth baseline in noisy data with drift.
+\item \cite{Takeuchi2006nonparametric} Nonparametric quantile regression using SVM with Gaussian RBF kernels and check (pinball) loss. 
+\item \cite{yuan2006gacv} Comparison of cross-validation methods for quantile smoothing splines.  
 \end{itemize}
 We propose to use the trend filtering penalty with the check loss function to produce a non-parametric quantile regression estimate that can be computes using a linear time algorithm for removing trends in time series. The formulation was proposed by \cite{Kim2009} as a possible extension of $\ell_1$-trend filtering but not studied. Moreover we extend the basic framework to model multiple quantiles and ensure non-crossing. 
 
