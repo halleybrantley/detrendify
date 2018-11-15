@@ -109,7 +109,7 @@ create_model <- function(y, tau, lambda, D){
     thetaInd <- (1+np*(i-1)):(2*n + np*(i-1))
     diag(model$Q[thetaInd, thetaInd]) <- rho/2
     
-    # D%*%theta = eta constraint
+    # Constraint for D%*%theta = eta 
     model$A[(1+m*(i-1)):(m*i), (1+np*(i-1)):(np*i)] <-
       cbind(D, -D, diag(m), -diag(m))
     

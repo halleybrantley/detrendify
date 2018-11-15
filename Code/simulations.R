@@ -4,7 +4,7 @@ library(quantreg)
 library(devtools)
 library(qrsvm)
 load_all("detrendr")
-source("function_jcgs.R")
+#source("function_jcgs.R")
 rm(list=ls())
 
 x <- (seq(1,200,1)-1)/200
@@ -13,6 +13,28 @@ y <- sin(10*x) + (x + .25)*rnorm(200, 0, .07)/.1
 
 fit_svm <- qrsvm(as.matrix(x), y, tau = .1, sigma = 100)
 lines(fit_svm$fitted~x, col="blue")
+
+tau <- .1
+fit_qsreg <- qsreg(x, y, alpha=tau, lam=1)
+f <- predict(fit_qsreg)
+resid <- y-f
+w <- rep(tau, length(resid))
+w[resid < 0] <- tau-1
+w <- w/(2*resid)
+w <- w/sum(w)
+
+fit_sq <- sreg(x, y, weights = w)
+fit_sq2 <- smooth.spline(x,y, w)
+A <- fit_sq$diagA
+f2 <- predict(fit_sq)
+resid <- y-f2
+
+LOOCV_mse <- mean(resid^2/(1-A)^2)
+# GCV MSE with weights
+GCV_mse <- crossprod(resid, diag(w))%*%resid/(1-mean(A))^2/n
+
+summary(fit_sq)
+
 
 # Fit Koenker Smoothing Splines
 rmse_qss <- function(x, y, tau, lambda, f_true){

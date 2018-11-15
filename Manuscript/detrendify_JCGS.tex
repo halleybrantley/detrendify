@@ -634,6 +634,151 @@ Difference with version 1: If we are interested in a 3rd order penalization, the
 
 We compare our detrending method with BEADS and the more general nonparametric quantile method introduced by \cite{Oh2011}.
 
+
+\section{ADMM for Smoothing Windows}
+
+To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm, described by \cite{boyd2011distributed}, relies on the idea of dual ascent. If we consider the equality optimization problem 
+\begin{align}
+&\text{minimize } f(x)\\
+&\text{subject to } Ax = b
+\end{align}
+with variable $x\in \mathbf{R}^n$, where $A \in \mathbf{R}^{mxn}$ and $f: \mathbf{R}^n \rightarrow \mathbf{R}$ is convex. The corresponding Lagrangian function is 
+\begin{equation}
+L(x,\omega) = f(x) + \omega^T(Ax-b)
+\end{equation}
+and the corresponding dual problem  is 
+\begin{equation}
+ \text{maximize } \inf_x L(x,\omega)
+\end{equation}
+Assuming that strong duality holds (Slater's constraint: there exists a solution in the interior of the domain), the optimal values of the primal and dual variables are the same. The dual ascent method, uses gradient ascent to solve the dual problem and thus the primal problem using the iterates
+\begin{align}
+&x^{k+1} = \arg\min L(x, \omega^k)\\
+&\omega^{k+1} = \omega^k + \alpha^k(Ax^{k+1} - b)
+\end{align}
+where $\alpha^k > 0$ is a step size and $k$ is the iteration counter. In many cases (including our problem), the $x$ update fails because the problem is unbounded below. To remedy this issue the augmented Lagrangian was introduced:
+\begin{equation}
+L_{\gamma}(x,\omega) = f(x)+\omega^T(Ax-b) + \frac{\gamma}{2}||Ax-b||_2^2
+\end{equation}
+where $\gamma > 0$ is called the penalty parameter. Applying dual ascent to the modified problem results in the method of multipliers algorithm which converges under more general conditions:
+\begin{align}
+&x^{k+1} = \arg\min L_\gamma(x, \omega^k)\\
+&\omega^{k+1} = \omega^k + \gamma(Ax^{k+1} - b)
+\end{align}
+Consider a new optimization problem with a separable objective function. 
+\begin{align}
+&\text{minimize } f_1(x_1) + f_2(x_2)\\
+&\text{subject to } A_1x_1 + A_2x_2 = b
+\end{align}
+where $x = (x_1, x_2)$, $i \in \{1,2\}$, and  $x_i \in \mathbf{R}^{n_i}$. The dual ascent updates can be expressed as 
+\begin{align}
+&x_i^{k+1} = \arg\min L_i(x_i, \omega^k)\\
+&\omega^{k+1} = \omega^k + \alpha^k(Ax^{k+1} - b)
+\end{align}
+however we lose the separability if the augmented Lagrangian is used instead, i.e. the augmented Lagrangian can not be separated into functions of $x_i$.  The Alternating Direction Method of Multipliers (ADMM) addresses this problem and maintains separability while using the augmented Lagrangian to improve convergence through the following updates
+\begin{align}
+&x_1^{k+1} = \arg\min_{x_1} L_{\gamma}(x_1, x_2^k, \omega^k)\\
+&x_2^{k+1} = \arg\min_{x_2} L_{\gamma}(x_1^{k+1}, x_2, \omega^k)\\
+&\omega^{k+1} = \omega^k + \alpha^k(A_1x_1^{k+1} + A_2x_2^{k+1} - b)
+\end{align}
+
+We now consider the quantile regression trend filtering problem,  
+\begin{equation}
+\text{minimize } \rho_\tau(y-\theta) + \lambda||D^{(k)}\theta||_1\\
+\end{equation}
+where $y,\theta \in \mathbf{R}^n$, $y$ is the observed data, $\rho_{\tau}(u) = \sum_i(\tau - I(u_i < 0))u_i$ is the check loss function corresponding to quantile level $\tau$ and $D^{(k)}$ is the discrete differencing matrix of order $k$ and $\lambda$ is a tuning parameter that controls smoothness. We first re-parameterize $\phi = y-\theta$ so the problem is
+\begin{equation}
+\text{minimize } \rho_\tau(\phi) + \lambda||D^{(k)}(y-\phi)||_1\\
+\end{equation}
+We further divide $\phi$ order to solve smaller problems: Defining
+\begin{align}
+&\phi_1 = (\phi_{11}, \phi_{12})\\
+&\phi_2 = (\phi_{21}, \phi_{22}, \phi_{23})\\
+&\phi_3 = (\phi_{31}, \phi_{32})\\
+&\phi = (\phi_{11}, \phi_{12}=\phi_{21}, \phi_{22}, \phi_{23}=\phi_{31}, \phi_{32}) \\
+\end{align}
+Dividing $y$ similarly, the problem then becomes 
+\begin{align}
+&\text{minimize } \sum_{i=1}^3 \rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1\\
+&\text{subject to: } \phi_{12}=\phi_{21}, ~~ \phi_{23}=\phi_{31}\\
+\end{align}
+We can further simplify by defining 
+\begin{align}
+&\overline{\phi} = (\phi_{11}, \frac{\phi_{12}+\phi_{21}}{2}, \phi_{22}, \frac{\phi_{23}+\phi_{31}}{2}, \phi_{32}) \\
+&\overline{\phi_1} = (\phi_{11}, \frac{\phi_{12}+\phi_{21}}{2})\\
+&\overline{\phi_2} = ( \frac{\phi_{12}+\phi_{21}}{2}, \phi_{22}, \frac{\phi_{23}+\phi_{31}}{2})\\
+&\overline{\phi_3} = (\frac{\phi_{23}+\phi_{31}}{2}, \phi_{32})
+\end{align}
+so the problem becomes
+\begin{align}
+&\text{minimize } \sum_{i=1}^3 \rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1\\
+&\text{subject to: } \phi_{i}=\overline{\phi_i}\\
+\end{align}
+The augmented Lagrangian for this problem is 
+\begin{align}
+&L_\gamma(\phi_1,\phi_2, \phi_3, \overline{\phi_1}, \overline{\phi_2}, \overline{\phi_3}, \omega) = \\
+&\sum_{i=1}^3 \rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1 + \omega_i^T(\phi_i - \overline{\phi_i}) + \frac{\gamma}{2}||\phi_i - \overline{\phi_i}||_2^2
+\end{align}
+The ADMM updates are then given by
+\begin{align}
+&\phi_i^{k+1} = \arg\min_{\phi_i}\rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1 + \omega_i^{kT}(\phi_i - \overline{\phi_i}^k) + \frac{\gamma}{2}||\phi_i - \overline{\phi_i}^k||_2^2\\
+&\omega_i^{k+1} = \omega_i^{k} + \gamma(\phi_i^{k+1} - \overline{\phi_i}^{k+1})
+\end{align}
+The $\phi_i$ updates can be obtained using a quadratic program solver such as Gurobi and can be obtained in parallel. 
+
+\section {Cross Validation Methods}
+Our method can easily handle missing data by changing the check loss function to output 0 for missing values. This allows us to leave out validation observations that can be used to select the tuning parameter $\lambda$ and to compare method performance on real data. A number of methods have been proposed for selecting the quantile regression smoothing spline tuning parameter \cite{yuan2006gacv}. The traditional smoothing spline for $y \in \mathbf{R}^n$ as a function of a predictor $x \in \mathbf{R}^n$ using the squared loss is estimated by minimizing 
+
+\begin{equation}
+\frac{1}{n}\sum_i (y_i - f(x_i))^2 + \lambda \int(f''(x))^2 dx
+\end{equation}
+
+It has been shown that the solution to this problem is a cubic spline with a knot at each of the observed $x_i$. This problem can then be reformulated using a spline basis matrix $B \in \mathbf{R}^{nxn}$: 
+\begin{equation}
+(y-B\beta)^T(y-B\beta) + n\lambda\beta^T\Omega\beta
+\end{equation}  
+where $\Omega_{jk} = \int B_j''(x)B_k''(x)dx$. Since each spline basis function is a defined as a cubic polynomial with non-zero second derivatives on a finite region, the integrals are finite. The solution is then given by 
+$$f(x) = B\widehat{\beta} = B(B^TB + n\lambda\Omega)^{-1}B^Ty$$
+Because the solution is a linear combination of the observed $y$, the leave-one-out cross validation (LOOCV) statistics can be calculated without refitting the model. Defining $W = B\widehat{\beta} = B(B^TB + n\lambda\Omega)^{-1}B$ the LOOCV residual is given by 
+\begin{equation}
+y_i - \widehat{y_i}^{(-i)} = \frac{y_i - \widehat{y_i}}{1-W_{[i,i]}}
+\end{equation}
+where $\widehat{y_i}$ is the prediction using the full dataset and $\widehat{y_i}^{(-i)}$ is the prediction from the model fit without $y_i$. In practice, generalized cross validation (GCV) has also been found to be an effective metric for choosing the smoothing parameter, with the validation MSE calculated as 
+\begin{equation}
+\frac{\frac{1}{n}\sum(y_i-\widehat{y_i})^2}{(1-\frac{1}{n}tr(W))^2}
+\end{equation}
+
+Returning to the quantile regression case, \cite{nychka1995nonparametric} proposed a pseudo-data algorithm for a quantile spline estimator of the form 
+\begin{equation}
+ \sum_i \rho_{\tau}(y_i - g(x_i)) + \lambda\int(g''(x))^2dx.
+\end{equation}
+
+If $\rho_{\tau}(\cdot)$ were differentiable, the solution to this equation would take a form similar to that of the squared loss smoothing spline with weights equal to $\frac{\rho'_{\tau}(y_i-g(x_i))}{2(y_i - g(x_i))}$. Relying on this idea, Nychka proposed to solve the problem by iteratively solving the weighted smoothing spline. To address the non-differentiability they propose an approximation 
+\begin{equation}
+\rho_{\tau, \delta}(u) = [\tau I(u>0) + (1-\alpha)I(u<0)]u^2/\delta
+\end{equation}
+They propose a corresponding approximate cross validation metric for choosing the tuning parameter:
+\begin{equation}
+ACV(\lambda) = \frac{1}{n}\sum_i \rho_{\tau}\left(\frac{y_i - \widehat{g}_\lambda(x_i)}{1-h_{ii}}\right)
+\end{equation}
+where $h_{ii} = \frac{\partial\widehat{g}_{\tau, \lambda}(x_i)}{\partial y_i}$. However \cite{yuan2006gacv} showed through simulation that this is not a good approximation to the robust cross validation score
+\begin{equation}
+RCV(\lambda) = \frac{1}{n}\sum\rho_{\tau}(y_i - g_\lambda^{(-i)}(x_i))
+\end{equation}
+and propose the GACV as an alternative 
+\begin{equation}
+GACV(\lambda) = \sum_i \rho_{\tau}\left(\frac{y_i - \widehat{g}_\lambda(x_i)}{n-tr(H)}\right)
+\end{equation}
+where $H_{ij} = \frac{\partial\widehat{g}_{\tau, \lambda}(x_i)}{\partial y_j}$ 
+
+\cite{KoenkerNgPortnoy1994} proposed a quantile smoothing spline using the check loss function and 1-norm rather than 2-norm:
+\begin{equation}
+R_{\tau,\lambda} = \rho_{\tau}(y - g(x)) + \lambda\int_0^1|g''(x)|dx
+\end{equation}
+with $0 = x_0 < ... < x_n = 1$. They prove that the resulting function $\widehat{g(x)}$ is a linear spline with knots at the observed values of $x$. They also argue that the solutions $\widehat{g}_{\tau,\lambda}(\cdot)$ are piecewise constant in $\lambda$ and that there exists a mesh $0= \lambda_0 < \lambda_1 < ... < \lambda_J$ such that $\widehat{g}_{\tau,\lambda}(\cdot)$ is the solution for all $\lambda \in [\lambda_{i-1}, \lambda_i]$. Relating $\lambda$ to the number of interpolated points $p_{\lambda} = \sum I(y_i = \widehat{g}_i(x_i))$, which can be thought of as active knots, they propose the Schwarz criterion for the selection of $\lambda$
+\begin{equation}
+SIC(p_{\lambda}) = log[n^{-1}\sum\rho_{\tau}(y_i - \widehat{g}(x_i))] + \frac{1}{2n}p_{\lambda}log n
+\end{equation}
+
 \bibliographystyle{asa}
 \bibliography{detrendify}
 
