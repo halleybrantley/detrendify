@@ -5,7 +5,7 @@
 \title{Consensus ADMM for overlapping windows}
 \usage{
 consensus_ADMM(y, tau, lambda, k, rho, window_size, overlap, max_iter,
-  eps = 0.01, update = 10, cl)
+  eps = 0.01, update = 10)
 }
 \arguments{
 \item{y}{observed data}

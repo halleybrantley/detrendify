@@ -121,7 +121,6 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
   }
   
   theta <- y - phiBar
-  stopImplicitCluster()
   return(list(theta = theta, phiBar = phiBar, phi = phi_list,
               primal_norm = primal_norm, dual_norm = dual_norm,
               iter = iter))

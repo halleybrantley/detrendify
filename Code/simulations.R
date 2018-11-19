@@ -7,14 +7,42 @@ load_all("detrendr")
 #source("function_jcgs.R")
 rm(list=ls())
 
-x <- (seq(1,200,1)-1)/200
-n <- length(x)
-y <- sin(10*x) + (x + .25)*rnorm(200, 0, .07)/.1
-
-fit_svm <- qrsvm(as.matrix(x), y, tau = .1, sigma = 100)
-lines(fit_svm$fitted~x, col="blue")
-
+n <- 500
+x <- (seq(1,n,1)-1)
+y <- sin(10*x/n) + (x/n + .25)*rnorm(n, 0, .1)/.1
 tau <- .1
+f_true <- sin(10*x/n) + (x/n + .25)*qnorm(tau, 0, .1)/.1
+
+fit_qsreg <- qsreg(x, y, maxit.cv = 50, alpha=tau, hmin = -9)
+f_qsreg <- predict(fit_qsreg)
+
+lam_SIC <- lambda_SIC(y, tau, 3)
+lam_SIC2 <- lambda_SIC(y, tau, 2)
+lam_valid <- lambda_valid(y, tau, 3, 5)
+
+fit <- rqss(y ~ qss(x, lambda = 2*lam_SIC2$lambda), tau = tau)
+fhat <- predict(fit, data.frame(x=x))
+f_trend <- gurobi_trend(y, tau, lam_SIC2$lambda, k=2)
+f_trend_SIC <- gurobi_trend(y, tau, lam_SIC$lambda, k=3)
+f_trend_valid <- gurobi_trend(y, tau, lam_valid$lambda, k=3)
+
+plot(f_true~x, type="l")
+lines(fhat~x, col="red")
+lines(f_trend_SIC~x, col="blue")
+lines(f_trend_valid~x, col="purple")
+lines(f_qsreg~x, col="darkgreen")
+
+mean((f_true-f_trend)^2)
+mean((f_true - f_trend_SIC)^2)
+mean((f_true - f_trend_valid)^2)
+mean((f_true - f_qsreg)^2)
+
+
+# Need to figure out how to choose sigma (kernel parameter)
+fit_svm <- qrsvm(as.matrix(x/n), y, tau = tau, sigma = 10)
+plot(fit_svm$fitted~x, col="cyan")
+
+
 fit_qsreg <- qsreg(x, y, alpha=tau, lam=1)
 f <- predict(fit_qsreg)
 resid <- y-f

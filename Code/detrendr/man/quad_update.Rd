@@ -4,27 +4,16 @@
 \alias{quad_update}
 \title{Solve quadratic program step in consensus ADMM}
 \usage{
-quad_update(y, tau, lambda, D, w, z, rho)
+quad_update(w, z, model, rho, nT)
 }
 \arguments{
-\item{y}{observed data}
-
-\item{tau}{quantile levels at which to evaluate trend}
-
-\item{lambda}{smoothing penalty parameter}
-
 \item{w}{value of dual variable}
 
-\item{rho}{step size for ADMM}
-
-\item{k}{order of differencing}
-
-\item{overlap}{integer length of overlap between windows}
+\item{z}{consensus variable}
 
 \item{rho}{step size for ADMM}
 
-\item{first}{boolean indicator of whether the first or second of the
-overlapping windows}
+\item{nT}{number of quantiles}
 }
 \description{
 \code{quad_update} Uses gurobi to solve quadratic program step

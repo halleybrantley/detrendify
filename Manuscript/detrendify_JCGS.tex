@@ -725,6 +725,30 @@ The ADMM updates are then given by
 \end{align}
 The $\phi_i$ updates can be obtained using a quadratic program solver such as Gurobi and can be obtained in parallel. 
 
+\pagebreak 
+
+\begin{figure}[!h] 
+	\caption{Windows fit separately compared to simultaneous fit, no signal present.}
+	\includegraphics[width = \linewidth]{overlapping_windows.png}
+\end{figure}
+
+\begin{figure}[!h] 
+	\caption{Windows fit with 150 iterations of ADMM, no signal present.}
+	\includegraphics[width = \linewidth]{admm_windows.png}
+\end{figure}
+
+\begin{figure}[!h] 
+	\caption{Windows fit separately compared to simultaneous fit, signal present.}
+	\includegraphics[width = \linewidth]{overlapping_windows2.png}
+\end{figure}
+
+\begin{figure}[!h] 
+	\caption{Windows fit with 300 iterations of ADMM, signal present.}
+	\includegraphics[width = \linewidth]{admm_windows2.png}
+\end{figure}
+
+\pagebreak
+
 \section {Cross Validation Methods}
 Our method can easily handle missing data by changing the check loss function to output 0 for missing values. This allows us to leave out validation observations that can be used to select the tuning parameter $\lambda$ and to compare method performance on real data. A number of methods have been proposed for selecting the quantile regression smoothing spline tuning parameter \cite{yuan2006gacv}. The traditional smoothing spline for $y \in \mathbf{R}^n$ as a function of a predictor $x \in \mathbf{R}^n$ using the squared loss is estimated by minimizing 
 
