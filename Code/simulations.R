@@ -2,35 +2,90 @@
 library(fields)
 library(quantreg)
 library(devtools)
-library(qrsvm)
+# library(qrsvm)
+library(np)
+library(microbenchmark)
 load_all("detrendr")
+library(tidyverse)
 #source("function_jcgs.R")
 rm(list=ls())
-
+nSim <- 100
 n <- 500
 x <- (seq(1,n,1)-1)
-y <- sin(10*x/n) + (x/n + .25)*rnorm(n, 0, .1)/.1
 tau <- .1
+set.seed(986532)
 f_true <- sin(10*x/n) + (x/n + .25)*qnorm(tau, 0, .1)/.1
+loss_df <- data.frame(SimNum = 1:nSim, 
+                      trend_SIC = NA, trend_valid = NA, rqss = NA, 
+                      qsreg = NA, npqreg = NA)
 
-fit_qsreg <- qsreg(x, y, maxit.cv = 50, alpha=tau, hmin = -9)
-f_qsreg <- predict(fit_qsreg)
-
-lam_SIC <- lambda_SIC(y, tau, 3)
-lam_SIC2 <- lambda_SIC(y, tau, 2)
-lam_valid <- lambda_valid(y, tau, 3, 5)
-
-fit <- rqss(y ~ qss(x, lambda = 2*lam_SIC2$lambda), tau = tau)
-fhat <- predict(fit, data.frame(x=x))
-f_trend <- gurobi_trend(y, tau, lam_SIC2$lambda, k=2)
-f_trend_SIC <- gurobi_trend(y, tau, lam_SIC$lambda, k=3)
-f_trend_valid <- gurobi_trend(y, tau, lam_valid$lambda, k=3)
-
+for (i in 1:nSim){
+  y <- sin(10*x/n) + (x/n + .25)*rnorm(n, 0, .1)/.1
+  lam_SIC <- lambda_SIC(y, tau, 3)
+  lam_valid <- lambda_valid(y, tau, 3, 5)
+  lam_SIC2 <- lambda_SIC(y, tau, 2, 
+                         lambdaSeq = seq(.5, length(y)/10, .2))
+  
+  f_trend_SIC <- gurobi_trend(y, tau, lam_SIC$lambda, k=3)
+  loss_df$trend_SIC[i] <- mean((f_trend_SIC-f_true)^2)
+  
+  f_trend_valid <- gurobi_trend(y, tau, lam_valid$lambda, k=3)
+  loss_df$trend_valid[i] <- mean((f_trend_valid-f_true)^2)
+  
+  fit_rqss <- rqss(y ~ qss(x, lambda = 2*lam_SIC2$lambda), tau = tau)
+  f_rqss <- predict(fit_rqss, data.frame(x=x))
+  loss_df$rqss[i] <- mean((f_rqss-f_true)^2)
+  
+  fit_qsreg <- qsreg(x, y, maxit.cv = 50, alpha=tau, hmin = -9)
+  f_qsreg <- predict(fit_qsreg)
+  loss_df$qsreg[i] <- mean((f_qsreg-f_true)^2)
+  
+  bw <- npcdistbw(y~x)
+  sink("NUL")
+  fit_npqreg <- npqreg(bws=bw, tau=tau)
+  sink()
+  f_npqreg <- fitted(fit_npqreg)
+  loss_df$npqreg[i] <- mean((f_npqreg-f_true)^2)
+  print(sprintf("\nSim %i complete", i))
+}
+  
 plot(f_true~x, type="l")
-lines(fhat~x, col="red")
+lines(f_rqss~x, col="red")
 lines(f_trend_SIC~x, col="blue")
 lines(f_trend_valid~x, col="purple")
 lines(f_qsreg~x, col="darkgreen")
+lines(f_npqreg~x, col="cyan")
+
+loss_long <- gather(na.omit(loss_df), "method", "mse", -SimNum)
+ggplot(loss_long, aes(x=method, y=mse)) + geom_boxplot() +
+  stat_summary(fun.data = "mean_cl_boot", col="red") +
+  geom_hline(yintercept = mean(loss_df$trend_SIC))
+
+timing <- {}
+for (n in seq(100, 2000, 200)){
+  x <- (seq(1,n,1)-1)
+  y <- sin(10*x/n) + (x/n + .25)*rnorm(n, 0, .1)/.1
+  lam_SIC <- lambda_SIC(y, tau, 3)
+  lam_SIC2 <- lambda_SIC(y, tau, 2, 
+                         lambdaSeq = seq(.5, length(y)/10, .2))
+  #bw <- npcdistbw(y~x)
+  
+  time_n <- summary( microbenchmark(
+    f_trend_valid <- gurobi_trend(y, tau, lam_valid$lambda, k=3),
+    fit_rqss <- rqss(y ~ qss(x, lambda = 2*lam_SIC2$lambda), tau = tau),
+    fit_qsreg <- qsreg(x, y, maxit.cv = 50, alpha=tau, hmin = -9), 
+    # {sink("NUL")
+    #  fit_npqreg <- npqreg(bws=bw, tau=tau)
+    #  sink()
+    # }, 
+    times = 20)) %>% 
+      select(expr, mean)
+  time_n$n <- n
+  timing <- rbind(timing, time_n)
+}
+
+ggplot(timing, aes(x=n, y=mean, col=expr)) + geom_line() +
+  ylim(c(0,500))
 
 mean((f_true-f_trend)^2)
 mean((f_true - f_trend_SIC)^2)
@@ -38,12 +93,7 @@ mean((f_true - f_trend_valid)^2)
 mean((f_true - f_qsreg)^2)
 
 
-# Need to figure out how to choose sigma (kernel parameter)
-fit_svm <- qrsvm(as.matrix(x/n), y, tau = tau, sigma = 10)
-plot(fit_svm$fitted~x, col="cyan")
 
-
-fit_qsreg <- qsreg(x, y, alpha=tau, lam=1)
 f <- predict(fit_qsreg)
 resid <- y-f
 w <- rep(tau, length(resid))
