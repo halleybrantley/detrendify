@@ -1,0 +1,52 @@
+This zip file contains R code to conduct multivariate direct quantile
+estimation with mixed covariates. This is to accompany the article
+
+"Direct Nonparametric Conditional Quantile Estimation"
+Jeffrey S. Racine and Kevin Li
+Date: October 8, 2014.
+
+Note that this code requires that you install the R library np which
+you can do via the command install.packages("np") from within R,
+presuming your computer is connected to the internet.
+
+The main library file that contains functions that are needed for
+conducting cross-validation for obtaining delta and the bandwidth
+vector. It is called by the remaining files and must reside in the
+same directory and is named lib_npqw_mixed.R.
+
+The remaining files contain simulated examples and an application to
+Wooldridge's wage1 dataset which is included in the R package
+np. Files with `mixed' in their name involve multivariate mixed data,
+while those with `numeric' involve one numeric (i.e. continuous)
+predictor.
+
+1. example_npqw_mixed.R - simulated mixed and multivariate data
+
+2. example_npqw_numeric.R - simulated single numeric predictor
+   illustration from the paper
+
+3. wage1_npqw_mixed.R - multivariate illustration for the wage1 data
+   for a range of quantiles
+
+4. wage1_npqw_mixed_median.R - multivariate illustration for the wage1
+   data for the median
+
+5. mcycle_npqw_numeric.R - motorcycle head impact data with a single
+   numeric predictor that was used in the paper
+
+6. Italy_npqw_numeric.R - Italian gdp panel with a single numeric
+   predictor that was used in the paper (we treat year as numeric but
+   plot as ordered, but of course you could treat as ordered
+   throughout and the library will recognize this - the only drawback
+   with this is that the local linear estimator requires at least one
+   numeric predictor so if you treat it as ordered you will lose
+   access to the local linear variant, which tends to be somewhat
+   smoother than the local constant one)
+
+Feedback is most welcome. Eventually I anticipate that this
+functionality will be integrated into the np package in a more
+computationally efficient manner when time and energy permit.
+
+Jeffrey S. Racine
+racinej@mcmaster.ca
+October 10 2014

@@ -1,5 +1,12 @@
-checkloss <- function(y, tau){
-  obj <- y*tau
-  obj[y<0] <- y[y<0]*(tau-1)
+checkloss <- function(e, tau){
+  if (ncol(e) != length(tau)){
+    stop("Number of columns in y must be same as length of tau")
+  }
+  obj <- e
+  for (i in 1:length(tau)){
+    obj[,i] <- obj[,i]*tau[i]
+    obj[e[,i] < 0,i] <- e[e[,i] < 0,i]*(tau[i]-1)
+  }
   return(obj)
+  
 }
