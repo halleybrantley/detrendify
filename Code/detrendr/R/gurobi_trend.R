@@ -12,7 +12,13 @@ gurobi_trend <- function(y, tau, lambda, k){
   if(tau >= 1 || tau <= 0){
     stop("tau must be between 0 and 1.")
   }
-
+  if (length(lambda) == 1) {
+    lambda <- rep(lambda, length(tau))
+    message("Using same lambda for all quantiles")
+  } else if (length(lambda) != length(tau)){
+    stop("lambda must be the same size as tau")
+  }
+  
   tau <- sort(tau)
   D <- as.matrix(get_Dk(length(y), k))
   n <- length(y)
@@ -25,7 +31,7 @@ gurobi_trend <- function(y, tau, lambda, k){
 
   for (i in 1:nT){
     model$obj <- c(model$obj,
-                   rep(tau[i], n), rep((1-tau[i]), n), rep(lambda, 2*m))
+                   rep(tau[i], n), rep((1-tau[i]), n), rep(lambda[i], 2*m))
     model$obj[missInd] <- 0
     model$obj[missInd + n] <- 0
     model$rhs <- c(model$rhs, as.numeric(D%*%y))

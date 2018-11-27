@@ -9,7 +9,7 @@ simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
 for(simDesign in simDesigns){                
   for (i in 1:nSim){
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
-    lam_SIC <- lambda_SIC(df$y, tau, 3)
+    lam_SIC <- lambda_SIC(df$y, tau, 3, single_lambda = TRUE)
     trend <- gurobi_trend(df$y, tau, lam_SIC$lambda, k=3)
     save(trend, lam_SIC,
          file = sprintf("../SimResults/detrend_SIC/%s_n_%i_sim%03.0f.RData", 

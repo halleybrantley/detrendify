@@ -45,7 +45,8 @@ lambda_cv_kfold <- function(y, tau, k,
 #' @export
 lambda_valid <- function(y, tau, k, q,
                        lambdaSeq = seq(length(y)/5, length(y)*5, length(y)/5), 
-                       df_tol = 1e-9, plot_lambda = FALSE){
+                       df_tol = 1e-9, plot_lambda = FALSE, 
+                       single_lambda = FALSE){
   
   validID <- seq(q, length(y), q)
   yValid <- y[validID]
@@ -59,8 +60,16 @@ lambda_valid <- function(y, tau, k, q,
     valid_checkloss[i,] <- colMeans(checkloss(yValid-f_trend[validID,], tau))
   }
   
-  valid_checkloss <- as.data.frame(scale(valid_checkloss))
-  valid_checkloss$mean <- rowMeans(valid_checkloss)
+
+  
+  if (single_lambda){
+    valid_checkloss <- as.data.frame(scale(valid_checkloss))
+    valid_checkloss$mean <- rowMeans(valid_checkloss)
+    lam <- lambdaSeq[which.min(valid_checkloss$mean)]
+  } else {
+    lam <- lambdaSeq[apply(valid_checkloss, 2, which.min)]
+  }  
+  
   
   if (plot_lambda){
     plot(valid_checkloss[,1]~lambdaSeq, type="l", col="red", 
@@ -73,7 +82,7 @@ lambda_valid <- function(y, tau, k, q,
     abline(h=min(valid_checkloss$mean), col="red")
   }
   
-  lam <- lambdaSeq[which.min(valid_checkloss$mean)]
+  
   
   return(list(lambda = lam, 
               valid_checkloss = valid_checkloss))
