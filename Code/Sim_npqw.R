@@ -11,8 +11,10 @@ regtype <- "ll"
 ckertype <- "epanechnikov"
 nmulti <- 2
 
-for(simDesign in simDesigns){                
-  for (i in 1:nSim){
+i = 0 
+################################################################################
+  for(simDesign in simDesigns){                
+
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
     trend <- matrix(NA, n, length(tau))
     sd.pilot <- sd.fan.yao(x=df$x,
@@ -59,4 +61,4 @@ for(simDesign in simDesigns){
          file = sprintf("../SimResults/npqw/%s_n_%i_sim%03.0f.RData", 
                         simDesign, n, i))
   }
-}
+################################################################################
