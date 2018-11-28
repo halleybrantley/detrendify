@@ -2,11 +2,12 @@ library(quantreg)
 library(devtools)
 load_all("detrendr")
 rm(list=ls())
-tau <- c(0.05, 0.1, 0.5, .9, 0.95)
+tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 100
-n <- 300
+
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
 
+for (n in c(300, 500, 1000)){
 for(simDesign in simDesigns){                
   for (i in 1:nSim){
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
@@ -22,4 +23,5 @@ for(simDesign in simDesigns){
          file = sprintf("../SimResults/rqss/%s_n_%i_sim%03.0f.RData", 
                         simDesign, n, i))
   }
+}
 }

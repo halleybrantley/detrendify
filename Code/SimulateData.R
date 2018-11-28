@@ -39,7 +39,7 @@ generate_peaks_design <- function(n){
 generate_gaus <- function(n){
   x <- seq(0.5, n, 1)/n
   f <- sin(2*pi*x) 
-  y <- f + rnorm(n)
+  y <- f + ((1+x^2)/4)*rnorm(n)
   df <- data.frame(y=y, x=x, f=f)
   return(df)
 }
@@ -81,17 +81,15 @@ generate_mixednorm <- function(n){
 }
 
 set.seed(39207491)
-n <- 300
-for (i in 1:100){
-  df <- generate_mixednorm(n)
-  save(df, file = sprintf("../SimData/mixednorm_n_%i_sim%03.0f.RData", n, i))
-  df <- generate_gaus(n)
-  save(df, file = sprintf("../SimData/gaus_n_%i_sim%03.0f.RData", n, i))
-  df <- generate_shapebeta(n)
-  save(df, file = sprintf("../SimData/shapebeta_n_%i_sim%03.0f.RData", n, i))
-  df <- generate_peaks_design(n)
-  save(df, file = sprintf("../SimData/peaks_n_%i_sim%03.0f.RData", n, i))
+for(n in c(300,500,1000)){
+  for (i in 1:100){
+    df <- generate_mixednorm(n)
+    save(df, file = sprintf("../SimData/mixednorm_n_%i_sim%03.0f.RData", n, i))
+    df <- generate_gaus(n)
+    save(df, file = sprintf("../SimData/gaus_n_%i_sim%03.0f.RData", n, i))
+    df <- generate_shapebeta(n)
+    save(df, file = sprintf("../SimData/shapebeta_n_%i_sim%03.0f.RData", n, i))
+    df <- generate_peaks_design(n)
+    save(df, file = sprintf("../SimData/peaks_n_%i_sim%03.0f.RData", n, i))
+  }
 }
-
-
-

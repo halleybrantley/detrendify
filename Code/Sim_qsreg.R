@@ -1,12 +1,12 @@
 library(fields)
 rm(list=ls())
-tau <- c(0.05, 0.1, 0.5, .9, 0.95)
+tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 2
-n <- 300
+n <- 600
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
-
+i = 0
+for (n in c(300,500,1000)){
 for(simDesign in simDesigns){                
-  for (i in 1:nSim){
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
     trend <- matrix(NA, n, length(tau))
     for (j in 1:length(tau)){
@@ -16,5 +16,5 @@ for(simDesign in simDesigns){
     save(trend, 
          file = sprintf("../SimResults/qsreg/%s_n_%i_sim%03.0f.RData", 
                         simDesign, n, i))
-  }
+}
 }
