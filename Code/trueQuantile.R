@@ -15,3 +15,7 @@ trueQuantile <- function(simDesign, x, tau){
   }
   return(Q)
 }
+
+truePeaks <- function(df){
+  
+}

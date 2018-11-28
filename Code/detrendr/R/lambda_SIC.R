@@ -24,9 +24,10 @@ lambda_SIC <- function(y, tau, k,
     SIC_trend[i,] <- log(colMeans(resid_trend)) + log(n)*df_trend[i,]/(2*n)
   }
   
+  SIC_scale <- as.data.frame(scale(SIC_trend))
+  SIC_scale$mean <- rowMeans(SIC_scale)
+  
   if (single_lambda){
-    SIC_scale <- as.data.frame(scale(SIC_trend))
-    SIC_scale$mean <- rowSums(SIC_scale)
     lam <- lambdaSeq[which.min(SIC_scale$mean)]
   } else {
     lam <- lambdaSeq[apply(SIC_trend, 2, which.min)]

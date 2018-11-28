@@ -236,7 +236,8 @@ npqw.optim <- function(x,
             upper[1] <- 1-.Machine$double.eps
             for(i in 1:ncol(x)) {
                 if(x.col.numeric[i]) {
-                    lower[i+1] <- 0.001*sd(x[,i])*n^{-.2}
+                    lower[i+1] <- 0.001*sd(x[,i])*n^{-.2} 
+                    lower[i+1] <- 0.1*sd(x[,i])*n^{-.2} ## Changed to require smoother fits HLB
                     upper[i+1] <- .Machine$double.xmax
                 }
                 if(!x.col.numeric[i]) {

@@ -40,6 +40,7 @@ for (n in c(300,500,1000)){
                               sd.pilot=sd.pilot,
                               ckertype=ckertype,
                               regtype=regtype)
+      
       delta <- optim.out$delta
       bws <- optim.out$bws
       Q <- qnorm(delta,mean=df$y,sd=sd.pilot)

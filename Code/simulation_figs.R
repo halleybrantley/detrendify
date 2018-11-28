@@ -68,3 +68,16 @@ ggplot(summary_stats, aes(x = tau_fac, y = mean_mse, col = Method)) +
   facet_grid(Design~., scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Set1")
+
+
+i <- 1
+simDesign <- "peaks"
+load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
+plot(y~x, df, col="grey", type="l")
+lines(baseline~x, df, col="red")
+lines((peaks+baseline)~x, df, col="blue")
+
+method <- "npqw"
+load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
+             method, simDesign, n, i))
+lines(trend[,1]~df$x)
