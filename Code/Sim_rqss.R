@@ -3,7 +3,7 @@ library(devtools)
 load_all("detrendr")
 rm(list=ls())
 tau <- c(0.05, 0.1, 0.5, .9, 0.95)
-nSim <- 2
+nSim <- 100
 n <- 300
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
 

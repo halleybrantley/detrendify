@@ -56,7 +56,7 @@ lambda_valid <- function(y, tau, k, q,
   
   for (i in 1:length(lambdaSeq)){
     lam <- lambdaSeq[i]
-    f_trend <- gurobi_trend(y, tau, lam, k)
+    f_trend <- suppressMessages(gurobi_trend(y, tau, lam, k))
     valid_checkloss[i,] <- colMeans(checkloss(yValid-f_trend[validID,], tau))
   }
   
