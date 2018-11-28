@@ -3,6 +3,6 @@
 #BSUB -W 10
 #BSUB -n 2
 source ~/R-3.4.2.csh
-R CMD BATCH --vanilla Simulate.R
+R CMD BATCH --vanilla SimulateData.R
 #BSUB -o out.%J
 #BSUB -e err.%J

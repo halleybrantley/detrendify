@@ -2,9 +2,9 @@
 rm(list=ls())
 source("npqw/lib_npqw_mixed.R")
 
-tau <- c(0.05, 0.1, 0.5, .9, 0.95)
+tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 2
-n <- 300
+n <- 600
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
 
 regtype <- "ll"

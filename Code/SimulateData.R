@@ -81,7 +81,7 @@ generate_mixednorm <- function(n){
 }
 
 set.seed(39207491)
-n <- 300
+n <- 600
 for (i in 1:100){
   df <- generate_mixednorm(n)
   save(df, file = sprintf("../SimData/mixednorm_n_%i_sim%03.0f.RData", n, i))
