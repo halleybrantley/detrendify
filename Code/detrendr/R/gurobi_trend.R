@@ -12,7 +12,7 @@ gurobi_trend <- function(y, tau, lambda, k){
   if(tau >= 1 || tau <= 0){
     stop("tau must be between 0 and 1.")
   }
-  if (length(lambda) == 1) {
+  if (length(lambda) == 1 && length(tau) != 1) {
     lambda <- rep(lambda, length(tau))
     message("Using same lambda for all quantiles")
   } else if (length(lambda) != length(tau)){
@@ -20,7 +20,7 @@ gurobi_trend <- function(y, tau, lambda, k){
   }
   
   tau <- sort(tau)
-  D <- as.matrix(get_Dk(length(y), k))
+  D <- get_Dk(length(y), k)
   n <- length(y)
   m <- nrow(D)
   np <- 2*n + 2*m
@@ -41,23 +41,23 @@ gurobi_trend <- function(y, tau, lambda, k){
 
   # Constraint Matrix
   if (length(tau) == 1){
-    model$A  <- cbind(D, -D, diag(m), -diag(m))
+    model$A  <- cbind(D, -D, Diagonal(m), -Diagonal(m))
   } else {
-    model$A <- matrix(0, nrow =  m*nT + n*(nT-1), ncol= np*nT )
+    model$A <- Matrix(0, nrow =  m*nT + n*(nT-1), ncol= np*nT, sparse=TRUE)
     for (i in 1:nT){
 
       # D%*%theta = eta constraint
       model$A[(1+m*(i-1)):(m*i), (1+np*(i-1)):(np*i)] <-
-        cbind(D, -D, diag(m), -diag(m))
+        cbind(D, -D, Diagonal(m), -Diagonal(m))
 
       # Non-crossing theta(tau) constrains
       if (i < nT){
         model$A[(m*nT+1+n*(i-1)):(m*nT+n*(i)), (1+(i-1)*np):(2*n + (i-1)*np)] <-
-          cbind(diag(n), -diag(n))
+          cbind(Diagonal(n), -Diagonal(n))
 
         model$A[(m*nT+1+n*(i-1)):(m*nT+n*(i)),
                 (1+i*np):(2*n + i*np)] <-
-          cbind(-diag(n), diag(n))
+          cbind(-Diagonal(n), Diagonal(n))
       }
     }
   }
