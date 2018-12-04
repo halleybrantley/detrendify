@@ -2,7 +2,7 @@ generate_peaks_design <- function(n){
   x <- seq(0.5, n, 1)/n
   df <- sample(2:10, 1)
   splineBasis <- ns(x, df=df)
-  theta <- rnorm(ncol(splineBasis))
+  theta <- rnorm(ncol(splineBasis), 1)
   baseline <- splineBasis%*%theta
   
   plot(splineBasis[,1], type="l")
@@ -11,8 +11,8 @@ generate_peaks_design <- function(n){
   }
   plot(baseline, type="l")
   
-  numberOfPeaks <- sample(2:15, 1)
-  peakCenters <- runif(numberOfPeaks)
+  numberOfPeaks <- sample(5:15, 1)
+  peakCenters <- runif(numberOfPeaks)*.8+.1
   peakArea <- runif(numberOfPeaks)*.05
   peakWidths <- runif(numberOfPeaks)*.01 + 2/n
   
