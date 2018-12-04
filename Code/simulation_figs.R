@@ -1,6 +1,8 @@
 library(tidyverse)
 rm(list=ls())
 source("trueQuantile.R")
+library(devtools)
+load_all("detrendr")
 
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 n <- 300
@@ -30,10 +32,10 @@ for(simDesign in simDesigns){
   }
 }
 
-tmp <- MSEs %>% filter(Design == "gaus", n==1000)
+tmp <- MSEs %>% filter(Design == "mixednorm", n==1000)
 
-hist(tmp[tmp$Method == "detrend_SIC", "tau_0.01"])
-mean(tmp[tmp$Method == "rqss", "tau_0.01"])
+hist(tmp[tmp$Method == "npqw", "tau_0.01"])
+mean(tmp[tmp$Method == "detrend_SIC", "tau_0.01"])
 
 which(tmp[tmp$Method == "detrend_SIC", "tau_0.01"]>.04)
 
@@ -99,27 +101,88 @@ summary_stats %>%
 ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 6, height = 5)
 
 
-i <- 1
-simDesign <- "gaus"
+################################################################################
+i <- 11
+n <- 1000
+simDesign <- "peaks"
+load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
              "detrend_SIC", simDesign, n, i))
-load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
-Q <- trueQuantile(simDesign, df$x, tau)
 trend_detrend <- as.data.frame(trend) 
+load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
+             "qsreg", simDesign, n, i))
+trend_qsreg <- as.data.frame(trend) 
+
 trend_detrend$x <- df$x
+trend_detrend$q <- df$baseline
+trend_detrend$qsreg <- trend_qsreg[,1]
+
 ggplot(df, aes(x=x, y=y)) + 
   geom_line(col="grey") +
-  geom_line(data=trend_rqss, aes(y=V1, x=x))+
-  geom_line(data=trend_detrend, aes(y=V1, x=x))
-  
+  geom_line(data=trend_detrend, aes(y=q, x=x)) +
+  geom_line(data=trend_detrend, aes(y=V1, x=x), col="red") +
+  geom_line(data=trend_detrend, aes(y=qsreg, x=x), col="blue")
 
+mean((trend_detrend$V1 - trend_detrend$q)^2)  
+mean((trend_detrend$qsreg - trend_detrend$q)^2)  
 
+################################################################################
+simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 plot(y~x, df, col="grey", type="l")
 lines(baseline~x, df, col="red")
 lines((peaks+baseline)~x, df, col="blue")
 
-method <- "npqw"
-load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-             method, simDesign, n, i))
-lines(trend[,1]~df$x)
+methods <- c("detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") 
+MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
+                             ncol = 2+3))
+colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau[1:2]))
+k <- 1
+  for (n in c(300,500,1000)){
+    for (i in 1:nSim){
+      load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
+
+      for (method in methods){
+        load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
+                     method, simDesign, n, i))
+        MSEs[k,1] <- i
+        MSEs[k,2] <- method
+        MSEs[k,3] <- n
+        MSEs[k,4] <- mean((trend[,1] - df$baseline)^2)
+        MSEs[k,5] <- mean((trend[,2] - df$baseline)^2)
+        k <- k+1
+      }
+    }
+  }
+
+tmp <- MSEs %>% filter(n==1000)
+
+hist(tmp[tmp$Method == "detrend_SIC", "tau_0.05"], 50)
+hist(tmp[tmp$Method == "qsreg", "tau_0.05"], add=T, col="red")
+plot(tmp[tmp$Method == "detrend_SIC", "tau_0.05"]~
+       tmp[tmp$Method == "qsreg", "tau_0.05"])
+
+which(tmp[tmp$Method == "detrend_SIC", "tau_0.05"] > .6)
+
+peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) 
+summary_peaks <- 
+  peaks_long %>% group_by(Method, tau, n) %>% 
+  summarise(
+    mean_mse = mean(MSE), 
+    sd_mse = sd(MSE)/sqrt(nSim), 
+    median_mse = median(MSE), 
+    mad_mse = median(abs(MSE - median_mse))*1.482
+  ) %>%
+  ungroup() %>%
+  mutate(tau_fac = tau, 
+         tau = as.numeric(substr(tau_fac, 5, 10)))
+
+summary_peaks %>% 
+  ggplot( aes(x = Method, y = mean_mse)) + 
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
+                 position = position_dodge(width = 0.5))+
+  facet_grid(n~tau, scales = "free")+
+  theme_bw() +
+  scale_color_brewer(palette = "Set1") +
+  labs(x = "", y="MSE", title = "Peaks")

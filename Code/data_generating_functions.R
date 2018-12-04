@@ -11,7 +11,7 @@ generate_peaks_design <- function(n){
   }
   plot(baseline, type="l")
   
-  numberOfPeaks <- sample(2:round(n/10), 1)
+  numberOfPeaks <- sample(2:15, 1)
   peakCenters <- runif(numberOfPeaks)
   peakArea <- runif(numberOfPeaks)*.05
   peakWidths <- runif(numberOfPeaks)*.01 + 2/n
