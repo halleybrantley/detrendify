@@ -6,6 +6,8 @@ tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 2
 
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
+simDesigns <-  "peaks"
+
 
 regtype <- "ll"
 ckertype <- "epanechnikov"

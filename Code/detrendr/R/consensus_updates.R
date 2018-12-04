@@ -15,7 +15,7 @@ update_windows <- function(w_list, phiBar_list, model_list, rho, nT){
   phi_list <- list()
   #foreach(i = 1:n_windows) %dopar% {
   for (i in 1:n_windows){
-  phi_list[[i]] <- quad_update(w_list[[i]], as.numeric(phiBar_list[[i]]), 
+    phi_list[[i]] <- quad_update(w_list[[i]], as.numeric(phiBar_list[[i]]), 
                 model_list[[i]], rho, nT)
   }
   return(phi_list)
@@ -78,7 +78,7 @@ update_dual <- function(w, phi, phiBar, rho) {
 
 
 
-create_model <- function(y, tau, lambda, D){
+create_model <- function(y, tau, lambda, D, rho){
   n <- length(y)
   missInd <- which(is.na(y))
   y[missInd] <- 0
@@ -100,30 +100,33 @@ create_model <- function(y, tau, lambda, D){
   model$obj[missInd + n] <- 0
   
   model$rhs <- c(model$rhs, rep(0, n*(nT-1)))
-  model$Q <- matrix(0, length(model$obj), length(model$obj))
-  
+  #model$Q <- matrix(0, length(model$obj), length(model$obj))
+  thetaAll <- c()
   # Constraint Matrix
-  model$A <- matrix(0, nrow =  m*nT + n*(nT-1), ncol= np*nT )
+  model$A <- Matrix(0, nrow =  m*nT + n*(nT-1), ncol= np*nT,sparse=TRUE)
   for (i in 1:nT){
     # Quadratic Term
     thetaInd <- (1+np*(i-1)):(2*n + np*(i-1))
-    diag(model$Q[thetaInd, thetaInd]) <- rho/2
+    thetaAll <- c(thetaAll, thetaInd)
+    #diag(model$Q[thetaInd, thetaInd]) <- rho/2
     
     # Constraint for D%*%theta = eta 
     model$A[(1+m*(i-1)):(m*i), (1+np*(i-1)):(np*i)] <-
-      cbind(D, -D, diag(m), -diag(m))
+      cbind(D, -D, Diagonal(m), -Diagonal(m))
     
     # Non-crossing theta(tau) constrains
     if (i < nT){
       model$A[(m*nT+1+n*(i-1)):(m*nT+n*(i)), (1+(i-1)*np):(2*n + (i-1)*np)] <-
-        cbind(diag(n), -diag(n))
+        cbind(Diagonal(n), -Diagonal(n))
       
       model$A[(m*nT+1+n*(i-1)):(m*nT+n*(i)),
               (1+i*np):(2*n + i*np)] <-
-        cbind(-diag(n), diag(n))
+        cbind(-Diagonal(n), Diagonal(n))
     }
   }
   
+  model$Q <- sparseMatrix(thetaAll, thetaAll, x=rho/2, 
+                          dims = c(length(model$obj), length(model$obj)))
   # Constraint Types
   model$sense <- c(rep('=', m*nT), rep(">", n*(nT-1)))
   model$modelsense <- "min"

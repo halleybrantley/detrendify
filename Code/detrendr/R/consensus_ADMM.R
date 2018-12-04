@@ -35,16 +35,12 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
   y_n <- length(y)
   tau <- sort(tau)
   nT <- length(tau)
-  D <- as.matrix(get_Dk(window_size, k))
-  n_windows <- ceiling(y_n/(window_size-overlap))
+  D <- get_Dk(window_size, k)
+  n_windows <- ceiling((y_n-overlap)/(window_size-overlap))
   windows <- matrix(FALSE, y_n, n_windows)
   y_list <- list()
   w_list <- list()
   phi_list <- list()
-  
-  # if (!is.null(cl)){
-  #   registerDoParallel(cl)
-  # }
   
   # Initial values
 
@@ -57,7 +53,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
     phi_list[[i]] <- matrix(0,length(y_list[[i]]),length(tau))
   }
 
-  model_list <- lapply(y_list, create_model, tau, lambda, D)
+  model_list <- lapply(y_list, create_model, tau, lambda, D, rho)
   
   overlapInd <- rowSums(windows) > 1
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
@@ -70,7 +66,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
 
   # Dual update
   w_list <- mapply(update_dual, w_list, phi_list, phiBar_list,
-                   MoreArgs = list(rho=rho))
+                   MoreArgs = list(rho=rho), SIMPLIFY = FALSE)
 
   phiBar_k <- get_phiBar(phiBar_list, windows)
 
@@ -88,7 +84,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
 
     # Dual update
     w_list <- mapply(update_dual, w_list, phi_list, phiBar_list,
-                     MoreArgs = list(rho=rho))
+                     MoreArgs = list(rho=rho), SIMPLIFY = FALSE)
     
     # Convergence Metrics
     phiBar <- get_phiBar(phiBar_list, windows) 

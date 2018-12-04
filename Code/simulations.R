@@ -61,31 +61,6 @@ ggplot(loss_long, aes(x=method, y=mse)) + geom_boxplot() +
   stat_summary(fun.data = "mean_cl_boot", col="red") +
   geom_hline(yintercept = mean(loss_df$trend_SIC))
 
-timing <- {}
-for (n in seq(100, 2000, 200)){
-  x <- (seq(1,n,1)-1)
-  y <- sin(10*x/n) + (x/n + .25)*rnorm(n, 0, .1)/.1
-  lam_SIC <- lambda_SIC(y, tau, 3)
-  lam_SIC2 <- lambda_SIC(y, tau, 2, 
-                         lambdaSeq = seq(.5, length(y)/10, .2))
-  #bw <- npcdistbw(y~x)
-  
-  time_n <- summary( microbenchmark(
-    f_trend_valid <- gurobi_trend(y, tau, lam_valid$lambda, k=3),
-    fit_rqss <- rqss(y ~ qss(x, lambda = 2*lam_SIC2$lambda), tau = tau),
-    fit_qsreg <- qsreg(x, y, maxit.cv = 50, alpha=tau, hmin = -9), 
-    # {sink("NUL")
-    #  fit_npqreg <- npqreg(bws=bw, tau=tau)
-    #  sink()
-    # }, 
-    times = 20)) %>% 
-      select(expr, mean)
-  time_n$n <- n
-  timing <- rbind(timing, time_n)
-}
-
-ggplot(timing, aes(x=n, y=mean, col=expr)) + geom_line() +
-  ylim(c(0,500))
 
 mean((f_true-f_trend)^2)
 mean((f_true - f_trend_SIC)^2)
