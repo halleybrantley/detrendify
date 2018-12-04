@@ -2,7 +2,7 @@
 #!/bin/bash
 
 N_FILES=100
-FUN="npqw"
+FUN="detrendr"
 OFILE="Sim_${FUN}.R"
 
 for((i=1;i<=$N_FILES;i++))
