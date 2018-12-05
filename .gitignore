@@ -16,5 +16,6 @@ Code/detrendr/R/.Rhistory
 *cache*
 
 *.o
+*.so
 Notes/timing_and_convergence_examples_cache
 Notes/timing_and_convergence_examples_files

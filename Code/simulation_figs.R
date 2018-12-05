@@ -102,7 +102,7 @@ ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 6, height = 5)
 
 
 ################################################################################
-i <- 11
+i <- 1
 n <- 1000
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
@@ -115,19 +115,25 @@ trend_qsreg <- as.data.frame(trend)
 
 trend_detrend$x <- df$x
 trend_detrend$q <- df$baseline
-trend_detrend$qsreg <- trend_qsreg[,1]
+trend_detrend$qsreg <- trend_qsreg[,3]
 
 ggplot(df, aes(x=x, y=y)) + 
   geom_line(col="grey") +
-  geom_line(data=trend_detrend, aes(y=q, x=x)) +
-  geom_line(data=trend_detrend, aes(y=V1, x=x), col="red") +
-  geom_line(data=trend_detrend, aes(y=qsreg, x=x), col="blue")
+  geom_line(data=trend_detrend, aes(y=q, x=x, col = "baseline")) +
+  geom_line(data=trend_detrend, aes(y=V3, x=x, col = "detrendr")) +
+  geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg")) + 
+  theme_bw() + 
+  scale_color_manual(values = c("black", "blue", "darkgreen")) +
+  labs(col="")
+ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 2.5)
 
-mean((trend_detrend$V1 - trend_detrend$q)^2)  
+mean((trend_detrend$V2 - trend_detrend$q)^2)  
 mean((trend_detrend$qsreg - trend_detrend$q)^2)  
 
 ################################################################################
 simDesign <- "peaks"
+tau <- c(0.01, 0.05, 0.1)
+nSim <- 100
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 plot(y~x, df, col="grey", type="l")
 lines(baseline~x, df, col="red")
@@ -135,8 +141,8 @@ lines((peaks+baseline)~x, df, col="blue")
 
 methods <- c("detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
-                             ncol = 2+3))
-colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau[1:2]))
+                             ncol = length(tau)+3))
+colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau))
 k <- 1
   for (n in c(300,500,1000)){
     for (i in 1:nSim){
@@ -150,18 +156,21 @@ k <- 1
         MSEs[k,3] <- n
         MSEs[k,4] <- mean((trend[,1] - df$baseline)^2)
         MSEs[k,5] <- mean((trend[,2] - df$baseline)^2)
+        MSEs[k,6] <- mean((trend[,3] - df$baseline)^2)
         k <- k+1
       }
     }
   }
 
+MSEs <- MSEs %>% filter(!(Sim %in% c(15, 47, 81)))
 tmp <- MSEs %>% filter(n==1000)
 
-hist(tmp[tmp$Method == "detrend_SIC", "tau_0.05"], 50)
-hist(tmp[tmp$Method == "qsreg", "tau_0.05"], add=T, col="red")
-plot(tmp[tmp$Method == "detrend_SIC", "tau_0.05"]~
-       tmp[tmp$Method == "qsreg", "tau_0.05"])
+hist(tmp[tmp$Method == "qsreg", "tau_0.05"], 50)
+hist(tmp[tmp$Method == "detrend_SIC", "tau_0.05"], 50, col="red", add=T)
 
+plot(tmp[tmp$Method == "detrend_SIC", "tau_0.1"]~
+       tmp[tmp$Method == "qsreg", "tau_0.1"])
+abline(0,1)
 which(tmp[tmp$Method == "detrend_SIC", "tau_0.05"] > .6)
 
 peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) 
@@ -178,11 +187,13 @@ summary_peaks <-
          tau = as.numeric(substr(tau_fac, 5, 10)))
 
 summary_peaks %>% 
-  ggplot( aes(x = Method, y = mean_mse)) + 
+  filter(Method != "npqw", tau > 0.01, n > 300) %>%
+  ggplot( aes(x = Method, y = mean_mse, col = factor(tau))) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_grid(n~tau, scales = "free")+
+  facet_grid(n~., scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Set1") +
-  labs(x = "", y="MSE", title = "Peaks")
+  labs(x = "", y="MSE",  col = "Quantile")
+ggsave("../Manuscript/Figures/peaks_mse.png", width = 6, height = 3)

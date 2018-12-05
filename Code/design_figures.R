@@ -48,3 +48,16 @@ ggplot(df, aes(x=x, y=y)) +
                      labels = tau) +
   labs(title = "Mixed Normal")
 ggsave("../Manuscript/Figures/mixednorm.png", width = 3, height = 3) 
+
+
+n <- 1000
+simDesign <- "peaks"
+load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
+ggplot(df, aes(x=x, y=y, col = "data")) + 
+  geom_line() +
+  geom_line(aes(y=baseline, col = "baseline")) +
+  geom_line(aes(y=peaks+baseline, col = "signal + baseline")) + 
+  theme_bw() + 
+  scale_color_manual(values = c("red", "grey", "blue")) + 
+  labs(x = "t", col = "")
+ggsave("../Manuscript/Figures/ex_peaks.png", width = 7, height = 2.5)
