@@ -8,7 +8,7 @@ tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 n <- 300
 nSim <- 100
 simDesigns <- c("gaus", "mixednorm", "shapebeta")
-methods <- c("detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") #, "rqss")
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") #, "rqss")
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns), 
                              ncol = length(tau)+4))
 colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))
@@ -139,13 +139,14 @@ plot(y~x, df, col="grey", type="l")
 lines(baseline~x, df, col="red")
 lines((peaks+baseline)~x, df, col="blue")
 
-methods <- c("detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
                              ncol = length(tau)+3))
 colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau))
 k <- 1
   for (n in c(300,500,1000)){
     for (i in 1:nSim){
+      if (i == 49){ next }
       load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 
       for (method in methods){
@@ -166,10 +167,10 @@ MSEs <- MSEs %>% filter(!(Sim %in% c(15, 47, 81)))
 tmp <- MSEs %>% filter(n==1000)
 
 hist(tmp[tmp$Method == "qsreg", "tau_0.05"], 50)
-hist(tmp[tmp$Method == "detrend_SIC", "tau_0.05"], 50, col="red", add=T)
+hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50, col="blue", add=T)
 
-plot(tmp[tmp$Method == "detrend_SIC", "tau_0.1"]~
-       tmp[tmp$Method == "qsreg", "tau_0.1"])
+plot(tmp[tmp$Method == "detrend_eBIC", "tau_0.1"]~
+       tmp[tmp$Method == "detrend_SIC", "tau_0.1"])
 abline(0,1)
 which(tmp[tmp$Method == "detrend_SIC", "tau_0.05"] > .6)
 
