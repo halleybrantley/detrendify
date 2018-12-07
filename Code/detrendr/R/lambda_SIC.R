@@ -24,7 +24,7 @@ lambda_SIC <- function(y, tau, k,
     SIC_trend[i,] <- log(colMeans(resid_trend)) + log(n)*df_trend[i,]/(2*n)
   }
   
-  SIC_scale <- as.data.frame(scale(SIC_trend))
+  SIC_scale <- as.data.frame(scale(SIC_trend, scale = FALSE))
   SIC_scale$mean <- rowMeans(SIC_scale)
   
   if (single_lambda){

@@ -64,8 +64,9 @@ ggplot(summary_stats, aes(x=n, y = median_mse*100, col = Method)) +
   theme_bw() +
   scale_color_brewer(palette = "Set1") 
 
+summary_stats <- summary_stats %>% filter( tau > 0.01 & tau < 0.99)
 summary_stats %>% 
-  filter(Design == "gaus", tau > 0.01 & tau < 0.99) %>%
+  filter(Design == "gaus") %>%
   ggplot( aes(x = tau_fac, y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
@@ -107,27 +108,32 @@ n <- 1000
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-             "detrend_SIC", simDesign, n, i))
+             "detrend_eBIC", simDesign, n, i))
 trend_detrend <- as.data.frame(trend) 
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
              "qsreg", simDesign, n, i))
 trend_qsreg <- as.data.frame(trend) 
 
 trend_detrend$x <- df$x
-trend_detrend$q <- df$baseline
+trend_detrend$q <- df$baseline+qnorm(tau[3], sd = 0.25)
+trend_detrend$q2 <- df$baseline+qnorm(tau[2], sd = 0.25)
 trend_detrend$qsreg <- trend_qsreg[,3]
+trend_detrend$qsreg2 <- trend_qsreg[,2]
 
 ggplot(df, aes(x=x, y=y)) + 
   geom_line(col="grey") +
-  geom_line(data=trend_detrend, aes(y=q, x=x, col = "baseline")) +
-  geom_line(data=trend_detrend, aes(y=V3, x=x, col = "detrendr")) +
-  geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg")) + 
+  geom_line(data=trend_detrend, aes(y=q, x=x, col = "true 0.1"), lwd = 1.5) +
+  geom_line(data=trend_detrend, aes(y=q2, x=x, col = "true 0.05"), lwd = 1.5) +
+  geom_line(data=trend_detrend, aes(y=V3, x=x, col = "detrendr 0.1")) +
+  geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg 0.1")) + 
+  geom_line(data=trend_detrend, aes(y=V2, x=x, col = "detrendr 0.05")) +
+  geom_line(data=trend_detrend, aes(y=qsreg2, x=x, col = "qsreg 0.05")) +
   theme_bw() + 
-  scale_color_manual(values = c("black", "blue", "darkgreen")) +
+  scale_color_brewer(palette = "Set1") +
   labs(col="")
-ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 2.5)
+ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 4)
 
-mean((trend_detrend$V2 - trend_detrend$q)^2)  
+mean((trend_detrend$V3 - trend_detrend$q)^2)  
 mean((trend_detrend$qsreg - trend_detrend$q)^2)  
 
 ################################################################################
@@ -155,9 +161,9 @@ k <- 1
         MSEs[k,1] <- i
         MSEs[k,2] <- method
         MSEs[k,3] <- n
-        MSEs[k,4] <- mean((trend[,1] - df$baseline)^2)
-        MSEs[k,5] <- mean((trend[,2] - df$baseline)^2)
-        MSEs[k,6] <- mean((trend[,3] - df$baseline)^2)
+        MSEs[k,4] <- mean((trend[,1] - (df$baseline+qnorm(tau[1], sd = 0.25)))^2)
+        MSEs[k,5] <- mean((trend[,2] - (df$baseline+qnorm(tau[2], sd = 0.25)))^2)
+        MSEs[k,6] <- mean((trend[,3] - (df$baseline+qnorm(tau[3], sd = 0.25)))^2)
         k <- k+1
       }
     }
@@ -166,7 +172,7 @@ k <- 1
 MSEs <- MSEs %>% filter(!(Sim %in% c(15, 47, 81)))
 tmp <- MSEs %>% filter(n==1000)
 
-hist(tmp[tmp$Method == "qsreg", "tau_0.05"], 50)
+hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50)
 hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50, col="blue", add=T)
 
 plot(tmp[tmp$Method == "detrend_eBIC", "tau_0.1"]~
@@ -188,8 +194,8 @@ summary_peaks <-
          tau = as.numeric(substr(tau_fac, 5, 10)))
 
 summary_peaks %>% 
-  filter(Method != "npqw", tau > 0.01, n > 300) %>%
-  ggplot( aes(x = Method, y = mean_mse, col = factor(tau))) + 
+  filter(Method != "npqw") %>%
+  ggplot( aes(x = factor(tau), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
