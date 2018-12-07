@@ -14,8 +14,8 @@ MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns),
 colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))
 k <- 1
 for(simDesign in simDesigns){  
-  for (n in c(300,500,1000)){
   for (i in 1:nSim){
+    for (n in c(300,500,1000)){
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
     Q <- trueQuantile(simDesign, df$x, tau)
     for (method in methods){
@@ -32,12 +32,12 @@ for(simDesign in simDesigns){
   }
 }
 
-tmp <- MSEs %>% filter(Design == "mixednorm", n==1000)
+tmp <- MSEs %>% filter(Design == "shapebeta", n==300)
 
-hist(tmp[tmp$Method == "npqw", "tau_0.01"])
+hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.01"])
 mean(tmp[tmp$Method == "detrend_SIC", "tau_0.01"])
 
-which(tmp[tmp$Method == "detrend_SIC", "tau_0.01"]>.04)
+which(tmp[tmp$Method == "detrend_eBIC", "tau_0.01"]>.4)
 
 
 MSEs_long <- MSEs %>% gather("tau", "MSE", -c("Design", "Sim", "Method", "n")) 
@@ -65,7 +65,7 @@ ggplot(summary_stats, aes(x=n, y = median_mse*100, col = Method)) +
   scale_color_brewer(palette = "Set1") 
 
 summary_stats %>% 
-  filter(Design == "gaus") %>%
+  filter(Design == "gaus", tau > 0.01 & tau < 0.99) %>%
   ggplot( aes(x = tau_fac, y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 

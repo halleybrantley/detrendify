@@ -16,7 +16,7 @@ lambda_eBIC <- function(y, tau, k,
   
   df_trend <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
   SIC_trend <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
-  tau_min <- sapply(tau, function(x){min(x,1-x)})
+  tau_min <- 0.5 - abs(0.5-tau)
   D <- get_Dk(length(y), k)
   
   for (i in 1:length(lambdaSeq)){
@@ -25,7 +25,7 @@ lambda_eBIC <- function(y, tau, k,
     resid_trend <- checkloss(y-f_trend, tau)
     discr_diff <- abs(D%*%f_trend)
     df_trend[i,] <- Matrix::colSums(discr_diff > df_tol) #colSums(abs(y-f_trend)<df_tol)
-    SIC_trend[i,] <- 2*colSums(resid_trend) + tau_min*log(n)*df_trend[i,] +
+    SIC_trend[i,] <- 2*colSums(resid_trend)/tau_min + log(n)*df_trend[i,] +
       2*gamma*log(choose(n-k, df_trend[i,]))
   }
   

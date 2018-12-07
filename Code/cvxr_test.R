@@ -26,7 +26,15 @@ lambda <- 1000
 obj <- sum(quant_loss(y - theta, t = tau)) + lambda * cvxr_norm(D%*%theta, 1)
 prob <- Problem(Minimize(obj))
 
-prob_data <- get_problem_data(prob, solver = "GUROBI")
+prob_data <- get_problem_data(prob, solver = "SCS")
+
+solver_output <- scs::scs(obj = prob_data[["c"]],
+                                        cone = prob_data[["dims"]],
+                                        A = prob_data[["A"]],
+                                        b = prob_data[["b"]])
+
+direct_soln <- unpack_results(prob, "SCS", solver_output)
+
 model <- list()
 model$obj <- prob_data$c
 model$A <- prob_data$A
@@ -35,7 +43,7 @@ params <- list(OutputFlag=0)
 result <- gurobi(model, params)
 
 
-result <- solve(prob, solver = "MOSEK", verbose = TRUE)
-theta <- result$getValue(theta)
+result <- solve(prob, solver = "GUROBI", verbose = TRUE)
+thetaOut <- result$getValue(theta)
 plot(y~x, df)
-lines(theta~df$x, col="red")
+lines(theta~df$x, col="blue")

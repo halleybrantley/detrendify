@@ -47,7 +47,21 @@ We compare the performance of our quantile trend filtering method with the three
 	
 	\item \texttt{detrendr\_SIC}: Our method where we minimize
 	$\sum_i\rho_{\tau}(y_i - \theta_i) + \lambda||D\theta||_1$ and $\lambda$ is chosen using SIC from above. A single value of $\lambda$ was chosen by scaling and summing SIC values across all quantiles. 
-	\item \texttt{detrendr\_valid}: Our method where lambda is chosen by leaving out every 5th observation as a validation data set and evaluating the check loss function on the validation data. 
+	\item \texttt{detrendr\_valid}: Our method where lambda is chosen by leaving out every 5th observation as a validation data set and evaluating the check loss function on the validation data.
+	\item \texttt{detrendr\_eBIC}:   The traditional BIC is given by 
+	\begin{equation}
+	\mbox{BIC}(s) = -2\log(L\{\hat{\theta}(s)\}) + \nu(s)\log n 
+	\end{equation}	
+	where $\theta(s)$ is the parameter $\theta$ with those components outside $s$ being set to 0, and $\nu(s)$ is the number of components in $s$. If we assume an asymmetric Laplace likelihood $L(y|\theta) = \left(\frac{\tau^n(1-\tau)}{\sigma}\right)^n\exp\left\{-\sum_i\rho_\tau(\frac{y_i - \theta_i}{\sigma})\right\}$ and the number of non-zero elements of $D\theta$ as $df$
+	\begin{equation}
+	\mbox{BIC}(df) = 2\sum_i\frac{1}{\sigma}\rho_{\tau}(y_i-\theta_i) + df\log n
+	\end{equation} 
+	We can choose and $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates. \cite{chen2008} proposed the extended BIC for large parameter spaces 
+	\begin{equation}
+	BIC_{\gamma}(s) = -2\log(L\{\hat{\theta}(s)\}) + \nu(s)\log n  + 2\gamma\log{P\choose j}
+	\end{equation}
+	where $P$ is the total number of possible parameters and $j$ is the number of parameters included in given model. 
+	
 \end{itemize}
 
 Three simulation designs from \cite{Racine2017} were considered. For all designs $X_i$ was generated as a uniformly spaced sequence in $[0,1]$ and the response $Y$ was generated as 
