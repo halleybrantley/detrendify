@@ -2,13 +2,17 @@ library(tidyverse)
 rm(list=ls())
 source("trueQuantile.R")
 library(devtools)
+devtools::install_github("jaredhuling/jcolors")
+library(jcolors)
 load_all("detrendr")
 
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 n <- 300
 nSim <- 100
-simDesigns <- c("gaus", "mixednorm", "shapebeta")
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") #, "rqss")
+simDesigns <- c( "mixednorm", "shapebeta", "gaus")
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss")
+#methods <- "npqw"
+#simDesigns <- "mixednorm"
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns), 
                              ncol = length(tau)+4))
 colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))
@@ -41,13 +45,15 @@ which(tmp[tmp$Method == "npqw", "tau_0.5"] >.1)
 
 
 MSEs_long <- MSEs %>% gather("tau", "MSE", -c("Design", "Sim", "Method", "n")) 
+MSEs_long$RMSE <- sqrt(MSEs_long$MSE)
+
 summary_stats <- 
   MSEs_long %>% group_by(Method, tau, Design, n) %>% 
   summarise(
-    mean_mse = mean(MSE), 
-    sd_mse = sd(MSE)/sqrt(nSim), 
-    median_mse = median(MSE), 
-    mad_mse = median(abs(MSE - median_mse))*1.482
+    mean_mse = mean(RMSE), 
+    sd_mse = sd(RMSE)/sqrt(nSim), 
+    median_mse = median(RMSE), 
+    mad_mse = median(abs(RMSE - median_mse))*1.482
   ) %>%
   ungroup() %>%
   mutate(tau_fac = tau, 
@@ -55,50 +61,44 @@ summary_stats <-
 
 
 
-ggplot(summary_stats, aes(x=n, y = median_mse*100, col = Method)) + 
-  geom_point(position = position_dodge(width = 0.2)) +
-  geom_linerange(aes(ymin = median_mse*100 - mad_mse*100, 
-                     ymax = median_mse*100 + mad_mse*100), 
-                 position = position_dodge(width = 0.2))+
-  facet_grid(Design~tau_fac, scales = "free")+
-  theme_bw() +
-  scale_color_brewer(palette = "Set1") 
+summary_stats <- summary_stats %>% filter( tau > 0.01 & tau < 0.99) 
+summary_stats <- summary_stats %>% 
+  mutate(tau_group = ifelse(tau == 0.05 | tau == 0.95, "Tail", "Middle"))
 
-summary_stats <- summary_stats %>% filter( tau > 0.01 & tau < 0.99)
 summary_stats %>% 
   filter(Design == "gaus") %>%
-  ggplot( aes(x = tau_fac, y = mean_mse, col = Method)) + 
+  ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_grid(n~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Set1") +
-  labs(x = "", y="MSE", title = "Gaussian")
+  scale_color_brewer(palette = "Paired") +
+  labs(x = "n", y="RMSE", title = "Gaussian")
 ggsave("../Manuscript/Figures/gaus_mse.png", width = 6, height = 5)
 
 summary_stats %>% 
   filter(Design == "shapebeta") %>%
-  ggplot( aes(x = tau_fac, y = mean_mse, col = Method)) + 
+  ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
-                 position = position_dodge(width = 0.5))+
-  facet_grid(n~., scales = "free")+
+                 position = position_dodge(width = 0.5)) +
+  facet_wrap(factor(tau)~., scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Set1") +
-  labs(x = "", y="MSE", title = "Beta")
+  scale_color_brewer(palette = "Paired") +
+  labs(x = "n", y="RMSE", title = "Beta")
 ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 6, height = 5)
 
 summary_stats %>% 
   filter(Design == "mixednorm") %>%
-  ggplot( aes(x = tau_fac, y = mean_mse, col = Method)) + 
+  ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_grid(n~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Set1") +
-  labs(x = "", y="MSE", title = "Mixed Normal")
+  scale_color_brewer(palette = "Paired") +
+  labs(x = "n", y="RMSE", title = "Mixed Normal")
 ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 6, height = 5)
 
 
@@ -169,7 +169,6 @@ k <- 1
     }
   }
 
-MSEs <- MSEs %>% filter(!(Sim %in% c(15, 47, 81)))
 tmp <- MSEs %>% filter(n==1000)
 
 hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50)
@@ -181,13 +180,14 @@ abline(0,1)
 which(tmp[tmp$Method == "detrend_SIC", "tau_0.05"] > .6)
 
 peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) 
+peaks_long$RMSE <- sqrt(peaks_long$MSE)
 summary_peaks <- 
   peaks_long %>% group_by(Method, tau, n) %>% 
   summarise(
-    mean_mse = mean(MSE), 
-    sd_mse = sd(MSE)/sqrt(nSim), 
-    median_mse = median(MSE), 
-    mad_mse = median(abs(MSE - median_mse))*1.482
+    mean_mse = mean(RMSE), 
+    sd_mse = sd(RMSE)/sqrt(nSim), 
+    median_mse = median(RMSE), 
+    mad_mse = median(abs(RMSE - median_mse))*1.482
   ) %>%
   ungroup() %>%
   mutate(tau_fac = tau, 
@@ -195,12 +195,12 @@ summary_peaks <-
 
 summary_peaks %>% 
   filter(Method != "npqw") %>%
-  ggplot( aes(x = factor(tau), y = mean_mse, col = Method)) + 
+  ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_grid(n~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Paired") +
   labs(x = "", y="MSE",  col = "Method")
 ggsave("../Manuscript/Figures/peaks_mse.png", width = 6, height = 3)

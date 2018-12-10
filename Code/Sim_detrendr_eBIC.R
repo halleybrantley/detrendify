@@ -12,7 +12,7 @@ for (simDesign in simDesigns){
       tau <- c(0.01, 0.05, 0.1)
     }
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
-    lam <- lambda_eBIC(df$y, tau[1], 3,  gamma = 1,
+    lam <- lambda_eBIC(df$y, tau, 3,  gamma = 1,
                        lambdaSeq = n^seq(0, 1.1, length.out=50),
                        plot_lambda = TRUE, single_lambda = FALSE)
     trend <- gurobi_trend(df$y, tau, lam$lambda, k=3)

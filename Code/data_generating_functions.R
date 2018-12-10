@@ -1,8 +1,8 @@
 generate_peaks_design <- function(n){
   x <- seq(0.5, n, 1)/n
-  df <- sample(2:10, 1)
+  df <- sample(5:20, 1)
   splineBasis <- ns(x, df=df)
-  theta <- rnorm(ncol(splineBasis), 1)
+  theta <- rexp(ncol(splineBasis), .5)
   baseline <- splineBasis%*%theta
   
   plot(splineBasis[,1], type="l")
