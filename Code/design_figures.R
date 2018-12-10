@@ -49,7 +49,6 @@ ggplot(df, aes(x=x, y=y)) +
   labs(title = "Mixed Normal")
 ggsave("../Manuscript/Figures/mixednorm.png", width = 3, height = 3) 
 
-
 n <- 1000
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))

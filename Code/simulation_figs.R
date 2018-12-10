@@ -32,12 +32,12 @@ for(simDesign in simDesigns){
   }
 }
 
-tmp <- MSEs %>% filter(Design == "shapebeta", n==300)
+tmp <- MSEs %>% filter(Design == "mixednorm", n==300)
 
-hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.01"])
-mean(tmp[tmp$Method == "detrend_SIC", "tau_0.01"])
+hist(tmp[tmp$Method == "npqw", "tau_0.5"])
+median(tmp[tmp$Method == "npqw", "tau_0.5"])
 
-which(tmp[tmp$Method == "detrend_eBIC", "tau_0.01"]>.4)
+which(tmp[tmp$Method == "npqw", "tau_0.5"] >.1)
 
 
 MSEs_long <- MSEs %>% gather("tau", "MSE", -c("Design", "Sim", "Method", "n")) 
@@ -202,5 +202,5 @@ summary_peaks %>%
   facet_grid(n~., scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Set1") +
-  labs(x = "", y="MSE",  col = "Quantile")
+  labs(x = "", y="MSE",  col = "Method")
 ggsave("../Manuscript/Figures/peaks_mse.png", width = 6, height = 3)

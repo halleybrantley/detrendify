@@ -69,8 +69,8 @@ generate_shapebeta <- function(n){
 generate_mixednorm <- function(n){
   x <- seq(0.5, n, 1)/n
   f <- sin(2*pi*x) 
-  e1 <- rnorm(n, -1, sqrt(.25))
-  e2 <- rnorm(n, 1, sqrt(.25))
+  e1 <- rnorm(n, 1, sqrt(.25))
+  e2 <- rnorm(n, -1, sqrt(.25))
   draw <- rbinom(n, 1, x)
   y <- f + draw*e1 + (1-draw)*e2
   df <- data.frame(y=y, x=x, f=f)
