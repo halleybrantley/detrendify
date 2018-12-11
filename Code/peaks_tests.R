@@ -1,7 +1,7 @@
 library(splines)
 library(fields)
-n <- 1000
-
+n <- 21000
+tau <- c(0.01, .05, .1)
 x <- seq(0.5, n, 1)/n
 df <- sample(5:20, 1)
 splineBasis <- ns(x, df=df)
@@ -14,10 +14,10 @@ for(i in 1:ncol(splineBasis)){
 }
 plot(baseline, type="l")
 
-numberOfPeaks <- sample(5:15, 1)
+numberOfPeaks <- sample(10:25, 1)
 peakCenters <- runif(numberOfPeaks)*.8+.1
 peakArea <- runif(numberOfPeaks)*.05
-peakWidths <- runif(numberOfPeaks)*.01 + 2/n
+peakWidths <- runif(numberOfPeaks)*.01 + 100/n
 
 peaks <- rep(0, length(baseline))
 if (numberOfPeaks > 0){

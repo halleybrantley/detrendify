@@ -1,20 +1,15 @@
 generate_peaks_design <- function(n){
   x <- seq(0.5, n, 1)/n
-  df <- sample(5:20, 1)
+  df <- sample((n/50):(n/25), 1)
   splineBasis <- ns(x, df=df)
-  theta <- rexp(ncol(splineBasis), .5)
+  theta <- rexp(ncol(splineBasis), 1)
   baseline <- splineBasis%*%theta
+  # plot(baseline[1:300], type="l")
   
-  plot(splineBasis[,1], type="l")
-  for(i in 1:ncol(splineBasis)){
-    lines(splineBasis[,i])
-  }
-  plot(baseline, type="l")
-  
-  numberOfPeaks <- sample(5:15, 1)
+  numberOfPeaks <- sample((n/100):(n/50), 1)
   peakCenters <- runif(numberOfPeaks)*.8+.1
-  peakArea <- runif(numberOfPeaks)*.05
-  peakWidths <- runif(numberOfPeaks)*.01 + 2/n
+  peakArea <- runif(numberOfPeaks)*20/n
+  peakWidths <- runif(numberOfPeaks)*4/n + 1/n
   
   peaks <- rep(0, length(baseline))
   if (numberOfPeaks > 0){
@@ -23,11 +18,13 @@ generate_peaks_design <- function(n){
         peakArea[i]*dnorm(x, mean=peakCenters[i], sd = peakWidths[i])
     }
   }
+  # plot(peaks[1:300], type="l")
+  
   noise <- 0.25*rnorm(n)
   y <- peaks + baseline + noise
-  plot(y~x, type="l", col="grey")
-  lines((peaks+baseline)~x)
-  lines(baseline~x, col="red")
+  # plot(y~x, type="l", col="grey")
+  # lines((peaks+baseline)~x)
+  # lines(baseline~x, col="red")
   
   df <- data.frame(y=y, x=x, baseline=baseline, peaks = peaks)
   return(df)

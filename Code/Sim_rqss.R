@@ -14,7 +14,7 @@ for(simDesign in simDesigns){
     trend <- matrix(NA, n, length(tau))
     for (j in 1:length(tau)){
       lam_SIC <- lambda_SIC(df$y, tau[j], 2, 
-                             lambdaSeq = seq(n/60, n/2, n/30), 
+                             lambdaSeq = n^seq(0, .8, length.out = 15), 
                             plot_lambda = FALSE)
       fit_rqss <- rqss(y ~ qss(x, lambda = 2*lam_SIC$lambda/n), tau = tau[j], data = df)
       trend[,j] <- predict(fit_rqss, df)  

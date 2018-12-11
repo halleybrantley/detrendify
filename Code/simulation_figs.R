@@ -1,9 +1,9 @@
 library(tidyverse)
+library(devtools)
+library(jcolors)
 rm(list=ls())
 source("trueQuantile.R")
-library(devtools)
-devtools::install_github("jaredhuling/jcolors")
-library(jcolors)
+
 load_all("detrendr")
 
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
@@ -36,9 +36,9 @@ for(simDesign in simDesigns){
   }
 }
 
-tmp <- MSEs %>% filter(Design == "mixednorm", n==300)
+tmp <- MSEs %>% filter(Design == "gaus", n==300)
 
-hist(tmp[tmp$Method == "npqw", "tau_0.5"])
+hist(tmp[tmp$Method == "qsreg", "tau_0.5"])
 median(tmp[tmp$Method == "npqw", "tau_0.5"])
 
 which(tmp[tmp$Method == "npqw", "tau_0.5"] >.1)
@@ -71,7 +71,7 @@ summary_stats %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_wrap(factor(tau)~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "n", y="RMSE", title = "Gaussian")
@@ -83,7 +83,7 @@ summary_stats %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5)) +
-  facet_wrap(factor(tau)~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "n", y="RMSE", title = "Beta")
@@ -95,7 +95,7 @@ summary_stats %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_wrap(factor(tau)~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "n", y="RMSE", title = "Mixed Normal")
@@ -104,7 +104,8 @@ ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 6, height = 5)
 
 ################################################################################
 i <- 1
-n <- 1000
+n <- 300
+tau <- c(0.01, 0.05, 0.1)
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
@@ -145,7 +146,7 @@ plot(y~x, df, col="grey", type="l")
 lines(baseline~x, df, col="red")
 lines((peaks+baseline)~x, df, col="blue")
 
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss") 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", "rqss") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
                              ncol = length(tau)+3))
 colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau))
@@ -194,12 +195,11 @@ summary_peaks <-
          tau = as.numeric(substr(tau_fac, 5, 10)))
 
 summary_peaks %>% 
-  filter(Method != "npqw") %>%
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_wrap(factor(tau)~., scales = "free")+
+  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "", y="MSE",  col = "Method")

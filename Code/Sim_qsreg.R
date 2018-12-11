@@ -10,7 +10,7 @@ for(simDesign in simDesigns){
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
     trend <- matrix(NA, n, length(tau))
     for (j in 1:length(tau)){
-      fit_qsreg <- qsreg(df$x, df$y, maxit.cv = 50, alpha=tau[j])
+      fit_qsreg <- qsreg(df$x, df$y, maxit.cv = 50, alpha=tau[j], hmin = -28)
       trend[,j] <- predict(fit_qsreg)    
     }
     save(trend, 
