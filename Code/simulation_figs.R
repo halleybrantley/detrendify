@@ -3,7 +3,6 @@ library(devtools)
 library(jcolors)
 rm(list=ls())
 source("trueQuantile.R")
-
 load_all("detrendr")
 
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
@@ -62,8 +61,6 @@ summary_stats <-
 
 
 summary_stats <- summary_stats %>% filter( tau > 0.01 & tau < 0.99) 
-summary_stats <- summary_stats %>% 
-  mutate(tau_group = ifelse(tau == 0.05 | tau == 0.95, "Tail", "Middle"))
 
 summary_stats %>% 
   filter(Design == "gaus") %>%
@@ -75,7 +72,7 @@ summary_stats %>%
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "n", y="RMSE", title = "Gaussian")
-ggsave("../Manuscript/Figures/gaus_mse.png", width = 6, height = 5)
+ggsave("../Manuscript/Figures/gaus_mse.png", width = 10, height = 3)
 
 summary_stats %>% 
   filter(Design == "shapebeta") %>%
@@ -87,7 +84,7 @@ summary_stats %>%
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "n", y="RMSE", title = "Beta")
-ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 6, height = 5)
+ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 10, height = 3)
 
 summary_stats %>% 
   filter(Design == "mixednorm") %>%
@@ -99,12 +96,12 @@ summary_stats %>%
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
   labs(x = "n", y="RMSE", title = "Mixed Normal")
-ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 6, height = 5)
+ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 10, height = 3)
 
 
 ################################################################################
-i <- 1
-n <- 300
+i <- 10
+n <- 500
 tau <- c(0.01, 0.05, 0.1)
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
@@ -146,12 +143,12 @@ plot(y~x, df, col="grey", type="l")
 lines(baseline~x, df, col="red")
 lines((peaks+baseline)~x, df, col="blue")
 
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", "rqss") 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", "rqss", "npqw") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
                              ncol = length(tau)+3))
 colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau))
 k <- 1
-  for (n in c(300,500,1000)){
+  for (n in c(300,500,1000,5000,10000)){
     for (i in 1:nSim){
       if (i == 49){ next }
       load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
@@ -170,7 +167,7 @@ k <- 1
     }
   }
 
-tmp <- MSEs %>% filter(n==1000)
+tmp <- MSEs %>% filter(n<10000)
 
 hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50)
 hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50, col="blue", add=T)
@@ -180,7 +177,8 @@ plot(tmp[tmp$Method == "detrend_eBIC", "tau_0.1"]~
 abline(0,1)
 which(tmp[tmp$Method == "detrend_SIC", "tau_0.05"] > .6)
 
-peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) 
+peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) %>%
+  filter(n < 10000)
 peaks_long$RMSE <- sqrt(peaks_long$MSE)
 summary_peaks <- 
   peaks_long %>% group_by(Method, tau, n) %>% 
@@ -202,5 +200,5 @@ summary_peaks %>%
   facet_wrap(factor(tau)~., scales = "free", ncol=5)+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
-  labs(x = "", y="MSE",  col = "Method")
-ggsave("../Manuscript/Figures/peaks_mse.png", width = 6, height = 3)
+  labs(x = "", y="RMSE",  col = "Method")
+ggsave("../Manuscript/Figures/peaks_mse.png", width = 10, height = 3)

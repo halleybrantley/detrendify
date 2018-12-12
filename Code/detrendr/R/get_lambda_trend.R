@@ -7,12 +7,18 @@
 #' @param k order of differencing
 #' @param lambdaSeq smoothing penalty parameter options to compare
 #' @export
-get_trend_eBIC <- function(y, tau, k,
+get_lambda_trend <- function(y, tau, k,
                        lambdaSeq = length(y)^seq(0, 1.5, length.out=20), 
                        df_tol = 1e-9, 
                        gamma = 1,
                        plot_lambda = FALSE, 
-                       solver = NULL){
+                       solver = NULL, 
+                       criteria = "eBIC"){
+  
+  if(!(criteria %in% c("eBIC", "valid", "SIC"))){
+    stop("criteria must be one of 'eBIC', 'valid', 'SIC'")
+  }
+  
   # Set linear program solver
   if (is.null(solver)){
     pkgs <- installed.packages()[,"Package"]
@@ -25,22 +31,33 @@ get_trend_eBIC <- function(y, tau, k,
     }
   }
   
+  if (criteria == "valid"){
+    validID <- seq(5, length(y), 5)
+    yValid <- y[validID]
+    y[validID] <- NA
+    D <- NULL
+  } else {
+    validID <- NULL
+    yValid <- NULL
+    D <- get_Dk(n, k)
+  }
+  
   df <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
   BIC <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
-  scale_param <- 0.5 - abs(0.5-tau)
+
   model <- get_model_data(y, tau, lambdaSeq[1], k)
   n <- length(y)
   m <- n-k
   missInd <- which(is.na(y))
-  D <- get_Dk(n, k)
   
   for (i in 1:length(lambdaSeq)){
     model$obj <- get_obj(tau, rep(lambdaSeq[i], length(tau)), n, m, missInd)
     f_trend <- solve_model(model, y, solver)
-    resid_trend <- checkloss(y-f_trend, tau)
-    df[i,] <- Matrix::colSums(abs(D%*%f_trend) > df_tol) 
-    BIC[i,] <- 2*colSums(resid_trend)/scale_param + log(n)*df[i,] +
-      2*gamma*log(choose(n-k, df[i,]))
+    model_crit <- get_criteria(criteria, f_trend, y, tau, 
+                               D, df_tol, gamma, 
+                               validID, yValid)
+    df[i,] <- model_crit$df
+    BIC[i,] <- model_crit$BIC
   }
   
   lambda <- lambdaSeq[apply(BIC, 2, which.min)]

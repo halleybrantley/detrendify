@@ -94,11 +94,11 @@ The three error distributions considered were
 
 100 datasets were generated of sizes 300, 500 and 1000. The MSE was calculated as $\frac{1}{n}\sum_i (\hat{q}_{\tau}(x_i) - q_\tau(x_i))^2$. The plots below show the mean MSE $\pm$ twice the standard error by method, quantile level and sample size. 
 	 
-\includegraphics[width=.6\linewidth]{Figures/gaus_mse.png}	
+\includegraphics[width=\linewidth]{Figures/gaus_mse.png}	
 
-\includegraphics[width=.6\linewidth]{Figures/shapebeta_mse.png}
+\includegraphics[width=\linewidth]{Figures/shapebeta_mse.png}
 
-\includegraphics[width=.6\linewidth]{Figures/mixednorm_mse.png}
+\includegraphics[width=\linewidth]{Figures/mixednorm_mse.png}
 
 
 \section{Peaks Simulation}
@@ -106,24 +106,20 @@ We use another simulation design based on the applied problem we aim to solve. W
 \begin{equation}
 Y(t) = s(t) + b(t) + \epsilon
 \end{equation} 
-where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from 2 to 10 with equal probability, and coefficients drawn from a normal distribution with mean and variance equal to 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from 5 to 15 with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $2/n$ and $2/n + .01$. One hundred datasets were generated for $n=\{300,500,1000\}$. 
+where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from $n/50$ to $n/25$ with equal probability, and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from $n/100$ to $n/50$ with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $1/n$ and $5/n$ and areas uniformly distributed between 0 and $20/n$. One hundred datasets were generated for $n=\{300,500,1000, 5000\}$. We compare the methods ability to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE. 
 
 \begin{figure}
 	\caption{Example of simulated peaks, baseline, and observed measurements.}
 	\includegraphics[width = \linewidth]{Figures/ex_peaks.png}
 \end{figure}
 
-We compare the methods ability to estimate the baseline using a low quantile, $\tau \in \{0.05, 0.1\}$ and calculate the MSE using the simulated baseline value as the standard. The npqw method performs significantly worse than the other methods and is not included in the figures. 
+
 
 \begin{figure}[h!]
-	\caption{MSEs compared to the simulated baseline function.}
+	\caption{RMSEs compared to the simulated baseline function.}
 	\includegraphics[width = \linewidth]{Figures/peaks_mse.png}
 \end{figure}
 
-\begin{figure}[h!]
-	\caption{Example baseline fit.}
-	\includegraphics[width = \linewidth]{Figures/ex_baseline.png}
-\end{figure}
 
 
 \pagebreak
