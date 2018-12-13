@@ -1,3 +1,12 @@
+# Functions for choosing smoothing parameter
+
+#' Evaluate checkloss function
+#'
+#' \code{checkloss}
+#'
+#' @param e argument of checkloss function 
+#' @param tau quantile to be used
+#' @export
 checkloss <- function(e, tau){
   if (ncol(e) != length(tau)){
     stop("Number of columns in y must be same as length of tau")
@@ -11,6 +20,20 @@ checkloss <- function(e, tau){
   
 }
 
+# Criteria for evaluating the smoothness parameter
+#'
+#' \code{get_criteria}
+#'
+#' @param criteria label of criteria to be used, must be one of "eBIC", "SIC", "valid"
+#' @param f_trend fitted quantile trend(s)
+#' @param observed data vector
+#' @param tau quantile vector
+#' @param D discrete differencing matrix (for SIC and eBIC)
+#' @param df_tol tolerance for determining degrees of freedom (D%*%theta > df_tol)
+#' @param gamma parameter for eBIC
+#' @param validID index of data to be used for validation (for valid method) 
+#' @param yValid validation data (for valid method) 
+#' @export
 get_criteria <- function(criteria, f_trend, y, tau, 
                          D = NULL, df_tol=1e-9, gamma=1, 
                          validID = NULL, yValid = NULL){

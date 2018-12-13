@@ -10,6 +10,8 @@
 #' @param window_size size of windows to use
 #' @param overlap integer length of overlap between windows
 #' @param max_iter Maximum number of iterations
+#' @param eps 
+#' @param update number of iterations at which to print residuals
 #' @examples
 #' n <- 100
 #' x <- seq(1, n, 1)
@@ -30,8 +32,14 @@
 #' plot(result$primal_norm)
 #' plot(result$dual_norm)
 #' @export
-consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
+get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
                            overlap, max_iter, eps = 0.01, update=10){
+  if(!("gurobi" %in% installed.packages()[,"Package"])){
+    stop("Must have gurobi package installed to run this function.")
+  } else {
+    require(gurobi)
+  }
+  
   y_n <- length(y)
   tau <- sort(tau)
   nT <- length(tau)
@@ -40,26 +48,23 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
   windows <- matrix(FALSE, y_n, n_windows)
   y_list <- list()
   w_list <- list()
-  phi_list <- list()
   
   # Initial values
-
   for (i in 1:n_windows){
     start_I <- 1+(window_size-overlap)*(i-1)
     end_I <- min((window_size + (window_size-overlap)*(i-1)), y_n)
     windows[start_I:end_I,i] <- TRUE
     y_list[[i]] <- y[start_I:end_I]
     w_list[[i]] <- numeric(length(y_list[[i]])*length(tau))
-    phi_list[[i]] <- matrix(0,length(y_list[[i]]),length(tau))
   }
-
-  model_list <- lapply(y_list, create_model, tau, lambda, D, rho)
   
+  # Window initial LP fit
+  model_list <- lapply(y_list, get_model, tau=tau, lambda=lambda, k=k)
+  phi_list <- mapply(solve_model, model_list, y_list, 
+                     solver = "gurobi", trend=FALSE, SIMPLIFY = FALSE)
+  model_list <- mapply(update_model, model_list, w_list, w_list, rho, nT, 
+                       SIMPLIFY = FALSE)  
   overlapInd <- rowSums(windows) > 1
-  phiBar_list <- update_consensus(phi_list, windows, overlapInd)
-
-  # Window update
-  phi_list <- update_windows(w_list, phiBar_list, model_list, 0, nT)
 
   # Consensus update
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
@@ -116,7 +121,7 @@ consensus_ADMM <- function(y, tau, lambda, k, rho, window_size,
     iter <- iter+1
   }
   
-  theta <- y - phiBar
+  theta <- y - phiBar_k
   return(list(theta = theta, phiBar = phiBar, phi = phi_list,
               primal_norm = primal_norm, dual_norm = dual_norm,
               iter = iter))

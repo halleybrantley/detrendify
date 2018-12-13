@@ -8,7 +8,7 @@
 #' @param m n-k where k is order of differencing matrix
 #' @param missInd output of which(is.na(y))
 #' @export
-get_obj <- function(tau, lambda, n, m, missInd){
+get_objective <- function(tau, lambda, n, m, missInd){
   obj <- c()
   nT <- length(tau)
   for (i in 1:nT){
@@ -56,14 +56,14 @@ get_constraint_mat <- function(D, nT){
 
 #' Get linear program arguments for gurobi or glpk solver
 #'
-#' \code{get_model_data} Returns the linear program solver arguments
+#' \code{get_model} Returns the linear program solver arguments
 #'
 #' @param y observed data, should be equally spaced, may contain NA
 #' @param tau quantile levels at which to evaluate trend
 #' @param lambda penalty paramter controlling smoothness
 #' @param k order of differencing
 #' @export
-get_model_data <- function(y, tau, lambda, k){
+get_model <- function(y, tau, lambda, k){
   
   if(tau >= 1 || tau <= 0){
     stop("tau must be between 0 and 1.")
@@ -83,7 +83,7 @@ get_model_data <- function(y, tau, lambda, k){
   missInd <- which(is.na(y))
   y[missInd] <- 0
   
-  obj <- get_obj(tau, lambda, n, m, missInd)
+  obj <- get_objective(tau, lambda, n, m, missInd)
   rhs <- c(rep(as.numeric(D%*%y), nT), rep(0, n*(nT-1)))
   A <- get_constraint_mat(D, nT)
   

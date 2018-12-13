@@ -8,7 +8,7 @@
 #' @param k order of differencing
 #' @export
 get_trend <- function(y, tau, lambda, k){
-  model <- get_model_data(y, tau, lambda, k)
+  model <- get_model(y, tau, lambda, k)
   pkgs <- installed.packages()[,"Package"]
   if("gurobi" %in% pkgs){
     solver <- "gurobi"
@@ -17,21 +17,7 @@ get_trend <- function(y, tau, lambda, k){
   } else {
     solver <- "lpSove"
   }
-  theta <- solve_model(model, y, solver)
+  theta <- solve_model(model, solver, y)
   return(theta)
 }
 
-solve_model <- function(model, y, solver){
-  if (solver == "gurobi"){
-    require(gurobi)
-    theta <- solve_gurobi(model, y)
-  } else if (solver == "Rglpk") {
-    require(Rglpk)
-    theta <- solve_glpk(model, y)
-  } else if (solver == "lpSolve"){
-    theta <- solve_lp(model, y)
-  } else {
-    stop("Solver must be one of 'gurobi', 'Rglpk', or 'lpSolve'")
-  }
-  return(theta)
-}  

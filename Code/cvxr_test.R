@@ -2,18 +2,16 @@ Sys.setenv(RETICULATE_PYTHON="~/anaconda3/bin/python3.6")
 library(devtools)
 library(gurobi)
 library(reticulate)
-library(CVXR)
 library(Rglpk)
-installed_solvers()
-library(Rmosek)
 library(microbenchmark)
 load_all("detrendr")
+library(osqp)
 
 i <- 10
-n <- 500
+n <- 5000
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
-tau <- .05
+tau <- c(.05, 0.1)
 
 y <- df$y
 k <- 3
