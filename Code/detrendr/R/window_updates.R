@@ -10,9 +10,15 @@
 #' @param k
 #' @param rho step size for ADMM
 #' @export
-update_windows <- function(w_list, phiBar_list, model_list, rho, nT){
-  model_list <- mapply(update_model, model_list, w_list, phiBar_list, 
-                       rho=rho, nT=nT, SIMPLIFY = FALSE)
+update_windows <- function(w_list, phiBar_list, model_list, rho, nT, 
+                           quad=FALSE){
+  if (quad){
+    model_list <- mapply(update_model, model_list, w_list, phiBar_list, 
+                         rho=rho, nT=nT, SIMPLIFY = FALSE)
+  } else {
+    model_list <- mapply(update_model_abs, model_list, w_list, phiBar_list, 
+                         nT=nT, SIMPLIFY = FALSE)
+  }
   phi_list <- lapply(model_list, solve_model, solver="gurobi", trend = FALSE)
   return(phi_list)
 }
@@ -105,3 +111,58 @@ update_model <- function(model, w, z, rho, nT){
 }
 
 
+#' Update model with ADMM step parameter and dual and consensus variables
+#'
+#' \code{update_model_abs}
+#'
+#' @param model Model object
+#' @param w dual variable
+#' @param z consensus variable
+#' @param nT number of quantile levels
+#' @export
+update_model_abs <- function(model, w, z, nT){
+  n <- length(w)/nT
+  np <- length(model$obj)/nT
+  
+  for (i in 1:nT){
+    thetaInd <- (1+np*(i-1)):(2*n + np*(i-1))
+    dualInd <- (1 + n*(i-1)):(n + n*(i-1))
+    # Add in dual/consensus variables
+    model$obj[thetaInd] <- model$obj[thetaInd]  +
+      c(w[dualInd], -w[dualInd])
+  }
+  nC <- length(model$rhs)
+  model$rhs[(nC-nT*n+1):nC] <- as.numeric(z)
+  return(model)
+}
+
+#' Update model with ADMM step parameter and dual and consensus variables
+#'
+#' \code{update_model_abs}
+#'
+#' @param model Model object
+#' @param z consensus variable
+#' @param rho ADMM step parameter
+#' @param nT number of quantile levels
+#' @export
+get_model_abs <- function(model, z, rho, nT){
+  n <- length(z)/nT
+  n0 <- length(model$obj)
+  np <- n0/nT
+  
+  model$obj <- c(model$obj, rep(rho/2, 2*n*nT))
+  newConst <- Matrix(0, nrow = n*nT, ncol= length(model$obj), sparse=TRUE)
+  
+  for (i in 1:nT){
+    newConst[(1+n*(i-1)):(n*i),(n0+1+2*n*(i-1)):(n0+2*n*i)] <- 
+      cbind(-Diagonal(n), Diagonal(n))
+    newConst[(1+n*(i-1)):(n*i),(1+np*(i-1)):(2*n + np*(i-1))] <- 
+      cbind(Diagonal(n), -Diagonal(n))
+  }
+  
+  A <- Matrix(0, nrow = nrow(model$A), ncol = 2*n*nT, sparse = TRUE) 
+  model$A <- rbind(cbind(model$A, A), newConst)
+  model$rhs <- c(model$rhs, as.numeric(z))
+  model$sense <- c(model$sense , rep("=", length(z)))
+  return(model)
+}

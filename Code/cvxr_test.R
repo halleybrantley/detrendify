@@ -5,7 +5,7 @@ library(reticulate)
 library(Rglpk)
 library(microbenchmark)
 load_all("detrendr")
-library(osqp)
+
 
 i <- 10
 n <- 5000
@@ -16,6 +16,26 @@ tau <- c(.05, 0.1)
 y <- df$y
 k <- 3
 quant_loss <- function(u, tau) { 0.5 * abs(u) + (tau - 0.5) * u }
+lambda <- 1000
+window_size <- 500
+overlap <- 100
+rho <- 1
+max_iter <- 5
+
+trend_l <- get_trend_windows(df$y, tau, lambda, k, rho=1, window_size,
+                  overlap, max_iter, update=1, 
+                  quad = FALSE)
+
+trend_q <- get_trend_windows(df$y, tau, lambda, k, rho=1, window_size,
+                             overlap, max_iter, update=1, 
+                             quad = TRUE)
+
+trend0 <- get_trend(df$y, tau, lambda, k)
+
+
+plot(trend0[,1], type="l")
+lines(trend_l$theta[,1], col="red")
+lines(trend_q$theta[,1], col="blue")
 
 theta <- Variable(length(y))
 D <- get_Dk(length(y), 3)

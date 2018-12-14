@@ -33,7 +33,8 @@
 #' plot(result$dual_norm)
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
-                           overlap, max_iter, eps = 0.01, update=10){
+                           overlap, max_iter, update=10, 
+                           quad = FALSE){
   if(!("gurobi" %in% installed.packages()[,"Package"])){
     stop("Must have gurobi package installed to run this function.")
   } else {
@@ -57,18 +58,24 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
     y_list[[i]] <- y[start_I:end_I]
     w_list[[i]] <- numeric(length(y_list[[i]])*length(tau))
   }
+  overlapInd <- rowSums(windows) > 1
   
   # Window initial LP fit
   model_list <- lapply(y_list, get_model, tau=tau, lambda=lambda, k=k)
   phi_list <- mapply(solve_model, model_list, y_list, 
                      solver = "gurobi", trend=FALSE, SIMPLIFY = FALSE)
-  model_list <- mapply(update_model, model_list, w_list, w_list, rho, nT, 
-                       SIMPLIFY = FALSE)  
-  overlapInd <- rowSums(windows) > 1
-
   # Consensus update
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
-
+  
+  if (quad){
+    # Use w_list for z since it is all zeros, don't want to store current z
+    model_list <- mapply(update_model, model_list, w_list, w_list, rho, nT,
+                         SIMPLIFY = FALSE)
+  } else {
+    model_list <- mapply(get_model_abs, model_list, phiBar_list, rho, nT, 
+                         SIMPLIFY = FALSE)  
+  }
+  
   # Dual update
   w_list <- mapply(update_dual, w_list, phi_list, phiBar_list,
                    MoreArgs = list(rho=rho), SIMPLIFY = FALSE)
@@ -83,7 +90,7 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
   while(iter <= max_iter){
 
     # Window update
-    phi_list <- update_windows(w_list, phiBar_list, model_list, rho, nT)
+    phi_list <- update_windows(w_list, phiBar_list, model_list, rho, nT, quad)
     # Consensus update
     phiBar_list <- update_consensus(phi_list, windows, overlapInd)
 
@@ -93,8 +100,8 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
     
     # Convergence Metrics
     phiBar <- get_phiBar(phiBar_list, windows) 
-    dual_resid <- phiBar - phiBar_k
-    dual_norm[iter] <- 2*rho*Matrix::norm(dual_resid, type = "F")/(n_windows*overlap)
+    dual_resid <- Matrix::norm(phiBar - phiBar_k, type = "F")
+    dual_norm[iter] <- dual_resid/((n_windows-1)*overlap)
     phiBar_k <- phiBar
 
     primal_resid <- 0
@@ -103,16 +110,21 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
         norm(phi_list[[i]] - phiBar_list[[i]], "F")
     }
 
-    primal_norm[iter] <- primal_resid/(n_windows*overlap)
+    primal_norm[iter] <- primal_resid/((n_windows-1)*overlap)
 
     if (iter %% update == 0){
-      print(sprintf("Iteration: %d Primal Resid Norm: %.4f Dual Resid Norm: %.4f", iter,
+      print(sprintf("Iteration: %d Primal Resid Norm: %.4f Dual Resid Norm: %.4f", 
+                    iter,
                     primal_norm[iter],
                     dual_norm[iter]))
 
     }
 
-    if(dual_norm[iter] < eps*nT & primal_norm[iter] < eps*nT){
+    if (iter == 1 ){
+      primal_resid0 <-  primal_norm[iter] 
+      dual_resid0 <- dual_norm[iter]
+    } else if(dual_norm[iter] < dual_resid0/20 & 
+              primal_norm[iter] < primal_resid0/20){
       primal_norm <- primal_norm[1:iter]
       dual_norm <- dual_norm[1:iter]
       print(sprintf("Converged in %d iterations", iter))
@@ -120,10 +132,8 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
     }
     iter <- iter+1
   }
-  
+  y[is.na(y)] <- 0
   theta <- y - phiBar_k
-  return(list(theta = theta, phiBar = phiBar, phi = phi_list,
-              primal_norm = primal_norm, dual_norm = dual_norm,
-              iter = iter))
+  return(theta)
 }
 

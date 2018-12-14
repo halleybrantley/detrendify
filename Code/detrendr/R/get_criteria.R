@@ -20,6 +20,10 @@ checkloss <- function(e, tau){
   
 }
 
+H <- function(x) {
+  return(x*log(1/x) + (1-x)*log(1/(1-x)))
+}
+
 # Criteria for evaluating the smoothness parameter
 #'
 #' \code{get_criteria}
@@ -40,17 +44,24 @@ get_criteria <- function(criteria, f_trend, y, tau,
   
   if (criteria == "eBIC" || criteria == "SIC") {
     n <- length(y)
-    resid_trend <- checkloss(y-f_trend, tau)
+    missInd <- which(is.na(y))
+    resid_trend <- checkloss(y[-missInd]-f_trend[-missInd,,drop=FALSE], tau)
     df <- Matrix::colSums(abs(D%*%f_trend) > df_tol) 
     if (criteria == "eBIC"){
       scale_param <- 0.5 - abs(0.5-tau)
-      BIC <- 2*colSums(resid_trend)/scale_param + log(n)*df +
+      BIC <- 2*colSums(resid_trend, na.rm=T)/scale_param + log(n)*df +
         2*gamma*log(choose(nrow(D), df))
+      if (is.infinite(BIC)) {
+        BIC <- 2*colSums(resid_trend, na.rm=T)/scale_param + log(n)*df +
+          2*gamma*nrow(D)*H(df/nrow(D))
+      }
     } else {
-      BIC <- log(colMeans(resid_trend)) + log(n)*df/(2*n)
+      BIC <- log(colMeans(resid_trend, na.rm=T)) + log(n)*df/(2*n)
     }
   } else if (criteria == "valid"){
-    BIC <- colMeans(checkloss(yValid-f_trend[validID,,drop=FALSE], tau))
+    missInd <- is.na(yValid)
+    BIC <- colMeans(checkloss(
+      yValid[-missInd]-f_trend[validID[-missInd],,drop=FALSE], tau))
     df <- NA
   } 
   
