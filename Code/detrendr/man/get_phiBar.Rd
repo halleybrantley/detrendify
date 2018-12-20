@@ -6,6 +6,11 @@
 \usage{
 get_phiBar(phiBar_list, windows)
 }
+\arguments{
+\item{phiBar_list}{List of consensus variable}
+
+\item{windows}{Matrix indicating window group}
+}
 \description{
 \code{get_phiBar}
 }

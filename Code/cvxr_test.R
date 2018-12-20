@@ -1,8 +1,5 @@
 library(devtools)
-library(gurobi)
-library(reticulate)
-library(Rglpk)
-library(microbenchmark)
+document("detrendr")
 load_all("detrendr")
 
 i <- 10
@@ -13,12 +10,13 @@ tau <- c( 0.1)
 
 y <- df$y
 k <- 3
-quant_loss <- function(u, tau) { 0.5 * abs(u) + (tau - 0.5) * u }
 lambda <- 10
 trend0 <- get_trend(df$y, tau, lambda, k)
-trend1 <- admm_trendfilter(df$y, tau, lambda, k, rho=1, maxiter=1000)
+trend1 <- get_trend_spingarn(df$y, tau, lambda, k)
+
 plot(trend0, type="l")
 lines(trend1, col="red")
+
 
 window_size <- 500
 overlap <- 100

@@ -6,6 +6,17 @@
 \usage{
 update_model(model, w, z, rho, nT)
 }
+\arguments{
+\item{model}{List of QP model elements}
+
+\item{w}{dual variable}
+
+\item{z}{Consensus variable}
+
+\item{rho}{ADMM step size}
+
+\item{nT}{Number of quantiles being estimated}
+}
 \description{
-\code{update_dual}
+\code{update_model}
 }

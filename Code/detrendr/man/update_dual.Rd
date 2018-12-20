@@ -6,6 +6,15 @@
 \usage{
 update_dual(w, phi, phiBar, rho)
 }
+\arguments{
+\item{w}{dual variable}
+
+\item{phi}{primal variable}
+
+\item{phiBar}{consensus variable}
+
+\item{rho}{ADMM step size parameter}
+}
 \description{
 \code{update_dual}
 }

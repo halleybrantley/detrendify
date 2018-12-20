@@ -2,12 +2,12 @@
 #'
 #' \code{update_windows} Minimizes the Lagrangian for each window
 #'
-#' @param y_list
-#' @param w_list
-#' @param phiBar_list
-#' @param tau
-#' @param lambda
-#' @param k
+#' @param y_list Observed data
+#' @param w_list Dual variable
+#' @param phiBar_list Consensus variable
+#' @param tau quantiles
+#' @param lambda smoothing parameter
+#' @param k order of differencing matrix
 #' @param rho step size for ADMM
 #' @export
 update_windows <- function(w_list, phiBar_list, model_list, rho, nT, 
@@ -27,9 +27,9 @@ update_windows <- function(w_list, phiBar_list, model_list, rho, nT,
 #'
 #' \code{update_consensus}
 #'
-#' @param phi_list
-#' @param windows
-#' @param overlapInd
+#' @param phi_list Primal variables
+#' @param windows Matrix indicating window group
+#' @param overlapInd Indices of overlap between windows
 #' @export
 update_consensus <- function(phi_list, windows, overlapInd){
 
@@ -52,9 +52,8 @@ update_consensus <- function(phi_list, windows, overlapInd){
 #'
 #' \code{get_phiBar}
 #'
-#' @param phi_list
-#' @param windows
-#' @param overlapInd
+#' @param phiBar_list List of consensus variable
+#' @param windows Matrix indicating window group
 #' @export
 get_phiBar <- function(phiBar_list, windows){
   phiBar <- matrix(0, nrow = nrow(windows), ncol = length(tau))
@@ -69,10 +68,10 @@ get_phiBar <- function(phiBar_list, windows){
 #'
 #' \code{update_dual}
 #'
-#' @param w
-#' @param phi
-#' @param phiBar
-#' @param rho
+#' @param w dual variable
+#' @param phi primal variable
+#' @param phiBar consensus variable
+#' @param rho ADMM step size parameter
 #' @export
 update_dual <- function(w, phi, phiBar, rho) {
   w + as.numeric(rho*(phi - phiBar))
@@ -80,12 +79,13 @@ update_dual <- function(w, phi, phiBar, rho) {
 
 #' Update model with ADMM step parameter and dual and consensus variables
 #'
-#' \code{update_dual}
+#' \code{update_model}
 #'
-#' @param w
-#' @param phi
-#' @param phiBar
-#' @param rho
+#' @param model List of QP model elements
+#' @param w dual variable
+#' @param z Consensus variable
+#' @param rho ADMM step size
+#' @param nT Number of quantiles being estimated
 #' @export
 update_model <- function(model, w, z, rho, nT){
   n <- length(w)/nT
@@ -136,9 +136,9 @@ update_model_abs <- function(model, w, z, nT){
   return(model)
 }
 
-#' Update model with ADMM step parameter and dual and consensus variables
+#' Get model with ADMM step parameter and dual and consensus variables
 #'
-#' \code{update_model_abs}
+#' \code{get_model_abs}
 #'
 #' @param model Model object
 #' @param z consensus variable

@@ -2,7 +2,7 @@
 % Please edit documentation in R/window_updates.R
 \name{get_model_abs}
 \alias{get_model_abs}
-\title{Update model with ADMM step parameter and dual and consensus variables}
+\title{Get model with ADMM step parameter and dual and consensus variables}
 \usage{
 get_model_abs(model, z, rho, nT)
 }
@@ -16,5 +16,5 @@ get_model_abs(model, z, rho, nT)
 \item{nT}{number of quantile levels}
 }
 \description{
-\code{update_model_abs}
+\code{get_model_abs}
 }

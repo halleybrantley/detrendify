@@ -7,7 +7,19 @@
 update_windows(w_list, phiBar_list, model_list, rho, nT, quad = FALSE)
 }
 \arguments{
+\item{w_list}{Dual variable}
+
+\item{phiBar_list}{Consensus variable}
+
 \item{rho}{step size for ADMM}
+
+\item{y_list}{Observed data}
+
+\item{tau}{quantiles}
+
+\item{lambda}{smoothing parameter}
+
+\item{k}{order of differencing matrix}
 }
 \description{
 \code{update_windows} Minimizes the Lagrangian for each window

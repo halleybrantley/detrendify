@@ -6,15 +6,26 @@
 
 using namespace Rcpp;
 
-// checkloss
-arma::mat checkloss(arma::mat r, arma::vec tau);
-RcppExport SEXP _detrendr_checkloss(SEXP rSEXP, SEXP tauSEXP) {
+// get_D1
+arma::sp_mat get_D1(int n);
+RcppExport SEXP _detrendr_get_D1(SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type r(rSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(checkloss(r, tau));
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_D1(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_Dk
+arma::sp_mat get_Dk(int n, int k);
+RcppExport SEXP _detrendr_get_Dk(SEXP nSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_Dk(n, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -87,45 +98,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// prox_test
-Rcpp::List prox_test(arma::vec theta, arma::vec eta, arma::vec y, double lambda, double tau, double step);
-RcppExport SEXP _detrendr_prox_test(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type eta(etaSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(prox_test(theta, eta, y, lambda, tau, step));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_D1
-arma::sp_mat get_D1(int n);
-RcppExport SEXP _detrendr_get_D1(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_D1(n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_Dk
-arma::sp_mat get_Dk(int n, int k);
-RcppExport SEXP _detrendr_get_Dk(SEXP nSEXP, SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_Dk(n, k));
-    return rcpp_result_gen;
-END_RCPP
-}
 // project_V
 void project_V(arma::vec& theta, arma::vec& eta, arma::sp_mat D, arma::sp_mat cholM, int k);
 RcppExport SEXP _detrendr_project_V(SEXP thetaSEXP, SEXP etaSEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP kSEXP) {
@@ -141,13 +113,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // spingarn_one_step
-void spingarn_one_step(arma::vec& theta, arma::vec& eta, arma::vec& Vdiff, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, int k);
-RcppExport SEXP _detrendr_spingarn_one_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP VdiffSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP kSEXP) {
+void spingarn_one_step(arma::vec& theta, arma::vec& eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, int k);
+RcppExport SEXP _detrendr_spingarn_one_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type eta(etaSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type Vdiff(VdiffSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::sp_mat >::type D(DSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
@@ -155,13 +126,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    spingarn_one_step(theta, eta, Vdiff, y, D, cholM, lambda, tau, step, k);
+    spingarn_one_step(theta, eta, y, D, cholM, lambda, tau, step, k);
     return R_NilValue;
 END_RCPP
 }
 // spingarn_multi_step
-Rcpp::List spingarn_multi_step(arma::vec theta, arma::vec eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k, double rel_tol);
-RcppExport SEXP _detrendr_spingarn_multi_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP, SEXP rel_tolSEXP) {
+Rcpp::List spingarn_multi_step(arma::vec theta, arma::vec eta, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k);
+RcppExport SEXP _detrendr_spingarn_multi_step(SEXP thetaSEXP, SEXP etaSEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -175,48 +146,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
     Rcpp::traits::input_parameter< double >::type numberIter(numberIterSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< double >::type rel_tol(rel_tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter, k, rel_tol));
-    return rcpp_result_gen;
-END_RCPP
-}
-// spingarn_multistart
-Rcpp::List spingarn_multistart(arma::vec theta1, arma::vec eta1, arma::vec theta2, arma::vec eta2, arma::vec y, arma::sp_mat D, arma::sp_mat cholM, double lambda, double tau, double step, double numberIter, int k);
-RcppExport SEXP _detrendr_spingarn_multistart(SEXP theta1SEXP, SEXP eta1SEXP, SEXP theta2SEXP, SEXP eta2SEXP, SEXP ySEXP, SEXP DSEXP, SEXP cholMSEXP, SEXP lambdaSEXP, SEXP tauSEXP, SEXP stepSEXP, SEXP numberIterSEXP, SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type theta1(theta1SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type eta1(eta1SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type theta2(theta2SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type eta2(eta2SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat >::type D(DSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat >::type cholM(cholMSEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< double >::type numberIter(numberIterSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(spingarn_multistart(theta1, eta1, theta2, eta2, y, D, cholM, lambda, tau, step, numberIter, k));
+    rcpp_result_gen = Rcpp::wrap(spingarn_multi_step(theta, eta, y, D, cholM, lambda, tau, step, numberIter, k));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_detrendr_checkloss", (DL_FUNC) &_detrendr_checkloss, 2},
+    {"_detrendr_get_D1", (DL_FUNC) &_detrendr_get_D1, 1},
+    {"_detrendr_get_Dk", (DL_FUNC) &_detrendr_get_Dk, 2},
     {"_detrendr_chol_solve", (DL_FUNC) &_detrendr_chol_solve, 4},
     {"_detrendr_prox_quantile", (DL_FUNC) &_detrendr_prox_quantile, 3},
     {"_detrendr_prox_f1", (DL_FUNC) &_detrendr_prox_f1, 4},
     {"_detrendr_prox_f2", (DL_FUNC) &_detrendr_prox_f2, 3},
     {"_detrendr_prox", (DL_FUNC) &_detrendr_prox, 6},
-    {"_detrendr_prox_test", (DL_FUNC) &_detrendr_prox_test, 6},
-    {"_detrendr_get_D1", (DL_FUNC) &_detrendr_get_D1, 1},
-    {"_detrendr_get_Dk", (DL_FUNC) &_detrendr_get_Dk, 2},
     {"_detrendr_project_V", (DL_FUNC) &_detrendr_project_V, 5},
-    {"_detrendr_spingarn_one_step", (DL_FUNC) &_detrendr_spingarn_one_step, 10},
-    {"_detrendr_spingarn_multi_step", (DL_FUNC) &_detrendr_spingarn_multi_step, 11},
-    {"_detrendr_spingarn_multistart", (DL_FUNC) &_detrendr_spingarn_multistart, 12},
+    {"_detrendr_spingarn_one_step", (DL_FUNC) &_detrendr_spingarn_one_step, 9},
+    {"_detrendr_spingarn_multi_step", (DL_FUNC) &_detrendr_spingarn_multi_step, 10},
     {NULL, NULL, 0}
 };
 

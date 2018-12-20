@@ -6,6 +6,13 @@
 \usage{
 update_consensus(phi_list, windows, overlapInd)
 }
+\arguments{
+\item{phi_list}{Primal variables}
+
+\item{windows}{Matrix indicating window group}
+
+\item{overlapInd}{Indices of overlap between windows}
+}
 \description{
 \code{update_consensus}
 }
