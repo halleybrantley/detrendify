@@ -11,8 +11,8 @@ NULL
 #' @param tau quantile level must be in [0,1]
 #' @export
 #'
-check_loss <- function(r, tau) {
-    .Call('_detrendr_check_loss', PACKAGE = 'detrendr', r, tau)
+checkloss <- function(r, tau) {
+    .Call('_detrendr_checkloss', PACKAGE = 'detrendr', r, tau)
 }
 
 #' Banded Cholesky Solve

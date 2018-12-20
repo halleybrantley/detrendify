@@ -6,15 +6,15 @@
 
 using namespace Rcpp;
 
-// check_loss
-double check_loss(arma::vec r, double tau);
-RcppExport SEXP _detrendr_check_loss(SEXP rSEXP, SEXP tauSEXP) {
+// checkloss
+arma::mat checkloss(arma::mat r, arma::vec tau);
+RcppExport SEXP _detrendr_checkloss(SEXP rSEXP, SEXP tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type r(rSEXP);
-    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(check_loss(r, tau));
+    Rcpp::traits::input_parameter< arma::mat >::type r(rSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(checkloss(r, tau));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -204,7 +204,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_detrendr_check_loss", (DL_FUNC) &_detrendr_check_loss, 2},
+    {"_detrendr_checkloss", (DL_FUNC) &_detrendr_checkloss, 2},
     {"_detrendr_chol_solve", (DL_FUNC) &_detrendr_chol_solve, 4},
     {"_detrendr_prox_quantile", (DL_FUNC) &_detrendr_prox_quantile, 3},
     {"_detrendr_prox_f1", (DL_FUNC) &_detrendr_prox_f1, 4},

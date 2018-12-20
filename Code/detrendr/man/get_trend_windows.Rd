@@ -5,7 +5,7 @@
 \title{Consensus ADMM for overlapping windows}
 \usage{
 get_trend_windows(y, tau, lambda, k, rho = 1, window_size, overlap,
-  max_iter, eps = 0.01, update = 10)
+  max_iter, update = 10, quad = FALSE)
 }
 \arguments{
 \item{y}{observed data}
@@ -24,9 +24,9 @@ get_trend_windows(y, tau, lambda, k, rho = 1, window_size, overlap,
 
 \item{max_iter}{Maximum number of iterations}
 
-\item{eps}{}
-
 \item{update}{number of iterations at which to print residuals}
+
+\item{eps}{}
 }
 \description{
 \code{consensus ADMM} Uses ADMM to smooth overlapping windows

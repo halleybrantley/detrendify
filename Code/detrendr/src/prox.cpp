@@ -1,33 +1,3 @@
-#include <RcppArmadillo.h>
-// [[Rcpp::depends(RcppArmadillo)]]
-#include <cmath>
-using namespace Rcpp;
-using namespace arma;
-
-//' @useDynLib detrendr
-//' @importFrom Rcpp evalCpp
-
-//' Check loss function
-//' \code{check_loss} Evaluates check loss function
-//' @param r vector of residuals
-//' @param tau quantile level must be in [0,1]
-//' @export
-//'
-// [[Rcpp::export]]
-double check_loss(arma::vec r,
-                  double tau){
-  double f = 0.0;
-  for (int i = 0; i < r.n_elem; i++){
-    if (r(i) > 0){
-      f += tau*r(i);
-    } else {
-      f += (tau-1)*r(i);
-    }
-  }
-  return f;
-}
-
-
 //' Banded Cholesky Solve
 //'
 //' \code{chol_solve} Solves a linear system cholM%*%x=b

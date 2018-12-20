@@ -4,7 +4,7 @@
 \alias{update_windows}
 \title{Update windows}
 \usage{
-update_windows(w_list, phiBar_list, model_list, rho, nT)
+update_windows(w_list, phiBar_list, model_list, rho, nT, quad = FALSE)
 }
 \arguments{
 \item{rho}{step size for ADMM}

@@ -1,4 +1,3 @@
-Sys.setenv(RETICULATE_PYTHON="~/anaconda3/bin/python3.6")
 library(devtools)
 library(gurobi)
 library(reticulate)
@@ -6,17 +5,21 @@ library(Rglpk)
 library(microbenchmark)
 load_all("detrendr")
 
-
 i <- 10
-n <- 5000
+n <- 500
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
-tau <- c(.05, 0.1)
+tau <- c( 0.1)
 
 y <- df$y
 k <- 3
 quant_loss <- function(u, tau) { 0.5 * abs(u) + (tau - 0.5) * u }
-lambda <- 1000
+lambda <- 10
+trend0 <- get_trend(df$y, tau, lambda, k)
+trend1 <- admm_trendfilter(df$y, tau, lambda, k, rho=1, maxiter=1000)
+plot(trend0, type="l")
+lines(trend1, col="red")
+
 window_size <- 500
 overlap <- 100
 rho <- 1
@@ -30,7 +33,7 @@ trend_q <- get_trend_windows(df$y, tau, lambda, k, rho=1, window_size,
                              overlap, max_iter, update=1, 
                              quad = TRUE)
 
-trend0 <- get_trend(df$y, tau, lambda, k)
+
 
 
 plot(trend0[,1], type="l")
