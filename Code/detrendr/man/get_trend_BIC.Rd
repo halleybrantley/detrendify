@@ -19,11 +19,11 @@ get_trend_BIC(y, tau, k, lambdaSeq = length(y)^seq(0, 1.5, length.out =
 
 \item{df_tol}{tolerance for determining degrees of freedom (D%*%theta > df_tol)}
 
+\item{gamma}{parameter for eBIC}
+
 \item{plot_lambda}{TRUE/FALSE for plotting lambda by model criteria}
 
 \item{solver}{LP solver, can be "gurobi", "Rglpk", or "lpSolve"}
-
-\item{parameter}{for eBIC}
 
 \item{criter}{criteria to use for lambda selection, must be "eBIC", "SIC", or 
 "valid"}

@@ -2,7 +2,7 @@ library(tidyverse)
 library(devtools)
 library(jcolors)
 rm(list=ls())
-source("trueQuantile.R")
+source("sim_generating_functions.R")
 load_all("detrendr")
 
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
@@ -68,10 +68,11 @@ summary_stats %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
+  facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
-  labs(x = "n", y="RMSE", title = "Gaussian")
+  labs(x = "n", y="RMSE", title = "Gaussian")+
+  ylim(c(0,.153))
 ggsave("../Manuscript/Figures/gaus_mse.png", width = 10, height = 3)
 
 summary_stats %>% 
@@ -80,10 +81,11 @@ summary_stats %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5)) +
-  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
+  facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
-  labs(x = "n", y="RMSE", title = "Beta")
+  labs(x = "n", y="RMSE", title = "Beta") +
+  ylim(c(0,.091))
 ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 10, height = 3)
 
 summary_stats %>% 
@@ -92,10 +94,11 @@ summary_stats %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
+  facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
-  labs(x = "n", y="RMSE", title = "Mixed Normal")
+  labs(x = "n", y="RMSE", title = "Mixed Normal") + 
+  ylim(c(0, .4))
 ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 10, height = 3)
 
 
@@ -148,9 +151,8 @@ MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods),
                              ncol = length(tau)+3))
 colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau))
 k <- 1
-  for (n in c(300,500,1000,5000,10000)){
+  for (n in c(300,500,1000,5000)){
     for (i in 1:nSim){
-      if (i == 49){ next }
       load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 
       for (method in methods){
@@ -167,7 +169,7 @@ k <- 1
     }
   }
 
-tmp <- MSEs %>% filter(n<10000)
+
 
 hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50)
 hist(tmp[tmp$Method == "detrend_eBIC", "tau_0.05"], 50, col="blue", add=T)
@@ -177,8 +179,7 @@ plot(tmp[tmp$Method == "detrend_eBIC", "tau_0.1"]~
 abline(0,1)
 which(tmp[tmp$Method == "detrend_SIC", "tau_0.05"] > .6)
 
-peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) %>%
-  filter(n < 10000)
+peaks_long <- MSEs %>% gather("tau", "MSE", -c("Sim", "Method", "n")) 
 peaks_long$RMSE <- sqrt(peaks_long$MSE)
 summary_peaks <- 
   peaks_long %>% group_by(Method, tau, n) %>% 
@@ -197,8 +198,11 @@ summary_peaks %>%
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
-  facet_wrap(factor(tau)~., scales = "free", ncol=5)+
+  facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
   scale_color_brewer(palette = "Paired") +
-  labs(x = "", y="RMSE",  col = "Method")
+  labs(x = "", y="RMSE",  col = "Method") +
+  ylim(c(0,1.2))
 ggsave("../Manuscript/Figures/peaks_mse.png", width = 10, height = 3)
+
+

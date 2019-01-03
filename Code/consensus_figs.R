@@ -19,27 +19,28 @@ spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
 
 plot(pid~time, spodNode[35000:37000, ], type="l")
 
-y <- spodNode[1:1300, "pid"]
-x <- spodNode[1:1300, "time"]
+overlap <- 200
+rho <- 1
+window_size <- 500
+y <- spodNode[1:(3*window_size - 2*overlap), "pid"]
+x <- spodNode[1:(3*window_size - 2*overlap), "time"]
 df.data <- data.frame(y=y, time=x)
 
 n <- length(y)
 k <- 3
-tau <- c(0.05, 0.1)
-overlap <- 100
-rho <- 1
-window_size <- 500
+tau <- c(0.2, 0.3)
+
 lambda <- 10*length(y)
-max_iter <- 150
-result0 <- gurobi_trend(y, tau, lambda, k)
-result1 <- gurobi_trend(y[1:500], tau, lambda, k)
-result2 <- gurobi_trend(y[401:900], tau, lambda, k)
-result3 <- gurobi_trend(y[801:1300], tau, lambda, k)
+max_iter <- 25
+result0 <- get_trend(y, tau, lambda, k)
+result1 <- get_trend(y[1:window_size], tau, lambda, k)
+result2 <- get_trend(y[(window_size - overlap + 1):(2*window_size - overlap)], tau, lambda, k)
+result3 <- get_trend(y[(2*window_size - 2*overlap + 1):(3*window_size - 2*overlap)], tau, lambda, k)
 
 df.sep.no <- data.frame(rbind(data.frame(time = x, result0, method="Single Fit"), 
-                 data.frame(time = x[1:500], result1, method = "Window 1"),
-                 data.frame(time = x[401:900], result2, method = "Window 2"),
-                 data.frame(time = x[801:1300], result3, method = "Window 3"))) 
+                 data.frame(time = x[1:window_size], result1, method = "Window 1"),
+                 data.frame(time = x[(window_size - overlap + 1):(2*window_size - overlap)], result2, method = "Window 2"),
+                 data.frame(time = x[(2*window_size - 2*overlap + 1):(3*window_size - 2*overlap)], result3, method = "Window 3"))) 
   
 
 ggplot(df.data, aes(x=time, y=y)) +
@@ -49,14 +50,14 @@ ggplot(df.data, aes(x=time, y=y)) +
   scale_color_brewer(palette = "Set1")+
   labs(col="Quantile", linetype = "", x = "") + 
   theme_bw() 
-ggsave("../Manuscript/overlapping_windows.png", width=7, height=1.5)
+ggsave("../Manuscript/Figures/overlapping_windows.png", width=7, height=1.5)
 
-result <- consensus_ADMM(y, tau, lambda, k, rho, window_size, overlap, 
-                         max_iter, eps = 2e-5, update = 1)
+result <- get_trend_windows(y, tau, lambda, k, rho, window_size, overlap, 
+                         max_iter, update = 5)
 
 
 df_no <- rbind(data.frame(time=x, method = "Single Fit", result0), 
-            data.frame(time=x, method = "Windows", result$theta))
+            data.frame(time=x, method = "Windows", result))
 
 
 
@@ -67,30 +68,28 @@ ggplot(df.data, aes(x=time, y=y)) +
   scale_color_brewer(palette = "Set1")+
   labs(col="Quantile", linetype = "", x = "") + 
   theme_bw() 
-ggsave("../Manuscript/admm_windows.png", width=7, height=1.5)
+ggsave("../Manuscript/Figures/admm_windows.png", width=7, height=1.5)
 
 
-y <- spodNode[34901:36200, "pid"]
-x <- spodNode[34901:36200, "time"]
+y <- spodNode[34901:36000, "pid"]
+x <- spodNode[34901:36000, "time"]
 df.data <- data.frame(y=y, time=x)
-
+overlap <- 200
 n <- length(y)
 k <- 3
 tau <- c(0.05, 0.1)
-overlap <- 100
 rho <- 1
-window_size <- 500
 lambda <- 10*length(y)
-max_iter <- 300
-result0 <- gurobi_trend(y, tau, lambda, k)
-result1 <- gurobi_trend(y[1:500], tau, lambda, k)
-result2 <- gurobi_trend(y[401:900], tau, lambda, k)
-result3 <- gurobi_trend(y[801:1300], tau, lambda, k)
+max_iter <- 25
+result0 <- get_trend(y, tau, lambda, k)
+result1 <- get_trend(y[1:window_size], tau, lambda, k)
+result2 <- get_trend(y[(window_size - overlap + 1):(2*window_size - overlap)], tau, lambda, k)
+result3 <- get_trend(y[(2*window_size - 2*overlap + 1):(3*window_size - 2*overlap)], tau, lambda, k)
 
 df.sep <- data.frame(rbind(data.frame(time = x, result0, method="Single Fit"), 
-                           data.frame(time = x[1:500], result1, method = "Window 1"),
-                           data.frame(time = x[401:900], result2, method = "Window 2"),
-                           data.frame(time = x[801:1300], result3, method = "Window 3"))) 
+                           data.frame(time = x[1:window_size], result1, method = "Window 1"),
+                           data.frame(time = x[(window_size - overlap + 1):(2*window_size - overlap)], result2, method = "Window 2"),
+                           data.frame(time = x[(2*window_size - 2*overlap + 1):(3*window_size - 2*overlap)], result3, method = "Window 3"))) 
 
 
 ggplot(df.data, aes(x=time, y=y)) +
@@ -100,14 +99,14 @@ ggplot(df.data, aes(x=time, y=y)) +
   scale_color_brewer(palette = "Set1")+
   labs(col="Quantile", linetype = "", x = "") + 
   theme_bw() 
-ggsave("../Manuscript/overlapping_windows2.png", width=7, height=1.5)
+ggsave("../Manuscript/Figures/overlapping_windows2.png", width=7, height=1.5)
 
-result <- consensus_ADMM(y, tau, lambda, k, rho, window_size, overlap, 
-                         max_iter, eps = 2e-5, update = 1)
+result <- get_trend_windows(y, tau, lambda, k, rho, window_size, overlap, 
+                         max_iter, update = 1)
 
 
 df <- rbind(data.frame(time=x, method = "Single Fit", result0), 
-            data.frame(time=x, method = "Windows", result$theta))
+            data.frame(time=x, method = "Windows", result))
 
 
 
@@ -118,4 +117,4 @@ ggplot(df.data, aes(x=time, y=y)) +
   scale_color_brewer(palette = "Set1")+
   labs(col="Quantile", linetype = "", x = "") + 
   theme_bw() 
-ggsave("../Manuscript/admm_windows2.png", width=7, height=1.5)
+ggsave("../Manuscript/Figures/admm_windows2.png", width=7, height=1.5)

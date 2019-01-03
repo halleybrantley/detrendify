@@ -20,13 +20,17 @@ get_criteria <- function(criteria, f_trend, y, tau,
   if (criteria == "eBIC" || criteria == "SIC") {
     n <- length(y)
     missInd <- which(is.na(y))
-    resid_trend <- checkloss(y[-missInd]-f_trend[-missInd,,drop=FALSE], tau)
+    if (sum(missInd) > 0){
+      resid_trend <- checkloss(y[-missInd]-f_trend[-missInd,,drop=FALSE], tau)
+    } else {
+      resid_trend <- checkloss(y-f_trend, tau)
+    }
     df <- Matrix::colSums(abs(D%*%f_trend) > df_tol) 
     if (criteria == "eBIC"){
       scale_param <- 0.5 - abs(0.5-tau)
       BIC <- 2*colSums(resid_trend, na.rm=T)/scale_param + log(n)*df +
         2*gamma*log(choose(nrow(D), df))
-      if (is.infinite(BIC)) {
+      if (any(sapply(BIC, is.infinite))) {
         H <- function(x) {
           return(x*log(1/x) + (1-x)*log(1/(1-x)))
         }
@@ -38,8 +42,14 @@ get_criteria <- function(criteria, f_trend, y, tau,
     }
   } else if (criteria == "valid"){
     missInd <- is.na(yValid)
-    BIC <- colMeans(checkloss(
-      yValid[-missInd]-f_trend[validID[-missInd],,drop=FALSE], tau))
+    if (sum(missInd) > 0){
+      BIC <- colMeans(checkloss(
+        yValid[-missInd]-f_trend[validID[-missInd],,drop=FALSE], tau))
+    } else {
+      BIC <- colMeans(checkloss(
+        yValid-f_trend[validID,,drop=FALSE], tau))
+    }
+    
     df <- NA
   } 
   

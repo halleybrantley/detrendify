@@ -7,7 +7,7 @@
 #' @param k order of differencing
 #' @param lambdaSeq smoothing penalty parameter options to compare
 #' @param df_tol tolerance for determining degrees of freedom (D%*%theta > df_tol)
-#' @param parameter for eBIC
+#' @param gamma parameter for eBIC
 #' @param plot_lambda TRUE/FALSE for plotting lambda by model criteria
 #' @param solver LP solver, can be "gurobi", "Rglpk", or "lpSolve"
 #' @param criter criteria to use for lambda selection, must be "eBIC", "SIC", or 
@@ -77,7 +77,7 @@ get_trend_BIC <- function(y, tau, k,
     abline(v=log(lambda))
   }
   
-  model$obj <- get_obj(tau, lambda, n, m, missInd)
+  model$obj <- get_objective(tau, lambda, n, m, missInd)
   theta <- solve_model(model, solver=solver, y=y)
 
   return(list(theta = theta,

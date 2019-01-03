@@ -34,7 +34,7 @@
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
                            overlap, max_iter, update=10, 
-                           quad = FALSE){
+                           quad = TRUE){
   if(!("gurobi" %in% installed.packages()[,"Package"])){
     stop("Must have gurobi package installed to run this function.")
   } else {
