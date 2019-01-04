@@ -4,6 +4,7 @@
 %\usepackage{enumerate}
 \usepackage{natbib}
 \usepackage{url} % not crucial - just used below for the URL 
+\usepackage{placeins}
 
 %\pdfminorversion=4
 % NOTE: To produce blinded version, replace "0" with "1" below.
@@ -312,12 +313,14 @@
 	\begin{equation}
 	Y(t) = s(t) + b(t) + \epsilon
 	\end{equation} 
-	where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from $n/50$ to $n/25$ with equal probability, and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from $n/100$ to $n/50$ with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $1/n$ and $5/n$ and areas uniformly distributed between 0 and $20/n$. One hundred datasets were generated for $n=\{300,500,1000, 5000\}$. We compare the methods ability to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE. 
+	where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from $n/50$ to $n/25$ with equal probability, and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from $n/100$ to $n/50$ with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $1/n$ and $5/n$ and areas uniformly distributed between 0 and $20/n$. One hundred datasets were generated for $n=\{300, 500, 1000, 5000\}$. We compare the methods ability to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE. 
 	
-	\begin{figure}
+	\begin{figure}[h]
 		\caption{Example of simulated peaks, baseline, and observed measurements.}
 		\includegraphics[width = \linewidth]{Figures/ex_peaks.png}
 	\end{figure}
+
+	In addition to the RMSE we also calculated the signal miss-classification rate. We first classified the "true" peaks function into signal or not based on a threshold of 0.1. We then classified the detrended data using three different thresholds and calculated the fraction miss-classified. An illustration of the observations classified as signal after detrending compared to the "true signal" is shown in Fig. 9. 
 	
 	
 	\begin{figure}[h!]
@@ -325,29 +328,38 @@
 		\includegraphics[width = \linewidth]{Figures/peaks_mse.png}
 	\end{figure}
 	
+	Our detrend\_BIC method performs the best overall in terms of both RMSE and miss-classification rate. The lowest miss-classification rates were obtained using the detrend\_eBIC method and a threshold of 1 for all data sizes. While qsreg was competitive with our method in some cases, both the RMSE and miss-classification rate increased substantially with the size of the dataset. 
+	
 	\begin{figure}[h!]
-		\caption{Example signal classification using threshold. Red indicates true signal > 0.1, blue indicates classified as signal after baseline removal using eBIC detrendr and a threshold of 1.}
+		\caption{Example signal classification using threshold. Red indicates true signal $>0.1$, blue indicates classified as signal after baseline removal using eBIC detrendr and a threshold of 1.}
 		\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
 	\end{figure}
 	
 	\begin{figure}[h!]
-		\caption{Miss-classification rates by threshold and method, values above the upper limit (npqw) not shown.}
+		\caption{Miss-classification rates by threshold, data size, and method, values above the upper limit (npqw) not shown.}
 		\includegraphics[width = \linewidth]{Figures/peaks_missclass.png}
 	\end{figure}
 	
+	 
 	
+	\FloatBarrier
 	
 	\section{Application}
 	
 	
+	Our windowed detrend method was used to removed the baseline drift from low cost air quality sensors so that the signal could be categorized using a simple threshold. The measurements were first standardized to have mean zero and variance 1. Three quantile levels for estimating the baseline trend were compared. The total dataset consisted of 52,322 observations per node. 
+	The signal thresholds were set using the first 15,000 observations where it was known no signal was present. The thresholds were set as 3 times the standard deviation plus the mean of observations in this time period. The total number of seconds of signal for each node as well as the number of seconds where multiple nodes both reported signal is shown in Table 1. Table 2 shows the fraction of observations with different signal classifications by node combination. 
+	
 	\begin{figure}
-		\caption{Example of simulated peaks, baseline, and observed measurements.}
+		\caption{Low cost sensor data before drift removal (top), after drift removal using windowed detrend with eBIC (middle), 
+			and zoomed in on signal area (bottom). Horizontal lines represent signal thresholds.}
 		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
 		\includegraphics[width = \linewidth]{Figures/corrected_data.png}
 		\includegraphics[width = \linewidth]{Figures/corrected_zoom_data.png}
 	\end{figure}
-	
 
+	\input{application_missclass.tex}	
+	\input{application_signal.tex}
 	
 	
 	\section{Conclusion}
