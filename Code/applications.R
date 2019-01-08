@@ -17,26 +17,26 @@ overlap <- 500
 max_iter <- 3
 tau <- c(0.1, 0.2, 0.3)
 k <- 3
-spod_trends <- data.frame(time = spod$time)
+# spod_trends <- data.frame(time = spod$time)
 
-for (node in c("f", "g", "h")){
-  pidCol <- paste(node, "SPOD.PID..V.", sep=".")
-  spodNode <- spod[, c("time", pidCol)]
-  names(spodNode)[2] <- c("pid")
-  spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
-  result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-                          lambdaSeq = window_size^seq(1.1, 1.5, length.out=10), 
-                          df_tol = 1e-9, 
-                          gamma = 1,
-                          plot_lambda = FALSE, 
-                          solver = NULL, 
-                          criteria = "eBIC")
-  save(result, file=sprintf("../SPod/node_%s_trend.RData", node))
-  spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
-  names(spod_trends)[(ncol(spod_trends)-2):ncol(spod_trends)] <- 
-    paste(node, tau, sep = "_")
-}
-save(spod_trends, file = "../SPod/spod_trends.RData")
+# for (node in c("f", "g", "h")){
+#   pidCol <- paste(node, "SPOD.PID..V.", sep=".")
+#   spodNode <- spod[, c("time", pidCol)]
+#   names(spodNode)[2] <- c("pid")
+#   spodNode$pid <- as.numeric(scale(spodNode$pid, center = TRUE))
+#   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
+#                           lambdaSeq = window_size^seq(1.1, 1.5, length.out=10), 
+#                           df_tol = 1e-9, 
+#                           gamma = 1,
+#                           plot_lambda = FALSE, 
+#                           solver = NULL, 
+#                           criteria = "eBIC")
+#   save(result, file=sprintf("../SPod/node_%s_trend.RData", node))
+#   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
+#   names(spod_trends)[(ncol(spod_trends)-2):ncol(spod_trends)] <- 
+#     paste(node, tau, sep = "_")
+# }
+# save(spod_trends, file = "../SPod/spod_trends.RData")
 load("../SPod/spod_trends.RData")
 nodes <- c("f", "g", "h")
 spodPIDs <- as.data.frame(scale(spod[, paste(nodes, "SPOD.PID..V.", sep=".")], 
@@ -96,6 +96,15 @@ get_misclass <- function(spodSignal){
                       mean(abs(spodSignal$f - spodSignal$h), na.rm=T),
                       mean(abs(spodSignal$g - spodSignal$h), na.rm=T)))
  return(df)
+}
+
+get_caa <- function(spodSignal){
+  df <- data.frame(Comp = c("fg", "fh", "gh"), 
+                   Missclass = 
+                     c(mean(abs(spodSignal$f - spodSignal$g), na.rm=T),
+                       mean(abs(spodSignal$f - spodSignal$h), na.rm=T),
+                       mean(abs(spodSignal$g - spodSignal$h), na.rm=T)))
+  return(df)
 }
 
 get_signal_ct <- function(spodSignal){

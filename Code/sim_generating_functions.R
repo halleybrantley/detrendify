@@ -1,21 +1,24 @@
 generate_peaks_design <- function(n){
   x <- seq(0.5, n, 1)/n
-  df <- sample((n/50):(n/25), 1)
+  # df <- sample((n/50):(n/25), 1)
+  # Changed on 1/7, need to re-run simulation
+  df <- rpois(1, n/100) + 1
   splineBasis <- ns(x, df=df)
   theta <- rexp(ncol(splineBasis), 1)
   baseline <- splineBasis%*%theta
   # plot(baseline[1:300], type="l")
   
-  numberOfPeaks <- sample((n/100):(n/50), 1)
-  peakCenters <- runif(numberOfPeaks)*.8+.1
-  peakArea <- runif(numberOfPeaks)*20/n
-  peakWidths <- runif(numberOfPeaks)*4/n + 1/n
+  # numberOfPeaks <- sample((n/100):(n/50), 1)
+  numberOfPeaks <- rbinom(1, n, .005)
+  peakCenters <- round(runif(numberOfPeaks)*(n-2) + 1)
+  peakArea <- rnorm(numberOfPeaks, 20, 4)
+  peakWidths <- runif(numberOfPeaks)*10 + 2
   
   peaks <- rep(0, length(baseline))
   if (numberOfPeaks > 0){
     for (i in 1:numberOfPeaks){
       peaks <- peaks + 
-        peakArea[i]*dnorm(x, mean=peakCenters[i], sd = peakWidths[i])
+        peakArea[i]*dnorm(seq(1,n,1), mean=peakCenters[i], sd = peakWidths[i])
     }
   }
   # plot(peaks[1:300], type="l")
