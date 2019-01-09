@@ -9,7 +9,7 @@
 #' @param trend if TRUE returns trend, if FALSE returns residuals
 #' @export
 solve_model <- function(model, solver, y=NULL, trend = TRUE){
-  if (trend && is.null(y)){
+  if (trend & is.null(y)){
     stop("y required to get trend")
   }
   
@@ -25,8 +25,11 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
   } else if (solver == "ipop"){
     require(kernlab)
     x <- solve_ipop(model)
+  } else if (solver == "quadprog"){
+    require(quadprog)
+    x <- solve_quadprog(model)
   } else {
-    stop("Solver must be one of 'gurobi', 'Rglpk', or 'lpSolve' or 'ipop'")
+    stop("Solver must be one of 'gurobi', 'Rglpk', 'lpSolve', 'ipop', 'quadprog'")
   }
   
   nT <- model$nT
@@ -102,3 +105,17 @@ solve_ipop <- function(model){
   output <- kernlab::primal(result)
   return(output)
 }
+
+solve_quadprog <- function(model){
+  Amat <- Matrix::t(rbind(model$A, Matrix::Diagonal(length(model$obj))))
+  bvec <- c(model$rhs, rep(0, length(model$obj)))
+  result <- solve.QP(
+    Dmat = 2*model$Q, 
+    dvec = -model$obj,
+    Amat = Amat, 
+    bvec = bvec,
+    meq = sum(model$sense == "=")
+  )
+  return(result$solution)
+}
+

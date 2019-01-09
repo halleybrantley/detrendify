@@ -10,10 +10,12 @@
 #' @param k order of differencing matrix
 #' @param rho step size for ADMM
 #' @export
-update_windows <- function(w_list, phiBar_list, model_list, rho, nT, 
+update_windows <- function(w_list, phiBar_list, etaBar_list, 
+                           model_list, rho, nT, 
                            quad=FALSE, solver="gurobi"){
   if (quad){
-    model_list <- mapply(update_model, model_list, w_list, phiBar_list, 
+    model_list <- mapply(update_model, model_list, w_list, phiBar_list,
+                         etaBar_list,
                          rho=rho, nT=nT, SIMPLIFY = FALSE)
   } else {
     model_list <- mapply(update_model_abs, model_list, w_list, phiBar_list, 
@@ -73,8 +75,8 @@ get_phiBar <- function(phiBar_list, windows){
 #' @param phiBar consensus variable
 #' @param rho ADMM step size parameter
 #' @export
-update_dual <- function(w, phi, phiBar, rho) {
-  w + as.numeric(rho*(phi - phiBar))
+update_dual <- function(w, phi, phiBar, eta, etaBar, rho) {
+  w + as.numeric(rbind(rho*(phi - phiBar), rho*(eta-etaBar)))
 }
 
 #' Update model with ADMM step parameter and dual and consensus variables
@@ -87,25 +89,23 @@ update_dual <- function(w, phi, phiBar, rho) {
 #' @param rho ADMM step size
 #' @param nT Number of quantiles being estimated
 #' @export
-update_model <- function(model, w, z, rho, nT){
-  n <- length(w)/nT
+update_model <- function(model, w, phiBar, etaBar, rho, nT){
+  z <- as.numeric(rbind(phiBar, etaBar))
+  n <- length(phiBar)/nT
   np <- length(model$obj)/nT
   
   for (i in 1:nT){
-    thetaInd <- (1+np*(i-1)):(2*n + np*(i-1))
-    dualInd <- (1 + n*(i-1)):(n + n*(i-1))
+    objInd <- (1+np*(i-1)):(np*i)
+    dual_theta <- (1 + np/2*(i-1)):(np/2*(i-1) + n)
+    dual_eta <- (1 + np/2*(i-1) + n):(np/2*i)
     # Add in dual/consensus variables
-    model$obj[thetaInd] <- model$obj[thetaInd]  +
-      c((w[dualInd]-rho*z[dualInd]), -(w[dualInd]-rho*z[dualInd]))
+    model$obj[objInd] <- model$obj[objInd]  +
+      c(w[dual_theta]-rho*z[dual_theta], -(w[dual_theta]-rho*z[dual_theta]),
+        w[dual_eta]-rho*z[dual_eta], -(w[dual_eta]-rho*z[dual_eta]))
   }
+  
   if (is.null(model$Q)) {
-    thetaAll <- c()
-    for (i in 1:nT){
-      thetaInd <- (1+np*(i-1)):(2*n + np*(i-1))
-      thetaAll <- c(thetaAll, thetaInd)
-    }
-    model$Q <- sparseMatrix(thetaAll, thetaAll, x=rho/2, 
-                            dims = c(length(model$obj), length(model$obj)))
+    model$Q <- Matrix::Diagonal(length(model$obj), rho/2)
   }
   return(model)
 }
@@ -166,3 +166,12 @@ get_model_abs <- function(model, z, rho, nT){
   model$sense <- c(model$sense , rep("=", length(z)))
   return(model)
 }
+
+
+get_eta <- function(phi, y, k){
+  D <- get_Dk(length(y), k)
+  eta <- D%*%y - D%*%phi
+  return(as.matrix(eta))
+}
+
+

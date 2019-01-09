@@ -7,16 +7,28 @@ load_all("detrendr")
 rm(list=ls())
 source("sim_generating_functions.R")
 set.seed(12345678)
-tau <- c(0.05)
+tau <- c(0.05, .1)
 simDesign <- "peaks"
 df <- generate_peaks_design(1000)
-n <- 20
-overlap <- 5
+n <- 300
+overlap <- 50
 y <- df$y[1:n]
 
-trend <- get_trend_windows(y, tau, lambda = n, k=3, 
-                  window_size = n/2+overlap/2, 
+lambda = n
+k=3
+window_size = as.integer(n/2+overlap/2)
+rho <- 1
+max_iter = 4
+quad = TRUE
+use_gurobi = FALSE
+
+trend0 <- get_trend(y, tau, lambda, k)
+
+trend <- get_trend_windows(y, tau, lambda, k=3, 
+                  window_size, 
                   overlap = overlap, max_iter = 4, quad = TRUE, 
-                  use_gurobi = FALSE, rho = .5)
+                  use_gurobi = FALSE, rho = 1, update = 1)
+
 plot(y, type="l")
-lines(trend[,2], col="blue")
+lines(trend[,2], col="red")
+lines(trend0[,1], col="blue")

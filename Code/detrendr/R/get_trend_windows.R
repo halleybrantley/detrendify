@@ -41,6 +41,10 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
     # First estimate uses LP not QP
     solver <- "lpSolve"
   }
+  if (!is.integer(window_size)){
+    stop("window_size must be an integer")
+  }
+  
   y_n <- length(y)
   tau <- sort(tau)
   nT <- length(tau)
@@ -56,7 +60,8 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
     end_I <- min((window_size + (window_size-overlap)*(i-1)), y_n)
     windows[start_I:end_I,i] <- TRUE
     y_list[[i]] <- y[start_I:end_I]
-    w_list[[i]] <- numeric(length(y_list[[i]])*length(tau))
+    len <- end_I - start_I + 1
+    w_list[[i]] <- rep(0, (2*len - k)*length(tau))
   }
   overlapInd <- rowSums(windows) > 1
   
@@ -64,25 +69,29 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
   model_list <- lapply(y_list, get_model, tau=tau, lambda=lambda, k=k)
   phi_list <- mapply(solve_model, model_list, y_list, 
                      solver = solver, trend=FALSE, SIMPLIFY = FALSE)
+  eta_list <- mapply(get_eta, phi_list, y_list, k=3, SIMPLIFY = FALSE)
   
   # Change to QP solver
   if (solver == "lpSolve"){
-    solver <- "ipop"
+    solver <- "quadprog"
   }
   # Consensus update
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
+  etaBar_list <- mapply(get_eta, phiBar_list, y_list, k=k, SIMPLIFY = FALSE)
   
   if (quad){
     # Use w_list for z since it is all zeros, don't want to store current z
-    model_list <- mapply(update_model, model_list, w_list, w_list, rho, nT,
-                         SIMPLIFY = FALSE)
+    # model_list <- mapply(update_model, model_list, w_list, w_list, rho, nT,
+    #                      SIMPLIFY = FALSE)
   } else {
     model_list <- mapply(get_model_abs, model_list, phiBar_list, rho, nT, 
                          SIMPLIFY = FALSE)  
   }
   
   # Dual update
-  w_list <- mapply(update_dual, w_list, phi_list, phiBar_list,
+  w_list <- mapply(update_dual, w_list, 
+                   phi_list, phiBar_list, 
+                   eta_list, etaBar_list, 
                    MoreArgs = list(rho=rho), SIMPLIFY = FALSE)
 
   phiBar_k <- get_phiBar(phiBar_list, windows)
@@ -95,13 +104,17 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
   while(iter <= max_iter){
 
     # Window update
-    phi_list <- update_windows(w_list, phiBar_list, model_list, rho, nT, 
+    phi_list <- update_windows(w_list, phiBar_list, etaBar_list, 
+                               model_list, rho, nT, 
                                quad, solver)
     # Consensus update
     phiBar_list <- update_consensus(phi_list, windows, overlapInd)
-
+    etaBar_list <- mapply(get_eta, phiBar_list, y_list, k=k, SIMPLIFY = FALSE)
+    
     # Dual update
-    w_list <- mapply(update_dual, w_list, phi_list, phiBar_list,
+    w_list <- mapply(update_dual, w_list, 
+                     phi_list, phiBar_list, 
+                     eta_list, etaBar_list, 
                      MoreArgs = list(rho=rho), SIMPLIFY = FALSE)
     
     # Convergence Metrics
