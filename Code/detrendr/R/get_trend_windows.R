@@ -34,13 +34,13 @@
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
                            overlap, max_iter, update=10, 
-                           quad = TRUE){
-  if(!("gurobi" %in% installed.packages()[,"Package"])){
-    stop("Must have gurobi package installed to run this function.")
+                           quad = TRUE, use_gurobi = TRUE){
+  if (use_gurobi){
+    solver <- "gurobi"
   } else {
-    require(gurobi)
+    # First estimate uses LP not QP
+    solver <- "lpSolve"
   }
-  
   y_n <- length(y)
   tau <- sort(tau)
   nT <- length(tau)
@@ -63,7 +63,12 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
   # Window initial LP fit
   model_list <- lapply(y_list, get_model, tau=tau, lambda=lambda, k=k)
   phi_list <- mapply(solve_model, model_list, y_list, 
-                     solver = "gurobi", trend=FALSE, SIMPLIFY = FALSE)
+                     solver = solver, trend=FALSE, SIMPLIFY = FALSE)
+  
+  # Change to QP solver
+  if (solver == "lpSolve"){
+    solver <- "ipop"
+  }
   # Consensus update
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
   
@@ -90,7 +95,8 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
   while(iter <= max_iter){
 
     # Window update
-    phi_list <- update_windows(w_list, phiBar_list, model_list, rho, nT, quad)
+    phi_list <- update_windows(w_list, phiBar_list, model_list, rho, nT, 
+                               quad, solver)
     # Consensus update
     phiBar_list <- update_consensus(phi_list, windows, overlapInd)
 

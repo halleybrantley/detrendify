@@ -11,7 +11,7 @@
 #' @param rho step size for ADMM
 #' @export
 update_windows <- function(w_list, phiBar_list, model_list, rho, nT, 
-                           quad=FALSE){
+                           quad=FALSE, solver="gurobi"){
   if (quad){
     model_list <- mapply(update_model, model_list, w_list, phiBar_list, 
                          rho=rho, nT=nT, SIMPLIFY = FALSE)
@@ -19,7 +19,7 @@ update_windows <- function(w_list, phiBar_list, model_list, rho, nT,
     model_list <- mapply(update_model_abs, model_list, w_list, phiBar_list, 
                          nT=nT, SIMPLIFY = FALSE)
   }
-  phi_list <- lapply(model_list, solve_model, solver="gurobi", trend = FALSE)
+  phi_list <- lapply(model_list, solve_model, solver=solver, trend = FALSE)
   return(phi_list)
 }
 
