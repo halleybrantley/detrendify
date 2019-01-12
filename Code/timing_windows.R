@@ -26,20 +26,21 @@ for (n in data_lengths){
   gc()
   all.times[,i] <- microbenchmark(
       trend_w <- get_trend_windows(df$y[1:n], tau, lambda = c(n,n), k=3, 
-                                   window_size = n/2+overlap/2, 
-                                   overlap = overlap, max_iter = 2, quad = TRUE), 
+                                   window_size = as.integer(n/2+overlap/2), 
+                                   overlap = overlap, max_iter = 2, quad = TRUE, 
+                                   use_gurobi = TRUE), 
       times = times)$time
   trend <- get_trend(df$y[1:n], tau, lambda = c(n,n), k=3)
   
   trend_diff[[i]] <- trend_w - trend
   i <- i+1
   save(all.times, data_lengths, trend_diff,
-       file="../TimingData/window_times.RData")
+       file="../TimingData/window_times_2.RData")
 }
 
-load("../TimingData/window_times.RData")
-time.df <- data.frame(n = data_lengths,
-           median = apply(all.times, 2, median)*1e-9,
-           mean = apply(all.times, 2, mean)*1e-9)
-
-ggplot(time.df, aes(x=n, y=median)) + geom_line() + geom_point()
+# load("../TimingData/window_times.RData")
+# time.df <- data.frame(n = data_lengths,
+#            median = apply(all.times, 2, median)*1e-9,
+#            mean = apply(all.times, 2, mean)*1e-9)
+# 
+# ggplot(time.df, aes(x=n, y=median)) + geom_line() + geom_point()

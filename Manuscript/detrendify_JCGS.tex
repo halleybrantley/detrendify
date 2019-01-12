@@ -69,65 +69,30 @@
 	
 	There have been a number of occasions when researchers have sought to estimate the trend in the quantiles of a random variable over time or another co-variate given noisy observations of that variable. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution. We are interested in the problem posed by \cite{thoma2016south} concerning low-cost air pollutant sensors. Researchers at the U.S. Environmental Protection Agency have built prototypes of low-cost sensors that provide an un-calibrated measure of volatile organic compounds (VOCs) and hazardous air pollutants (HAPs) at a 1 second time resolution. To reduce cost and power consumption, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled. A result the output signal exhibits a slowly varying baseline drift (minutes to hours). The purpose of these sensors is to protect the fenceline of industrial facilities by detecting whether VOC emissions from a local source are present and providing wind and concentration data to help identify the source and speed repairs.      	
 	
-	
-	We propose to use the trend filtering penalty with the check loss function to produce a non-parametric quantile regression estimate for removing trends in time series. The formulation was proposed by \cite{Kim2009} as a possible extension of $\ell_1$-trend filtering but not studied. Moreover we extend the basic framework to ensure non-crossing while modeling multiple quantiles. We also implement a parallel ADMM algorithm for series that are too large to be computed simultaneously and proposed a modified criteria for choosing the smoothing parameter. We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods and is a more effective method of drift removal for low-cost air quality sensors. 
-		
-	\subsection{Quantile Regression}
-	
-	The classic least squares regression is notoriously sensitive to outliers. One remedy to blunt the influence of outliers is to compute the least absolute deviations (LAD) solution in place of the least squares one. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of $y$. The LAD estimator is a solution to the problem
-	\begin{eqnarray}
-		\underset{\theta}{\min}\; \frac{1}{n}\lVert y - \mathbf{X}\theta \rVert_1.
-	\end{eqnarray}
-	The above optimization problem generalizes the notion of the median of a collection of numbers. A median $\mu$ of $n$ reals $y_1, \ldots, y_n$ is the minimizer of the function
-	\begin{eqnarray}
-		f(u) & = & \frac{1}{n}\sum_{i=1}^n \lvert y_i - \theta \rvert.
-	\end{eqnarray}
-	Recall that the median is the 50th percentile or 0.5-quantile, namely half of the $y_i$ are less than or equal to $\mu$ and the other half is greater than or equal to $\mu$. The median can be generalized to arbitrary $\tau$-quantiles for $\tau \in (0,1)$ to give us quantile regression \citep{Koenker1978}.
-	
-	First define the so-called "check function"
-	\begin{eqnarray}
-		\rho_\tau(\Delta) & = & \begin{cases}
-			\tau \Delta & \Delta \geq 0 \\
-			-(1-\tau)\Delta & \Delta < 0 \\
-		\end{cases}
-	\end{eqnarray}
-	Then the $\tau$th quantile of the $y_i$ is a minimizer of the function
-	\begin{eqnarray}
-		f_\tau(\theta) & = & \frac{1}{n}\sum_{i=1}^n \rho_\tau(y_i - \theta).
-	\end{eqnarray}
-	Returning to the regression context, we can generalize LAD regression to quantile regression, namely computing the minimizer of the function
-	\begin{eqnarray}
-		f_\tau(\theta) & = & \frac{1}{n}\sum_{i=1}^n \rho_\tau(y_i - \langle x_i \mid \theta \rangle),
-	\end{eqnarray}
-	where $x_i \in \mathbb{R}^p$ denotes the $i$th row of $\mathbf{X}$.
-	
-	%% ----------------------------------------------------------------------
-	%% Trend Filtering
-	%% ----------------------------------------------------------------------
-	\subsection{Trend Filtering}
+	A variety of approaches have been proposed for estimating quantile trends. \cite{Koenker1978} was the first to propose the use of the check loss function to estimate conditional quantiles. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of the $\tau$th quantile of $y$ conditional on $x$. The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where $\rho_{\tau}(y) = \sum_{i=1}^n y_i(1-\mathbf{I}(y_i<0))$ is the check-loss function and $\mathbf{I}$ is the indicator function.  
 	
 	In the trend filtering problem \citep{Kim2009, Tib2014}, one is interested in finding an adaptive polynomial approximation to noisy data $y \in \mathbb{R}^n$ by solving the following convex problem.
 	\begin{eqnarray}
-		\underset{\theta}{\arg\min}\; \frac{1}{2n} \lVert y - \theta \rVert_2^2 + \lambda \lVert \mathbf{D}^{(k+1)}\theta \rVert_1,
+	\underset{\theta}{\arg\min}\; \frac{1}{2n} \lVert y - \theta \rVert_2^2 + \lambda \lVert \mathbf{D}^{(k+1)}\theta \rVert_1,
 	\end{eqnarray}
 	where $\lambda \geq 0$ is a regularization parameter that trades off the emphasis on the data fidelity term and the matrix $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\mathbf{D}^{(k+1)}$ consider the difference operator when $k = 0$.
 	\begin{eqnarray}
-		\mathbf{D}^{(1)} = \begin{pmatrix}
-			-1 & 1 & 0 & \cdots & 0 & 0 \\
-			0 & -1 & 1 & \cdots & 0 & 0 \\
-			\vdots & & & & & \\
-			0 & 0 & 0 & \cdots & -1 & 1 \\
-		\end{pmatrix}
+	\mathbf{D}^{(1)} = \begin{pmatrix}
+	-1 & 1 & 0 & \cdots & 0 & 0 \\
+	0 & -1 & 1 & \cdots & 0 & 0 \\
+	\vdots & & & & & \\
+	0 & 0 & 0 & \cdots & -1 & 1 \\
+	\end{pmatrix}
 	\end{eqnarray}
 	Thus, $\lVert \mathbf{D}^{(1)}\theta \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_i - \theta_{i+1} \rvert$ which is just total variation denoising in one dimension. The penalty incentivizes solutions which are piece-wise constant. For $k \geq 1$, the difference operator $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n-k-1) \times n}$ is defined recursively as follows
 	\begin{eqnarray}
-		\mathbf{D}^{(k+1)} & = & \mathbf{D}^{(1)}\mathbf{D}^{(k)}.
+	\mathbf{D}^{(k+1)} & = & \mathbf{D}^{(1)}\mathbf{D}^{(k)}.
 	\end{eqnarray}
 	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$.
 	
-	%% ----------------------------------------------------------------------
-	%% Quantile Trend Filtering
-	%% ----------------------------------------------------------------------
+	We propose to use the trend filtering penalty with the check loss function to produce a non-parametric quantile regression estimate for removing trends in time series. The formulation was proposed by \cite{Kim2009} as a possible extension of $\ell_1$-trend filtering but not studied. Moreover we extend the basic framework to ensure non-crossing while modeling multiple quantiles. We also implement a parallel ADMM algorithm for series that are too large to be computed simultaneously and proposed a modified criteria for choosing the smoothing parameter. We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods and is a more effective method of drift removal for low-cost air quality sensors. 
+	
+
 	\section{Methods}
 	
 	\subsection{Quantile Trend Filtering}
@@ -172,51 +137,7 @@
 
 	\subsection{ADMM for Smoothing Windows}
 	
-	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm, described by \cite{boyd2011distributed}, relies on the idea of dual ascent. If we consider the equality optimization problem 
-	\begin{align}
-	&\text{minimize } f(x)\\
-	&\text{subject to } Ax = b
-	\end{align}
-	with variable $x\in \mathbf{R}^n$, where $A \in \mathbf{R}^{mxn}$ and $f: \mathbf{R}^n \rightarrow \mathbf{R}$ is convex. The corresponding Lagrangian function is 
-	\begin{equation}
-	L(x,\omega) = f(x) + \omega^T(Ax-b)
-	\end{equation}
-	and the corresponding dual problem  is 
-	\begin{equation}
-	\text{maximize } \inf_x L(x,\omega)
-	\end{equation}
-	Assuming that strong duality holds (Slater's constraint: there exists a solution in the interior of the domain), the optimal values of the primal and dual variables are the same. The dual ascent method, uses gradient ascent to solve the dual problem and thus the primal problem using the iterates
-	\begin{align}
-	&x^{k+1} = \arg\min L(x, \omega^k)\\
-	&\omega^{k+1} = \omega^k + \alpha^k(Ax^{k+1} - b)
-	\end{align}
-	where $\alpha^k > 0$ is a step size and $k$ is the iteration counter. In many cases (including our problem), the $x$ update fails because the problem is unbounded below. To remedy this issue the augmented Lagrangian was introduced:
-	\begin{equation}
-	L_{\gamma}(x,\omega) = f(x)+\omega^T(Ax-b) + \frac{\gamma}{2}||Ax-b||_2^2
-	\end{equation}
-	where $\gamma > 0$ is called the penalty parameter. Applying dual ascent to the modified problem results in the method of multipliers algorithm which converges under more general conditions:
-	\begin{align}
-	&x^{k+1} = \arg\min L_\gamma(x, \omega^k)\\
-	&\omega^{k+1} = \omega^k + \gamma(Ax^{k+1} - b)
-	\end{align}
-	Consider a new optimization problem with a separable objective function. 
-	\begin{align}
-	&\text{minimize } f_1(x_1) + f_2(x_2)\\
-	&\text{subject to } A_1x_1 + A_2x_2 = b
-	\end{align}
-	where $x = (x_1, x_2)$, $i \in \{1,2\}$, and  $x_i \in \mathbf{R}^{n_i}$. The dual ascent updates can be expressed as 
-	\begin{align}
-	&x_i^{k+1} = \arg\min L_i(x_i, \omega^k)\\
-	&\omega^{k+1} = \omega^k + \alpha^k(Ax^{k+1} - b)
-	\end{align}
-	however we lose the separability if the augmented Lagrangian is used instead, i.e. the augmented Lagrangian can not be separated into functions of $x_i$.  The Alternating Direction Method of Multipliers (ADMM) addresses this problem and maintains separability while using the augmented Lagrangian to improve convergence through the following updates
-	\begin{align}
-	&x_1^{k+1} = \arg\min_{x_1} L_{\gamma}(x_1, x_2^k, \omega^k)\\
-	&x_2^{k+1} = \arg\min_{x_2} L_{\gamma}(x_1^{k+1}, x_2, \omega^k)\\
-	&\omega^{k+1} = \omega^k + \alpha^k(A_1x_1^{k+1} + A_2x_2^{k+1} - b)
-	\end{align}
-	
-	We now consider the quantile regression trend filtering problem,  
+	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm is fully described by \cite{boyd2011distributed}. We apply the consensus ADMM algorithm to the the quantile regression trend filtering problem, 
 	\begin{equation}
 	\text{minimize } \rho_\tau(y-\theta) + \lambda||D^{(k)}\theta||_1\\
 	\end{equation}
@@ -272,14 +193,12 @@
 		\includegraphics[width = \linewidth]{Figures/admm_windows.png}
 	\end{figure}
 	
-	\begin{figure}[!h] 
-		\caption{Windows fit separately compared to simultaneous fit, signal present.}
-		\includegraphics[width = \linewidth]{Figures/overlapping_windows2.png}
-	\end{figure}
+
+	We conducted timing experiments to show the advantages of using our ADMM algorithm on large datasets. We use 2 windows for each data size with an overlap of 2000 and two iterations of the algorithm after the initial estimates. 
 	
 	\begin{figure}[!h] 
-		\caption{Windows fit with 300 iterations of ADMM, signal present.}
-		\includegraphics[width = \linewidth]{Figures/admm_windows2.png}
+		\caption{Timing experiments comparing quantile trend filtering on a single window versus 2 windows by data size.}
+		\includegraphics[width = \linewidth]{Figures/Fig_timing_experiment.png}
 	\end{figure}
 
 	\section{Simulation Study}
@@ -326,11 +245,6 @@
 	In addition to the RMSE we also calculated the signal miss-classification rate. We first classified the "true" peaks function into signal or not based on a threshold of 0.1. We then classified the detrended data using three different thresholds and calculated the fraction miss-classified. An illustration of the observations classified as signal after detrending compared to the "true signal" is shown in Fig. 9. 
 	
 	
-	\begin{figure}[h!]
-		\caption{RMSEs compared to the simulated baseline function.}
-		\includegraphics[width = \linewidth]{Figures/peaks_mse.png}
-	\end{figure}
-	
 	Our detrend\_BIC method performs the best overall in terms of both RMSE and miss-classification rate. The lowest miss-classification rates were obtained using the detrend\_eBIC method and a threshold of 1 for all data sizes. While qsreg was competitive with our method in some cases, both the RMSE and miss-classification rate increased substantially with the size of the dataset. 
 	
 	\begin{figure}[h!]
@@ -338,13 +252,32 @@
 		\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
 	\end{figure}
 	
+
+	\begin{figure}[h!]
+		\caption{Class averaged accuracy by threshold, data size, and method (1 is best 0.5 is worst).}
+		\includegraphics[width = \linewidth]{Figures/peaks_CAA.png}
+	\end{figure}
+	 
+	\begin{figure}[h!]
+		\caption{F1 score by threshold, data size, and method (1 is best 0 is worst).}
+		\includegraphics[width = \linewidth]{Figures/peaks_F1.png}
+	\end{figure}
+
+	\begin{figure}[h!]
+		\caption{Precision by threshold, data size, and method (true positive over true positives + false positives).}
+		\includegraphics[width = \linewidth]{Figures/peaks_precision.png}
+	\end{figure}
+
+	\begin{figure}[h!]
+		\caption{Recall by threshold, data size, and method (true positive over true positives + false negatives).}
+		\includegraphics[width = \linewidth]{Figures/peaks_recall.png}
+	\end{figure}
+
 	\begin{figure}[h!]
 		\caption{Miss-classification rates by threshold, data size, and method, values above the upper limit (npqw) not shown.}
 		\includegraphics[width = \linewidth]{Figures/peaks_missclass.png}
 	\end{figure}
-	
-	 
-	
+
 	\FloatBarrier
 	
 	\section{Application}
@@ -361,9 +294,10 @@
 		\includegraphics[width = \linewidth]{Figures/corrected_zoom_data.png}
 	\end{figure}
 
-	\input{application_missclass.tex}	
-	\input{application_signal.tex}
+	\input{application_metrics.tex}	
 	
+	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
+	\includegraphics[width = \linewidth]{Figures/signal_plot.png}
 	
 	\section{Conclusion}
 	\label{sec:conc}

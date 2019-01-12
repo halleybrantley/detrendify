@@ -4,14 +4,13 @@ library(jcolors)
 rm(list=ls())
 source("sim_generating_functions.R")
 load_all("detrendr")
+colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
+                '#a6dba0','#5aae61','#1b7837'))
 
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
-n <- 300
 nSim <- 100
 simDesigns <- c( "mixednorm", "shapebeta", "gaus")
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "npqw", "qsreg", "rqss")
-#methods <- "npqw"
-#simDesigns <- "mixednorm"
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", "rqss", "npqw")
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns), 
                              ncol = length(tau)+4))
 colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))
@@ -35,12 +34,6 @@ for(simDesign in simDesigns){
   }
 }
 
-tmp <- MSEs %>% filter(Design == "gaus", n==300)
-
-hist(tmp[tmp$Method == "qsreg", "tau_0.5"])
-median(tmp[tmp$Method == "npqw", "tau_0.5"])
-
-which(tmp[tmp$Method == "npqw", "tau_0.5"] >.1)
 
 
 MSEs_long <- MSEs %>% gather("tau", "MSE", -c("Design", "Sim", "Method", "n")) 
@@ -56,7 +49,8 @@ summary_stats <-
   ) %>%
   ungroup() %>%
   mutate(tau_fac = tau, 
-         tau = as.numeric(substr(tau_fac, 5, 10)))
+         tau = as.numeric(substr(tau_fac, 5, 10)), 
+         Method = factor(Method, levels = methods))
 
 
 
@@ -70,7 +64,7 @@ summary_stats %>%
                  position = position_dodge(width = 0.5))+
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Paired") +
+  scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Gaussian")+
   ylim(c(0,.153))
 ggsave("../Manuscript/Figures/gaus_mse.png", width = 10, height = 3)
@@ -83,7 +77,7 @@ summary_stats %>%
                  position = position_dodge(width = 0.5)) +
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Paired") +
+  scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Beta") +
   ylim(c(0,.091))
 ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 10, height = 3)
@@ -96,7 +90,7 @@ summary_stats %>%
                  position = position_dodge(width = 0.5))+
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Paired") +
+  scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Mixed Normal") + 
   ylim(c(0, .4))
 ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 10, height = 3)

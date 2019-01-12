@@ -5,6 +5,8 @@
 library(tidyverse)
 library(devtools)
 load_all("detrendr")
+colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
+                '#a6dba0','#5aae61','#1b7837'))
 rm(list=ls())
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
@@ -20,9 +22,9 @@ for (n in c(500,1000,2000,4000)){
   for (i in 1:nSim){
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", "peaks", n, i))
     df$signal <- as.numeric(df$peaks > 0.5)
-    
+
     for (method in methods){
-      load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
+      load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData",
                    method, "peaks", n, i))
       for (threshold in thresh){
         for (metric in metric_types){
@@ -30,10 +32,10 @@ for (n in c(500,1000,2000,4000)){
             metrics$sim[k] <- i
             metrics$method[k] <- method
             metrics$n[k] <- n
-            metrics$threshold <- threshold
+            metrics$threshold[k] <- threshold
             metrics$tau[k] <- tau[j]
             metrics$metric_type[k] <- metric
-            metrics$metric[k] <- get_metric(trend[,j], df$y, df$signal, 
+            metrics$metric[k] <- get_metric(trend[,j], df$y, df$signal,
                                          threshold, metric)
             k <- k+1
             metrics[k, ] <- NA
@@ -41,45 +43,61 @@ for (n in c(500,1000,2000,4000)){
         }
       }
     }
+    save(metrics, file = "../SimResults/peak_metrics.RData")
   }
 }
 ################################################################################
 # Need to update
 
-peaks_long <- miss_class %>% gather("tau", "missclass", -c("Sim", "Method", "n")) 
+load("../SimResults/peak_metrics.RData")
+
+noSignal <- metrics %>% 
+  filter(metric_type == "recall", is.na(metric)) %>% 
+  select(n, sim) %>% 
+  distinct()
+
+metrics <- anti_join(metrics, m1)
+metrics$metric[which(is.na(metrics$metric))] <- 0
 
 summary_peaks <- 
-  peaks_long %>% group_by(Method, tau, n) %>% 
+  metrics %>% 
+  filter(!is.na(method)) %>%
+  group_by(method, tau, n, threshold, metric_type) %>% 
   summarise(
-    mean_missclass = mean(missclass), 
-    sd_missclass = sd(missclass)/sqrt(nSim)
+    n_metrics = n(),
+    mean_metric = mean(metric, na.rm=T), 
+    sd_metric = sd(metric, na.rm=T)/sqrt(n_metrics)
   ) %>%
-  ungroup() 
+  ungroup() %>%
+  mutate(method = factor(method, levels = methods))
 
 
-summary_peaks %>% 
-  ggplot( aes(x = factor(n), y = mean_missclass, col = Method)) + 
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_linerange(aes(ymin = mean_missclass - 2*sd_missclass, ymax = mean_missclass + 2*sd_missclass), 
-                 position = position_dodge(width = 0.5))+
-  facet_grid(.~factor(tau))+
-  theme_bw() +
-  scale_color_brewer(palette = "Paired") +
-  ylim(c(0.09, .19)) +
-  labs(x = "", y="Miss-classified rate",  col = "Method") 
 
-ggsave("../Manuscript/Figures/peaks_missclass.png", width = 10, height = 3)
+for (metric_choice in metric_types){
+  summary_peaks %>% 
+    filter(metric_type == metric_choice) %>%
+    ggplot( aes(x = factor(n), y = mean_metric, col = method)) + 
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_linerange(aes(ymin = mean_metric - 2*sd_metric, ymax = mean_metric + 2*sd_metric), 
+                   position = position_dodge(width = 0.5))+
+    facet_grid(factor(threshold)~factor(tau))+
+    theme_bw() +
+    scale_color_manual(values=colPal, breaks = methods) +
+    labs(x = "", y=metric_choice,  col = "Method") 
+  
+  ggsave(sprintf("../Manuscript/Figures/peaks_%s.png", metric_choice), 
+         width = 7, height = 4.5)
+}
 
-
-n <- 500
-i <- 75
-method <- "detrend_SIC"
-load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
+n <- 1000
+i <- 5
+method <- "detrend_eBIC"
+load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", "peaks", n, i))
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-             method, simDesign, n, i))
+             method, "peaks", n, i))
 df$signal <- as.numeric(df$peaks > 0.5)
-y_adj <- df$y - trend[,3]
-signal_hat <- as.numeric(y_adj > thresh[3])
+y_adj <- df$y - trend[,2]
+signal_hat <- as.numeric(y_adj > thresh[4])
 trend <- as.data.frame(trend)
 trend$x <- df$x
 ggplot(df, aes(x=x, y=y)) + geom_line() +
