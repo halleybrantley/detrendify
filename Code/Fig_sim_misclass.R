@@ -18,34 +18,34 @@ thresh <- c(.9, 1, 1.1, 1.2)
 metric_types <- c("missclass", "precision", "recall", "CAA", "F1")
 k <- 1
 
-for (n in c(500,1000,2000,4000)){
-  for (i in 1:nSim){
-    load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", "peaks", n, i))
-    df$signal <- as.numeric(df$peaks > 0.5)
-
-    for (method in methods){
-      load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData",
-                   method, "peaks", n, i))
-      for (threshold in thresh){
-        for (metric in metric_types){
-          for (j in 1:length(tau)){
-            metrics$sim[k] <- i
-            metrics$method[k] <- method
-            metrics$n[k] <- n
-            metrics$threshold[k] <- threshold
-            metrics$tau[k] <- tau[j]
-            metrics$metric_type[k] <- metric
-            metrics$metric[k] <- get_metric(trend[,j], df$y, df$signal,
-                                         threshold, metric)
-            k <- k+1
-            metrics[k, ] <- NA
-          }
-        }
-      }
-    }
-    save(metrics, file = "../SimResults/peak_metrics.RData")
-  }
-}
+# for (n in c(500,1000,2000,4000)){
+#   for (i in 1:nSim){
+#     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", "peaks", n, i))
+#     df$signal <- as.numeric(df$peaks > 0.5)
+# 
+#     for (method in methods){
+#       load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData",
+#                    method, "peaks", n, i))
+#       for (threshold in thresh){
+#         for (metric in metric_types){
+#           for (j in 1:length(tau)){
+#             metrics$sim[k] <- i
+#             metrics$method[k] <- method
+#             metrics$n[k] <- n
+#             metrics$threshold[k] <- threshold
+#             metrics$tau[k] <- tau[j]
+#             metrics$metric_type[k] <- metric
+#             metrics$metric[k] <- get_metric(trend[,j], df$y, df$signal,
+#                                          threshold, metric)
+#             k <- k+1
+#             metrics[k, ] <- NA
+#           }
+#         }
+#       }
+#     }
+#     save(metrics, file = "../SimResults/peak_metrics.RData")
+#   }
+# }
 ################################################################################
 # Need to update
 
@@ -56,7 +56,6 @@ noSignal <- metrics %>%
   select(n, sim) %>% 
   distinct()
 
-metrics <- anti_join(metrics, m1)
 metrics$metric[which(is.na(metrics$metric))] <- 0
 
 summary_peaks <- 
@@ -100,11 +99,15 @@ y_adj <- df$y - trend[,2]
 signal_hat <- as.numeric(y_adj > thresh[4])
 trend <- as.data.frame(trend)
 trend$x <- df$x
-ggplot(df, aes(x=x, y=y)) + geom_line() +
+ggplot(df, aes(x=x, y=y)) + geom_line(col="grey") +
   geom_point(data=subset(df, signal==1), col="red", size = 2) +
   geom_point(data=df[signal_hat==1,], col="blue") + 
-  geom_line(data=trend, aes(y=V3))
-ggsave("../Manuscript/Figures/peaks_eg_class.png", width = 10, height = 3)
+  geom_line(data=trend, aes(y=V3)) +
+  theme_bw() + 
+  theme(text = element_text(size=16)) +
+  labs(x="", y="")
+  
+ggsave("../Manuscript/Figures/peaks_eg_class.png", width = 7, height =2.5)
 
 get_metric(trend[,3], df$y, df$signal, 
            thresh[3], "missclass")

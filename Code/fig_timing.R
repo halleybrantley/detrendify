@@ -14,6 +14,15 @@ all.times <- as.data.frame(t(all.times))
 all.times$n <- data_lengths
 times.long <- all.times %>% gather("rep", "time", -n)
 times.long$time <- times.long$time*1e-9
+load("../TimingData/single_window_times.RData")
+all.times <- as.data.frame(t(all.times))
+all.times$n <- data_lengths
+times.long2 <- all.times %>% gather("rep", "time", -n)
+times.long2$time <- times.long2$time*1e-9
+
+time.df <- bind_rows(times.long, times.long2) %>% 
+  group_by(n) %>%
+  summarise(time = mean(time, na.rm=T))
 
 time.df <- data.frame(n = data_lengths, 
                       median = apply(all.times, 2, median, na.rm=T)*1e-9,

@@ -67,7 +67,9 @@
 	\section{Introduction}
 	\label{sec:intro}
 	
-	There have been a number of occasions when researchers have sought to estimate the trend in the quantiles of a random variable over time or another co-variate given noisy observations of that variable. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution. We are interested in the problem posed by \cite{thoma2016south} concerning low-cost air pollutant sensors. Researchers at the U.S. Environmental Protection Agency have built prototypes of low-cost sensors that provide an un-calibrated measure of volatile organic compounds (VOCs) and hazardous air pollutants (HAPs) at a 1 second time resolution. To reduce cost and power consumption, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled. A result the output signal exhibits a slowly varying baseline drift (minutes to hours). The purpose of these sensors is to protect the fenceline of industrial facilities by detecting whether VOC emissions from a local source are present and providing wind and concentration data to help identify the source and speed repairs.      	
+	We are interested in the problem posed by \cite{thoma2016south} concerning low-cost air pollutant sensors. Researchers at the U.S. Environmental Protection Agency have built prototypes of low-cost sensors that provide an un-calibrated measure of volatile organic compounds (VOCs) and hazardous air pollutants (HAPs) at a 1 second time resolution. To reduce cost and power consumption, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled. A result the output signal exhibits a slowly varying baseline drift (minutes to hours). The purpose of these sensors is to protect the fenceline of industrial facilities by detecting whether VOC emissions from a local source are present and providing wind and concentration data to help identify the source and speed repairs.   
+	
+	There have been a number of occasions when researchers have sought to estimate the trend in the quantiles of a random variable over time or another co-variate given noisy observations of that variable. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution.    	
 	
 	A variety of approaches have been proposed for estimating quantile trends. \cite{Koenker1978} was the first to propose the use of the check loss function to estimate conditional quantiles. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of the $\tau$th quantile of $y$ conditional on $x$. The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where $\rho_{\tau}(y) = \sum_{i=1}^n y_i(1-\mathbf{I}(y_i<0))$ is the check-loss function and $\mathbf{I}$ is the indicator function.  
 	
@@ -106,34 +108,6 @@
 	\end{eqnarray}
 	where $\lambda$ is a non-negative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem can be solved by a linear program. 
 	
-	\subsection{Smoothing parameter choice}
-	Our method can easily handle missing data by changing the check loss function to output 0 for missing values. This allows us to leave out validation observations that can be used to select the tuning parameter $\lambda$ and to compare method performance on real data. A number of methods have been proposed for selecting the quantile regression smoothing spline tuning parameter \cite{yuan2006gacv}.  \cite{KoenkerNgPortnoy1994} relate $\lambda$ to the number of interpolated points $p_{\lambda} = \sum I(y_i = \widehat{g}_i(x_i))$, which can be thought of as active knots, they propose the Schwarz criterion for the selection of $\lambda$
-	\begin{equation}
-	SIC(p_{\lambda}) = log[n^{-1}\sum\rho_{\tau}(y_i - \widehat{g}(x_i))] + \frac{1}{2n}p_{\lambda}log n
-	\end{equation}
-	
-	The traditional Bayesian Information Criterion (BIC) is given by 
-	\begin{equation}
-	\mbox{BIC}(s) = -2\log(L\{\hat{\theta}(s)\}) + \nu(s)\log n 
-	\end{equation}	
-	where $\theta(s)$ is the parameter $\theta$ with those components outside $s$ being set to 0, and $\nu(s)$ is the number of components in $s$. If we assume an asymmetric Laplace likelihood $L(y|\theta) = \left(\frac{\tau^n(1-\tau)}{\sigma}\right)^n\exp\left\{-\sum_i\rho_\tau(\frac{y_i - \theta_i}{\sigma})\right\}$ and the number of non-zero elements of $D\theta$ as $df$
-	\begin{equation}
-	\mbox{BIC}(df) = 2\sum_i\frac{1}{\sigma}\rho_{\tau}(y_i-\theta_i) + df\log n
-	\end{equation} 
-	We can choose and $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates. \cite{chen2008} proposed the extended BIC for large parameter spaces 
-	\begin{equation}
-	BIC_{\gamma}(s) = -2\log(L\{\hat{\theta}(s)\}) + \nu(s)\log n  + 2\gamma\log{P\choose j,}~~\gamma \in [0,1]
-	\end{equation}
-	where $P$ is the total number of possible parameters and $j$ is the number of parameters included in given model. We used this criteria with $\gamma = 1$, $P=n-k$ where $k$ is the order of the differencing matrix and $j = \nu(s)$ is the number of non-zero entries in $D^{(k)}\theta$. 
-
-	We used a single dataset to illustrate the difference between the scaled, unscaled and extended BIC criteria. 
-	
-	\begin{figure}[h!]
-	\caption{Degrees of freedom (number of non-zero elements of $D\theta$) by $\log(\lambda)$.} 
-	\includegraphics[width = 0.25\linewidth]{Figures/BIC_data.png}
-	\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
-	\includegraphics[width = 0.5\linewidth]{Figures/BIC_by_lambda.png}
-	\end{figure}
 
 	\subsection{ADMM for Smoothing Windows}
 	
@@ -201,7 +175,38 @@
 		\includegraphics[width = \linewidth]{Figures/Fig_timing_experiment.png}
 	\end{figure}
 
-	\section{Simulation Study}
+	\subsection{Smoothing parameter choice}
+	Our method can easily handle missing data by changing the check loss function to output 0 for missing values. This allows us to leave out validation observations that can be used to select the tuning parameter $\lambda$ and to compare method performance on real data. A number of methods have been proposed for selecting the quantile regression smoothing spline tuning parameter \cite{yuan2006gacv}.  \cite{KoenkerNgPortnoy1994} relate $\lambda$ to the number of interpolated points $p_{\lambda} = \sum I(y_i = \widehat{g}_i(x_i))$, which can be thought of as active knots, they propose the Schwarz criterion for the selection of $\lambda$
+	\begin{equation}
+	\mbox{SIC}(p_{\lambda}) = \log[n^{-1}\sum\rho_{\tau}(y_i - \widehat{g}(x_i))] + \frac{1}{2n}p_{\lambda}\log n
+	\end{equation}
+	
+	The traditional Bayesian Information Criterion (BIC) is given by 
+	\begin{equation}
+	\mbox{BIC}(s) = -2\log(L\{\hat{\theta}(s)\}) + \nu(s)\log n 
+	\end{equation}	
+	where $\theta(s)$ is the parameter $\theta$ with those components outside $s$ being set to 0, and $\nu(s)$ is the number of components in $s$. If we assume an asymmetric Laplace likelihood $L(y|\theta) = \left(\frac{\tau^n(1-\tau)}{\sigma}\right)^n\exp\left\{-\sum_i\rho_\tau(\frac{y_i - \theta_i}{\sigma})\right\}$ and the number of non-zero elements of $D\theta$ as $df$
+	\begin{equation}
+	\mbox{BIC}(df) = 2\sum_i\frac{1}{\sigma}\rho_{\tau}(y_i-\theta_i) + \mbox{df}\log n
+	\end{equation} 
+	We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates. \cite{chen2008} proposed the extended BIC for large parameter spaces 
+	\begin{equation}
+	\mbox{BIC}_{\gamma}(s) = -2\log(L\{\hat{\theta}(s)\}) + \nu(s)\log n  + 2\gamma\log{P\choose j,}~~\gamma \in [0,1]
+	\end{equation}
+	where $P$ is the total number of possible parameters and $j$ is the number of parameters included in given model. We used this criteria with $\gamma = 1$, $P=n-k$ where $k$ is the order of the differencing matrix and $j = \nu(s)$ is the number of non-zero entries in $D^{(k)}\theta$. 
+	
+	We used a single dataset to illustrate the difference between the scaled, unscaled and extended BIC criteria. 
+	
+	\begin{figure}[h!]
+		\caption{Degrees of freedom (number of non-zero elements of $D\theta$) by $\log(\lambda)$.} 
+		\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
+		\includegraphics[width = 0.25\linewidth]{Figures/BIC_data.png}
+		\includegraphics[width = 0.5\linewidth]{Figures/BIC_by_lambda.png}
+	\end{figure}
+
+	\section{Simulation Studies}
+	
+	\subsection{Estimating Quantiles}
 	
 	We compare the performance of our quantile trend filtering method with the three previously published methods using designs proposed by \cite{Racine2017}. The methods compared are: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The smoothing parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}. We further compare three criteria for choosing the smoothing parameter for our detrend method: \texttt{detrendr\_SIC}: Our method where we minimize $\sum_i\rho_{\tau}(y_i - \theta_i) + \lambda||D\theta||_1$ and $\lambda$ is chosen using SIC \citep{KoenkerNgPortnoy1994}.  \texttt{detrendr\_valid}: Our method where lambda is chosen by leaving out every 5th observation as a validation data set and minimizing the evaluating the check loss function evaluated at the validation data. \texttt{detrendr\_eBIC}:  the new criteria we have proposed based on the extended BIC proposed by \cite{chen2008}. 
 	 
@@ -215,34 +220,34 @@
 	\end{itemize}
 	\begin{figure}
 		\caption{Simulated data with true quantiles $\tau \in \{0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99\}$}	
-		\includegraphics[width=.3\linewidth]{Figures/gaus.png}
+		\includegraphics[width=.28\linewidth]{Figures/gaus.png}
 		\includegraphics[width=.3\linewidth]{Figures/shapebeta.png}
-		\includegraphics[width=.3\linewidth]{Figures/mixednorm.png}
+		\includegraphics[width=.45\linewidth]{Figures/mixednorm.png}
 	\end{figure}
 	
 	100 datasets were generated of sizes 300, 500 and 1000. The MSE was calculated as $\frac{1}{n}\sum_i (\hat{q}_{\tau}(x_i) - q_\tau(x_i))^2$. The plots below show the mean MSE $\pm$ twice the standard error by method, quantile level and sample size. 
 	
-	\includegraphics[width=\linewidth]{Figures/gaus_mse.png}	
-	
-	\includegraphics[width=\linewidth]{Figures/shapebeta_mse.png}
-	
-	\includegraphics[width=\linewidth]{Figures/mixednorm_mse.png}
-	
+	\begin{figure}
+		\caption{RMSE by design, method, quantile and data size.}
+		\includegraphics[width=\linewidth]{Figures/gaus_mse.png}	
+		\includegraphics[width=\linewidth]{Figures/shapebeta_mse.png}
+		\includegraphics[width=\linewidth]{Figures/mixednorm_mse.png}
+	\end{figure}
 	In all of the designs the proposed detrend methods are either better than or comparable to existing methods. The npqw method performs particularly poorly in the mixed normal design, due to the fact that it assumes the data comes from a scale-location model which is violated in this case. 
 	
-	\section{Peaks Simulation}
+	\subsection{Peak Detection}
 	We use another simulation design based on the applied problem we aim to solve. We assume that the measured data can be represented by 
 	\begin{equation}
-	Y(t) = s(t) + b(t) + \epsilon
+	Y(t) = s(t) + b(t) + \epsilon(t)
 	\end{equation} 
-	where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from $n/50$ to $n/25$ with equal probability, and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from $n/100$ to $n/50$ with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $1/n$ and $5/n$ and areas uniformly distributed between 0 and $20/n$. One hundred datasets were generated for $n=\{300, 500, 1000, 5000\}$. We compare the methods ability to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE. 
+	where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon(t) \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence of time points between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from $n/50$ to $n/25$ with equal probability, and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from $n/100$ to $n/50$ with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $1/n$ and $5/n$ and areas uniformly distributed between 0 and $20/n$. One hundred datasets were generated for $n=\{300, 500, 1000, 5000\}$. We compare the methods ability to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the root mean squared error (RMSE). 
 	
 	\begin{figure}[h]
 		\caption{Example of simulated peaks, baseline, and observed measurements.}
 		\includegraphics[width = \linewidth]{Figures/ex_peaks.png}
 	\end{figure}
 
-	In addition to the RMSE we also calculated the signal miss-classification rate. We first classified the "true" peaks function into signal or not based on a threshold of 0.1. We then classified the detrended data using three different thresholds and calculated the fraction miss-classified. An illustration of the observations classified as signal after detrending compared to the "true signal" is shown in Fig. 9. 
+	In addition to the RMSE we also calculated the signal miss-classification rate. We first classified the ``true" peaks function into signal or not based on a threshold of 0.1. We then classified the detrended data using three different thresholds and calculated the fraction miss-classified. An illustration of the observations classified as signal after detrending compared to the ``true signal" is shown in Fig. 9. 
 	
 	
 	Our detrend\_BIC method performs the best overall in terms of both RMSE and miss-classification rate. The lowest miss-classification rates were obtained using the detrend\_eBIC method and a threshold of 1 for all data sizes. While qsreg was competitive with our method in some cases, both the RMSE and miss-classification rate increased substantially with the size of the dataset. 
@@ -257,26 +262,7 @@
 		\caption{Class averaged accuracy by threshold, data size, and method (1 is best 0.5 is worst).}
 		\includegraphics[width = \linewidth]{Figures/peaks_CAA.png}
 	\end{figure}
-	 
-	\begin{figure}[h!]
-		\caption{F1 score by threshold, data size, and method (1 is best 0 is worst).}
-		\includegraphics[width = \linewidth]{Figures/peaks_F1.png}
-	\end{figure}
 
-	\begin{figure}[h!]
-		\caption{Precision by threshold, data size, and method (true positive over true positives + false positives).}
-		\includegraphics[width = \linewidth]{Figures/peaks_precision.png}
-	\end{figure}
-
-	\begin{figure}[h!]
-		\caption{Recall by threshold, data size, and method (true positive over true positives + false negatives).}
-		\includegraphics[width = \linewidth]{Figures/peaks_recall.png}
-	\end{figure}
-
-	\begin{figure}[h!]
-		\caption{Miss-classification rates by threshold, data size, and method, values above the upper limit (npqw) not shown.}
-		\includegraphics[width = \linewidth]{Figures/peaks_missclass.png}
-	\end{figure}
 
 	\FloatBarrier
 	
@@ -294,11 +280,10 @@
 		\includegraphics[width = \linewidth]{Figures/corrected_zoom_data.png}
 	\end{figure}
 
-	\input{application_metrics.tex}	
+	\input{complete_confusion.tex}	
 	
 	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
-	\includegraphics[width = \linewidth]{Figures/signal_plot.png}
-	
+
 	\section{Conclusion}
 	\label{sec:conc}
 	

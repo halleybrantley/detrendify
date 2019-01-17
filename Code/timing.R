@@ -15,8 +15,8 @@ lines((peaks+baseline)~x, df, col="blue")
 lines((baseline)~x, df, col="red")
 
 
-times <- 1
-data_lengths <- seq(55000, 65000, 10000)
+times <- 5
+data_lengths <- seq(55000, 65000, 5000)
 all.times <- matrix(NA, ncol = length(data_lengths), nrow = times)
 i <- 1
 for (n in data_lengths){

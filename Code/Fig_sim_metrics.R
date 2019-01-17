@@ -6,7 +6,7 @@ source("sim_generating_functions.R")
 load_all("detrendr")
 colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
                 '#a6dba0','#5aae61','#1b7837'))
-
+text_size <- 14
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 100
 simDesigns <- c( "mixednorm", "shapebeta", "gaus")
@@ -53,7 +53,6 @@ summary_stats <-
          Method = factor(Method, levels = methods))
 
 
-
 summary_stats <- summary_stats %>% filter( tau > 0.01 & tau < 0.99) 
 
 summary_stats %>% 
@@ -64,10 +63,15 @@ summary_stats %>%
                  position = position_dodge(width = 0.5))+
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
+  theme(text = element_text(size=text_size), 
+        axis.text.x = element_text(size=(text_size-5)),
+        axis.title.y = element_text(margin = 
+                                      margin(t = 0, r = 5, b = 0, l = 0)),
+        plot.title = element_text(size = text_size))+
   scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Gaussian")+
   ylim(c(0,.153))
-ggsave("../Manuscript/Figures/gaus_mse.png", width = 10, height = 3)
+ggsave("../Manuscript/Figures/gaus_mse.png", width = 7, height = 2.5)
 
 summary_stats %>% 
   filter(Design == "shapebeta") %>%
@@ -77,10 +81,13 @@ summary_stats %>%
                  position = position_dodge(width = 0.5)) +
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
+  theme(text = element_text(size=text_size), 
+        axis.text.x = element_text(size=(text_size-5)),
+        plot.title = element_text(size = text_size)) +
   scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Beta") +
   ylim(c(0,.091))
-ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 10, height = 3)
+ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 7, height = 2.5)
 
 summary_stats %>% 
   filter(Design == "mixednorm") %>%
@@ -90,9 +97,14 @@ summary_stats %>%
                  position = position_dodge(width = 0.5))+
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
+  theme(text = element_text(size=text_size), 
+        axis.text.x = element_text(size=(text_size-5)),
+        axis.title.y = element_text(margin = 
+                                      margin(t = 0, r = 5, b = 0, l = 10)),
+        plot.title = element_text(size = text_size))+
   scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Mixed Normal") + 
   ylim(c(0, .4))
-ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 10, height = 3)
+ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 7, height = 2.5)
 
 

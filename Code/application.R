@@ -5,6 +5,7 @@
 library(tidyverse)
 library(devtools)
 library(Hmisc)
+library(caret)
 load_all("detrendr")
 rm(list=ls())
 spod <- read.csv("../SPod/fhrdata_2017-11-30.csv", 
@@ -15,7 +16,7 @@ spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp),
 window_size <- 5000
 overlap <- 500
 max_iter <- 3
-tau <- c(0.1, 0.2, 0.3)
+tau <- c(0.05, 0.1, 0.2)
 k <- 3
 # spod_trends <- data.frame(time = spod$time)
 
@@ -48,10 +49,12 @@ spodPeaks <- spodPIDs - select(spod_trends, contains("0.1"))
 spodPeaks$time <- spod_trends$time  
 spodPIDs$time <- spod_trends$time
 
-spodRaw <- spodPIDs %>% gather("node", "PID", -time)
+spodRaw <- spod[, c("time", paste(nodes, "SPOD.PID..V.", sep="."))] %>% 
+  gather("node", "PID", -time)
 ggplot(spodRaw, aes(x=time, y=PID, col=node)) + 
   geom_line(alpha=0.5) + 
-  theme_bw() 
+  theme_bw() + 
+  scale_color_brewer(palette = "Set1", labels = nodes)
 ggsave("../Manuscript/Figures/uncorrected_data.png", width = 7, height = 3)
 
 spodLong <- spodPeaks %>% gather("node","PID", -time)
@@ -62,7 +65,8 @@ PID_thresh <- data.frame(node = names(thresholds), thresh = thresholds)
 ggplot(spodLong, aes(x=time, y=PID, col=node)) + 
   geom_line(alpha=0.5) + 
   geom_hline(data=PID_thresh, aes(yintercept=thresh, col=node)) +
-  theme_bw() 
+  theme_bw() + 
+  scale_color_brewer(palette = "Set1", labels = nodes)
 ggsave("../Manuscript/Figures/corrected_data.png", width = 7, height = 3)
 
 ################################################################################
@@ -77,51 +81,26 @@ get_spod_signal <- function(tau, spod_trends, spodPIDs, thresholds){
 }
 
 spod_signal <- get_spod_signal(0.1, spod_trends, spodPIDs, PID_thresh$thresh)
-get_metric(trend[,j], df$y, df$signal,
-           threshold, metric)
-metric_types <- c("CAA", "F1", "precision", "recall", "missclass")
-metrics <- data.frame(metric = NA, metric_type = NA, tau = NA, 
-                      node_true = NA, node_est = NA)
+spod_signal <- na.omit(spod_signal)
+mat_h1 <- confusionMatrix(factor(spod_signal$f[spod_signal$h==1]), 
+                          factor(spod_signal$g[spod_signal$h==1]))
 
-k <- 1
-for (node1 in nodes){
-  for (node2 in nodes){
-    if (node2 == node1){
-      next
-    }
-    for (metric in metric_types){
-      for (j in 1:length(tau)){
-        metrics$metric_type[k] <- metric
-        metrics$node_true[k] <- node1
-        metrics$node_est[k] <- node2
-        metrics$metric[k] <- 
-          get_metric(spod_trends[ , paste(node2, tau[j], sep = "_")], 
-                     spodPIDs[, node2], 
-                     spod_signal[, node1], 
-                     PID_thresh$thresh[PID_thresh$node == node2], 
-                     metric)
-        metrics$tau[k] <- tau[j]
-        k <- k+1
-        metrics[k+1, ] <- NA
-      }
-    }
-  }
-}
+mat_h0 <- confusionMatrix(factor(spod_signal$f[spod_signal$h==0]), 
+                          factor(spod_signal$g[spod_signal$h==0]))
 
-metric_choice <- "CAA"
-metric_out <- metrics %>% 
-  arrange(metric_type) %>%
-  filter(tau == 0.1) %>%
-  mutate(metric2 = round(metric,2))%>%
-  select(node_true, node_est, metric2)
+conf_out <- cbind(mat_h0$table, mat_h1$table)
 
-latex(metric_out, 
-      file = "../Manuscript/application_metrics.tex",
-      rowname = "",
+latex(conf_out, 
+      file = "../Manuscript/complete_confusion.tex", 
       rowlabel = "",
-      rgroup = metric_types,
-      colheads = c("True", "Fitted"),
-      n.rgroup = c(6, 6, 6, 6, 6))
+      rowname = c("f = 0", "f = 1"),
+      cgroup = c("h = 0", "h = 1"),
+      colheads = rep(c("g = 0", "g = 1"),2),
+      n.cgroup = c(2,2), 
+      caption = "Confusion matrices for 3 SPod nodes after baseline removal.")
+
+################################################################################
+# Rug plot
 
 spod_signal <- get_spod_signal(0.1, spod_trends, spodPIDs, PID_thresh$thresh)
 spod_signal$time <- spodPIDs$time
