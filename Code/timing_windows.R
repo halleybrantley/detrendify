@@ -8,15 +8,15 @@ source("sim_generating_functions.R")
 set.seed(12345678)
 tau <- c(0.05, 0.1)
 simDesign <- "peaks"
-df <- generate_peaks_design(50000)
+df <- generate_peaks_design(100000)
 
 plot(y~x, df, type="l")
 lines((peaks+baseline)~x, df, col="blue")
 lines((baseline)~x, df, col="red")
 
 
-times <- 15
-data_lengths <- seq(10000, 50000, 10000)
+times <- 1
+data_lengths <- seq(15000, 55000, 10000)
 all.times <- matrix(NA, ncol = length(data_lengths), nrow = times)
 trend_diff <- list()
 overlap <- 2000
@@ -27,7 +27,7 @@ for (n in data_lengths){
   all.times[,i] <- microbenchmark(
       trend_w <- get_trend_windows(df$y[1:n], tau, lambda = c(n,n), k=3, 
                                    window_size = as.integer(n/2+overlap/2), 
-                                   overlap = overlap, max_iter = 2, quad = TRUE, 
+                                   overlap = overlap, max_iter = 4, quad = TRUE, 
                                    use_gurobi = TRUE), 
       times = times)$time
   trend <- get_trend(df$y[1:n], tau, lambda = c(n,n), k=3)
@@ -35,7 +35,7 @@ for (n in data_lengths){
   trend_diff[[i]] <- trend_w - trend
   i <- i+1
   save(all.times, data_lengths, trend_diff,
-       file="../TimingData/window_times_2.RData")
+       file="../TimingData/stopping_crit_times.RData")
 }
 
 # load("../TimingData/window_times.RData")

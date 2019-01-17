@@ -8,15 +8,15 @@ source("sim_generating_functions.R")
 set.seed(12345678)
 tau <- c(0.05, 0.1)
 simDesign <- "peaks"
-df <- generate_peaks_design(50000)
+df <- generate_peaks_design(100000)
 
 plot(y~x, df, type="l")
 lines((peaks+baseline)~x, df, col="blue")
 lines((baseline)~x, df, col="red")
 
 
-times <- 10
-data_lengths <- seq(2000, 50000, 2000)
+times <- 1
+data_lengths <- seq(55000, 65000, 10000)
 all.times <- matrix(NA, ncol = length(data_lengths), nrow = times)
 i <- 1
 for (n in data_lengths){
@@ -27,7 +27,7 @@ for (n in data_lengths){
     times = times)$time
   i <- i+1
   save(all.times, data_lengths, 
-       file="../TimingData/single_window_times_3.RData")
+       file="../TimingData/single_window_times.RData")
 }
 
 # load("../TimingData/single_window_times_3.RData")
