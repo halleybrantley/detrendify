@@ -99,19 +99,27 @@
 	
 	\subsection{Quantile Trend Filtering}
 	
-	We combine the ideas of quantile regression and trend filtering, namely consider the signal approximation problem, where the design $\mathbf{X}$ is the identity matrix.
-	
-	The estimation of the quantile trend filtering model can be posed as the following optimization problem.
+	We combine the ideas of quantile regression and trend filtering, namely consider the case where the design $\mathbf{X}$ is the identity matrix. For a single quantile level $\tau$ the estimation of the quantile trend filtering model can be posed as the following optimization problem.
 	\begin{eqnarray}
 	\label{eq:quantile_trend}
 	\underset{\theta}{\min}\; \frac{1}{n} \sum_{i=1}^n \rho_\tau(y_i - \theta_i) + \lambda \lVert \mathbf{D}^{(k)} \theta \rVert_1,
 	\end{eqnarray}
-	where $\lambda$ is a non-negative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem can be solved by a linear program. 
+	where $\lambda$ is a non-negative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of free or commercial solvers. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$. Given quantiles $\{\tau_1, ..., \tau_J\}$ such that $\tau_1 < \tau_2 < ... < \tau_J$, the optimization problem becomes 
 	
-
-	\subsection{ADMM for Smoothing Windows}
+	\begin{eqnarray}
+	\label{eq:quantile_trend}
+	\underset{\theta}{\min}\; \sum_{j=1}^J \left [\frac{1}{n} \sum_{i=1}^n \rho_{\tau_j}(y_i - \theta_{ji}) + 
+	\lambda_j \lVert \mathbf{D}^{(k)} \theta_j \rVert_1 \right ] \\
+	 \text{subject to: }\; \theta_{1i} \le \theta_{2i} \le ... \le \theta_{Ji} \text{ for all } i,
+	\end{eqnarray}
 	
-	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm is fully described by \cite{boyd2011distributed}. We apply the consensus ADMM algorithm to the the quantile regression trend filtering problem, 
+	where $\theta = (\theta_1, ..., \theta_J)$ and $\theta_j \in \mathcal{R}^n$. The additional constraints are linear in the parameters so the non-crossing quantile trends can still be estimated by a number of available solvers. 
+	
+	The number of parameters to be estimates is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break. 
+	
+	\subsection{ADMM for Big Data}
+	
+	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm is fully described by \cite{boyd2011distributed, gabay1975dual, glowinski1975approximation}. We apply the consensus ADMM algorithm to the the quantile regression trend filtering problem, 
 	\begin{equation}
 	\text{minimize } \rho_\tau(y-\theta) + \lambda||D^{(k)}\theta||_1\\
 	\end{equation}

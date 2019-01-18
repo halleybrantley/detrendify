@@ -171,6 +171,7 @@ get_model_abs <- function(model, z, rho, nT){
 get_eta <- function(phi, y, k){
   D <- get_Dk(length(y), k)
   eta <- D%*%y - D%*%phi
+  eta[is.na(eta)] <- 0
   return(as.matrix(eta))
 }
 

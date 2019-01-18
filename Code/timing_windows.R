@@ -16,7 +16,7 @@ lines((baseline)~x, df, col="red")
 
 
 times <- 1
-data_lengths <- seq(15000, 55000, 10000)
+data_lengths <- seq(60000, 65000, 5000)
 all.times <- matrix(NA, ncol = length(data_lengths), nrow = times)
 trend_diff <- list()
 overlap <- 2000
@@ -35,7 +35,7 @@ for (n in data_lengths){
   trend_diff[[i]] <- trend_w - trend
   i <- i+1
   save(all.times, data_lengths, trend_diff,
-       file="../TimingData/stopping_crit_times.RData")
+       file="../TimingData/stopping_crit_times_2.RData")
 }
 
 # load("../TimingData/window_times.RData")

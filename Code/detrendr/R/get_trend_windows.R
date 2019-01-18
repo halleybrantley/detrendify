@@ -43,9 +43,8 @@ get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
     # First estimate uses LP not QP
     solver <- "lpSolve"
   }
-  if (!is.integer(window_size)){
-    stop("window_size must be an integer")
-  }
+  
+  window_size <- round(window_size)
   
   y_n <- length(y)
   tau <- sort(tau)

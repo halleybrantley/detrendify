@@ -1,0 +1,15 @@
+%latex.default(get_confusion(detrendr_signal), file = "../Manuscript/short_confusion_detrend.tex",     rowlabel = "", rowname = c("f = 0", "f = 1"), cgroup = c("h = 0",         "h = 1"), colheads = rep(c("g = 0", "g = 1"), 2), n.cgroup = c(2,         2), caption = "Confusion matrices for 3 SPod nodes after baseline removal.")%
+\begin{table}[!tbp]
+\caption{Confusion matrices for 3 SPod nodes after baseline removal.\label{get}} 
+\begin{center}
+\begin{tabular}{lrrcrr}
+\hline\hline
+\multicolumn{1}{l}{\bfseries }&\multicolumn{2}{c}{\bfseries h = 0}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries h = 1}\tabularnewline
+\cline{2-3} \cline{5-6}
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{g = 0}&\multicolumn{1}{c}{g = 1}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{g = 0}&\multicolumn{1}{c}{g = 1}\tabularnewline
+\hline
+f = 0&$2566$&$163$&&$3$&$ 14$\tabularnewline
+f = 1&$  52$&$279$&&$0$&$222$\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
