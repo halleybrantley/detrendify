@@ -2,15 +2,14 @@
 #'
 #' \code{solve_model} Returns the trend
 #'
-#' @param y observed data, should be equally spaced, may contain NA
-#' @param tau quantile levels at which to evaluate trend
+#' @param model  model object containing coefficients and constraints
+#' @param solver solver to be used, options are "gurobi", "Rglpk", and "lpSolve"
 #' @param lambda penalty paramter controlling smoothness
 #' @param k order of differencing
 #' @param trend if TRUE returns trend, if FALSE returns residuals
 #' @export
-
 solve_model <- function(model, solver, y=NULL, trend = TRUE){
-  if (trend && is.null(y)){
+  if (trend & is.null(y)){
     stop("y required to get trend")
   }
   
@@ -21,9 +20,16 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
     require(Rglpk)
     x <- solve_glpk(model)
   } else if (solver == "lpSolve"){
+    require(lpSolve)
     x <- solve_lp(model)
+  } else if (solver == "ipop"){
+    require(kernlab)
+    x <- solve_ipop(model)
+  } else if (solver == "quadprog"){
+    require(quadprog)
+    x <- solve_quadprog(model)
   } else {
-    stop("Solver must be one of 'gurobi', 'Rglpk', or 'lpSolve'")
+    stop("Solver must be one of 'gurobi', 'Rglpk', 'lpSolve', 'ipop', 'quadprog'")
   }
   
   nT <- model$nT
@@ -50,15 +56,8 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
 solve_gurobi <- function(model){
   params <- list(OutputFlag=0)
   result <- gurobi(model, params)
-  iter <- 1
-  while(result$status != "OPTIMAL"){
-    print("Problem not solved, adding 0.01 to lambda.")
-    lambda <- model$obj[length(model$obj)]
-    model$obj[model$obj == lambda] <- lambda + 0.01
-    iter <- iter+1
-    if(iter == 10){
-      stop("Problem not solved.")
-    }
+  if (result$status != "OPTIMAL"){
+    print("Problem not solved.")
   }
   return(result$x)
 }
@@ -72,10 +71,44 @@ solve_glpk <- function(model_list){
 }
 
 solve_lp <- function(model_list){
+  model_list$sense <- sub("=", "==", model_list$sense)
   result <- lp(objective.in = model_list$obj, 
                const.mat = as.matrix(model_list$A), 
-               const.dir = paste0(model_list$sense, "="), 
+               const.dir = model_list$sense, 
                const.rhs = model_list$rhs)
+  return(result$solution)
+}
+
+solve_ipop <- function(model){
+  
+  b <- model$rhs
+  r <- as.numeric(sub(">", 100, sub("=", 1e-8, model$sense)))
+  H <- as.matrix(2*model$Q)
+  result <- kernlab::ipop(
+    H = H,
+    c = model$obj,
+    A = as.matrix(model$A), 
+    b = b, 
+    r = r,
+    l = rep(0, length(model$obj)),
+    u = rep(1000, length(model$obj)), 
+    sigf = 1e-20, 
+    margin = 0.05
+  )
+  output <- kernlab::primal(result)
+  return(output)
+}
+
+solve_quadprog <- function(model){
+  Amat <- Matrix::t(rbind(model$A, Matrix::Diagonal(length(model$obj))))
+  bvec <- c(model$rhs, rep(0, length(model$obj)))
+  result <- solve.QP(
+    Dmat = 2*model$Q, 
+    dvec = -model$obj,
+    Amat = Amat, 
+    bvec = bvec,
+    meq = sum(model$sense == "=")
+  )
   return(result$solution)
 }
 

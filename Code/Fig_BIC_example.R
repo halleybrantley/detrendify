@@ -1,3 +1,6 @@
+################################################################################
+# Extended and Scaled BIC Illustration Figures
+################################################################################
 library(tidyverse)
 library(devtools)
 load_all("detrendr")
@@ -25,10 +28,10 @@ gamma <- 1
 df_tol <- 1e-9
 for (i in 1:length(lambdaSeq)){
   lam <- lambdaSeq[i]
-  suppressMessages(f_trend <- gurobi_trend(y, tau, lam, k))
+  f_trend <- get_trend(y, tau, lam, k)
   resid_trend <- checkloss(y-f_trend, tau)
   discr_diff <- abs(D%*%f_trend)
-  df_trend[i,] <- Matrix::colSums(discr_diff > df_tol) #colSums(abs(y-f_trend)<df_tol)
+  df_trend[i,] <- Matrix::colSums(discr_diff > df_tol) 
   SIC[i] <- 2*colSums(resid_trend)/tau_min + log(n)*df_trend[i,] +
     2*gamma*log(choose(n-k, df_trend[i,]))
   SIC2[i] <- 2*colSums(resid_trend) + log(n)*df_trend[i,] 
@@ -47,8 +50,10 @@ plot.df$lambda <- lambdaSeq
 
 ggplot(plot.df, aes(x=log(lambda), y=df)) +
   geom_line() +
-  theme_bw()
-ggsave("../Manuscript/Figures/df_by_lambda.png", width = 3, height = 3)
+  theme_bw() +
+  theme(text = element_text(size=22))+
+  labs(x=bquote(log(lambda)))
+  ggsave("../Manuscript/Figures/df_by_lambda.png", width = 3, height = 3)
 
 plot.df %>% gather("criteria", "value", -c(df, lambda)) %>%
 ggplot(aes(x=log(lambda), y=value, col = criteria)) +
@@ -56,7 +61,7 @@ ggplot(aes(x=log(lambda), y=value, col = criteria)) +
   theme_bw() +
   scale_color_brewer(palette = "Set1", 
                      labels = c("BIC no scale", "BIC with scale", "SIC",
-                                "extended BIC")) +
+                                "eBIC")) +
   labs(y = "BIC", col="") +
   geom_vline(aes(xintercept = log(lambdaSeq[which.min(SIC)]), 
                  col = "eBIC")) +
@@ -65,29 +70,32 @@ ggplot(aes(x=log(lambda), y=value, col = criteria)) +
   geom_vline(aes(xintercept = log(lambdaSeq[which.min(SIC2)]), 
                  col = "BIC_noScale")) + 
   geom_vline(aes(xintercept = log(lambdaSeq[which.min(SIC4)]), 
-                 col = "SIC")) 
+                 col = "SIC")) +
+  labs(x=bquote(log(lambda))) +
+  theme(text = element_text(size=22))
 ggsave("../Manuscript/Figures/BIC_by_lambda.png", width = 6, height = 3)
 
 
-trend_eBIC <- gurobi_trend(y, tau, lambdaSeq[which.min(SIC)], k)
-trend_BIC_no <- gurobi_trend(y, tau, lambdaSeq[which.min(SIC2)], k)
-trend_BIC <- gurobi_trend(y, tau, lambdaSeq[which.min(SIC3)], k)
-trend_SIC <- gurobi_trend(y, tau, lambdaSeq[which.min(SIC4)], k)
+trend_eBIC <- get_trend(y, tau, lambdaSeq[which.min(SIC)], k)
+trend_BIC_no <- get_trend(y, tau, lambdaSeq[which.min(SIC2)], k)
+trend_BIC <- get_trend(y, tau, lambdaSeq[which.min(SIC3)], k)
+trend_SIC <- get_trend(y, tau, lambdaSeq[which.min(SIC4)], k)
 df$eBIC <- trend_eBIC
 df$BIC_noScale <- trend_BIC_no
 df$BIC_scale <- trend_BIC
 df$SIC <- trend_SIC
 
-ggplot(df, aes(x=x, y=y)) + 
+ggplot(df, aes(x=x*100, y=y)) + 
   geom_line(col="grey") + 
   theme_bw() +
   geom_line(aes(y = SIC, col="SIC")) +
   geom_line(aes(y = BIC_scale, col = "BIC_scale")) +
   geom_line(aes(y = BIC_noScale, col = "BIC_noScale")) +
   geom_line(aes(y = eBIC, col="eBIC")) +
+  theme(text = element_text(size=22)) +
   scale_color_brewer(palette = "Set1", 
                      labels = c("BIC no scale", "BIC with scale", "SIC",
                                 "extended BIC")) +
-  labs(col = "") +
+  labs(col = "", x = "x") +
   guides(col = "none")
 ggsave("../Manuscript/Figures/BIC_data.png", width = 3, height = 3)
