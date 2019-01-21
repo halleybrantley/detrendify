@@ -32,10 +32,10 @@
 #' plot(result$primal_norm)
 #' plot(result$dual_norm)
 #' @export
-get_trend_windows <- function(y, tau, lambda, k, rho=1, window_size,
+get_trend_windows <- function(y, tau, lambda, k, rho=3, window_size,
                            overlap, max_iter, update=10, 
                            quad = TRUE, use_gurobi = TRUE, 
-                           eps_abs = 1e-2, 
+                           eps_abs = 2e-3, 
                            eps_rel = 1e-3){
   if (use_gurobi){
     solver <- "gurobi"

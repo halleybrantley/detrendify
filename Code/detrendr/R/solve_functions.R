@@ -56,15 +56,8 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
 solve_gurobi <- function(model){
   params <- list(OutputFlag=0)
   result <- gurobi(model, params)
-  iter <- 1
-  while(result$status != "OPTIMAL"){
-    print("Problem not solved, adding 0.01 to lambda.")
-    lambda <- model$obj[length(model$obj)]
-    model$obj[model$obj == lambda] <- lambda + 0.01
-    iter <- iter+1
-    if(iter == 10){
-      stop("Problem not solved.")
-    }
+  if (result$status != "OPTIMAL"){
+    print("Problem not solved.")
   }
   return(result$x)
 }

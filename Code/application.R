@@ -19,14 +19,15 @@ max_iter <- 10
 tau <- c(0.05, 0.1, 0.2)
 k <- 3
 spod_trends <- data.frame(time = spod$time)
+lambdaSeq <- window_size^seq(1.1, 1.5, length.out=10)[9]
 
-for (node in c("f", "g", "h")){
+for (node in "f"){
   pidCol <- paste(node, "SPOD.PID..V.", sep=".")
   spodNode <- spod[, c("time", pidCol)]
   names(spodNode)[2] <- c("pid")
   spodNode$pid <- spodNode$pid/1000
   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-                          lambdaSeq = window_size^seq(1.1, 1.5, length.out=10),
+                          lambdaSeq = lambdaSeq,
                           df_tol = 1e-9,
                           gamma = 1,
                           plot_lambda = FALSE,
