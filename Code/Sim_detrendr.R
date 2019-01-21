@@ -6,7 +6,7 @@ tau <- c(0.01, 0.05, 0.1)
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
 simDesigns <- "peaks" 
 i = 0
-for (n in c(300, 500, 1000)){
+for (n in c(500,1000,2000,4000)){
   lambdaSeq = n^seq(0,1.4,length.out=15) 
   for (simDesign in simDesigns){                
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
@@ -23,7 +23,7 @@ for (n in c(300, 500, 1000)){
                                  plot_lambda = FALSE, 
                                  criteria = "valid")
     trend <- trend_valid$theta
-    save(trend, lam_valid,
+    save(trend, trend_valid,
          file = sprintf("../SimResults/detrend_valid/%s_n_%i_sim%03.0f.RData", 
                         simDesign, n, i))
     
@@ -32,7 +32,7 @@ for (n in c(300, 500, 1000)){
                                plot_lambda = FALSE, 
                                criteria = "SIC")
     trend <- trend_SIC$theta
-    save(trend, lam_valid,
+    save(trend, trend_SIC,
          file = sprintf("../SimResults/detrend_SIC/%s_n_%i_sim%03.0f.RData", 
                         simDesign, n, i))
   }

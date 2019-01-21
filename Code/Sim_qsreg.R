@@ -1,11 +1,11 @@
 library(fields)
 rm(list=ls())
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
-nSim <- 2
-n <- 600
+tau <- c(0.01, 0.05, 0.1)
 simDesigns <- c("gaus", "mixednorm", "shapebeta", "peaks")
+simDesigns <- "peaks"
 i = 0
-for (n in c(300,500,1000)){
+for (n in c(500,1000, 2000, 4000)){
 for(simDesign in simDesigns){                
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
     trend <- matrix(NA, n, length(tau))
