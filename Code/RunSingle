@@ -2,7 +2,7 @@
 
 #BSUB -W 10
 #BSUB -n 2
-source ~/R-3.4.2.csh
-R CMD BATCH --vanilla SimulateData.R
+module load R/gcc_4.8.5_R-3.5.1
+R CMD BATCH --vanilla SimulatePeaks.R
 #BSUB -o out.%J
 #BSUB -e err.%J
