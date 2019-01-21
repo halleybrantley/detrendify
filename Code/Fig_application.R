@@ -72,22 +72,3 @@ latex(conf_out,
       caption = "Confusion matrices for 3 SPod nodes after baseline removal.")
 
 ################################################################################
-# Rug plot
-
-spod_signal <- get_spod_signal(0.1, spod_trends, spodPIDs, PID_thresh$thresh)
-spod_signal$time <- spodPIDs$time
-spod_signal <- spod_signal %>%  gather(node, PID, -time) %>% filter(!is.na(node))
-spodLong <- spodPeaks %>% gather("node","PID", -time) %>% filter(!is.na(node))
-
-spodLong$node <- factor(spodLong$node)
-spodLong_signal <- spodLong[which(spod_signal$PID==1), ]
-
-ggplot(spodLong, aes(x=time, y=PID, col=node)) +
-  geom_line(alpha=0.5) +
-  geom_rug(data = spodLong_signal, sides = "b") +
-  theme_bw() +
-  facet_grid(node~.) +
-  xlim(c(as.POSIXct("2017-11-30 11:05:00"),
-         as.POSIXct("2017-11-30 11:30:00"))) +
-  ylim(c(-0.1, 5))
-ggsave("../Manuscript/Figures/corrected_rugplot.png", width = 7, height = 3)
