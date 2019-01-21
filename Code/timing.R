@@ -50,14 +50,14 @@ for (n in data_lengths){
       }
       i <- i+1
       times_df[i,] <- NA
+	save(times_df, diff_df,
+     	file = "../TimingData/timing_comparison.RData")
     }
   }
 }
 times_df <- times_df[-i,]    
 diff_df <- diff_df[-j,]  
 
-save(times_df, diff_df,
-     file = "../TimingData/timing_comparison.RData")
 
 times_df %>% group_by(n, windows) %>%
   summarise(time_mean = mean(time)) %>%

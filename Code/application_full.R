@@ -5,7 +5,6 @@
 library(tidyverse)
 library(devtools)
 library(Hmisc)
-library(caret)
 load_all("detrendr")
 rm(list=ls())
 spod <- read.csv("../SPod/fhrdata_2017-11-30.csv", 

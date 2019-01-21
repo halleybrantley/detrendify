@@ -57,8 +57,8 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
 
   
   for (i in 1:length(lambdaSeq)){
-    f_trend <- get_trend_windows(y, tau, lambdaSeq[i], k, rho=1, window_size,
-                                 overlap, max_iter=3, update=5, 
+    f_trend <- get_trend_windows(y, tau, lambdaSeq[i], k=k, window_size = window_size,
+                                 overlap=overlap, max_iter=10, update=5, 
                                  quad = TRUE)
     model_crit <- get_criteria(criteria, f_trend, y, tau, 
                                D, df_tol, gamma, 

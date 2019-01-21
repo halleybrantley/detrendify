@@ -1,8 +1,9 @@
 #!/bin/tcsh
 
-#BSUB -W 10
-#BSUB -n 2
-module load R/gcc_4.8.5_R-3.5.1
-R CMD BATCH --vanilla SimulatePeaks.R
+#BSUB -W 600
+#BSUB -n 4
 #BSUB -o out.%J
 #BSUB -e err.%J
+module load gurobi
+module load R/gcc_4.8.5_R-3.5.1
+R CMD BATCH --vanilla application_full.R
