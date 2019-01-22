@@ -32,8 +32,8 @@
 #' plot(result$primal_norm)
 #' plot(result$dual_norm)
 #' @export
-get_trend_windows <- function(y, tau, lambda, k, rho=3, window_size,
-                           overlap, max_iter, update=10, 
+get_trend_windows <- function(y, tau, lambda, k, window_size,
+                           overlap, max_iter, rho=3, update=10, 
                            quad = TRUE, use_gurobi = TRUE, 
                            eps_abs = 2e-3, 
                            eps_rel = 1e-3){
