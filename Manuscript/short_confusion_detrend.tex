@@ -1,15 +1,23 @@
-%latex.default(get_confusion(detrendr_signal), file = "../Manuscript/short_confusion_detrend.tex",     rowlabel = "", rowname = c("f = 0", "f = 1"), cgroup = c("h = 0",         "h = 1"), colheads = rep(c("g = 0", "g = 1"), 2), n.cgroup = c(2,         2), caption = "Confusion matrices for 3 SPod nodes after baseline removal.")%
+%latex.default(conf, file = "../Manuscript/short_confusion_detrend.tex",     rowlabel = "", rowname = c("", "f = 0", "f = 1", "f=0", "f=1"),     cgroup = c("detrendr", "qsreg"), rgroup = c("", "tau=0.05",         "tau=0.1"), n.rgroup = c(1, 2, 2), colheads = rep(c("h = 0",         "", "h = 1", ""), 2), n.cgroup = c(4, 4), caption = "Confusion matrices for 3 SPod nodes after baseline removal (n=8000).")%
 \begin{table}[!tbp]
-\caption{Confusion matrices for 3 SPod nodes after baseline removal.\label{get}} 
+\caption{Confusion matrices for 3 SPod nodes after baseline removal (n=8000).\label{conf}} 
 \begin{center}
-\begin{tabular}{lrrcrr}
+\begin{tabular}{lllllcllll}
 \hline\hline
-\multicolumn{1}{l}{\bfseries }&\multicolumn{2}{c}{\bfseries h = 0}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries h = 1}\tabularnewline
-\cline{2-3} \cline{5-6}
-\multicolumn{1}{l}{}&\multicolumn{1}{c}{g = 0}&\multicolumn{1}{c}{g = 1}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{g = 0}&\multicolumn{1}{c}{g = 1}\tabularnewline
+\multicolumn{1}{l}{\bfseries }&\multicolumn{4}{c}{\bfseries detrendr}&\multicolumn{1}{c}{\bfseries }&\multicolumn{4}{c}{\bfseries qsreg}\tabularnewline
+\cline{2-5} \cline{7-10}
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{h = 0}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{h = 1}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{h = 0}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{h = 1}&\multicolumn{1}{c}{}\tabularnewline
 \hline
-f = 0&$2566$&$163$&&$3$&$ 14$\tabularnewline
-f = 1&$  52$&$279$&&$0$&$222$\tabularnewline
+{\bfseries }&&&&&&&&&\tabularnewline
+~~&g = 0&g = 1&g = 0&g = 1&&g = 0&g = 1&g = 0&g = 1\tabularnewline
+\hline
+{\bfseries tau=0.05}&&&&&&&&&\tabularnewline
+~~f = 0&7495&74&13&18&&7484&150&11&11\tabularnewline
+~~f = 1&22&192&0&186&&43&176&0&125\tabularnewline
+\hline
+{\bfseries tau=0.1}&&&&&&&&&\tabularnewline
+~~f=0&7491&85&13&22&&7503&152&12&8\tabularnewline
+~~f=1&25&162&0&202&&41&170&0&114\tabularnewline
 \hline
 \end{tabular}\end{center}
 \end{table}

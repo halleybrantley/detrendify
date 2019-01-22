@@ -12,8 +12,8 @@ spod <- read.csv("../SPod/fhrdata_2017-11-30.csv",
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
 
-window_size <- 8000
-overlap <- 2000
+window_size <- 5000
+overlap <- 1000
 max_iter <- 10
 tau <- c(0.05, 0.1)
 k <- 3
@@ -26,7 +26,7 @@ for (node in c("f", "g", "h")){
   names(spodNode)[2] <- c("pid")
   spodNode$pid <- spodNode$pid/1000
   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-                          lambdaSeq = window_size^seq(1.1, 1.5, length.out=10),
+                          lambdaSeq = window_size^seq(0.8, 1.7, length.out=10),
                           df_tol = 1e-9,
                           gamma = 1,
                           plot_lambda = FALSE,
@@ -37,6 +37,6 @@ for (node in c("f", "g", "h")){
   names(spod_trends)[(ncol(spod_trends)-2):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
 }
-save(spod_trends, file = "../SPod/spod_trends.RData")
+save(spod_trends, tau, file = "../SPod/spod_trends.RData")
 ################################################################################
 

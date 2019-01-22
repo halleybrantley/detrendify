@@ -68,9 +68,14 @@
 	\label{sec:intro}
 	
 	We are interested in the problem posed by \cite{thoma2016south} concerning low-cost air pollutant sensors. Researchers at the U.S. Environmental Protection Agency have built prototypes of low-cost sensors that provide an un-calibrated measure of volatile organic compounds (VOCs) and hazardous air pollutants (HAPs) at a 1 second time resolution. To reduce cost and power consumption, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled. A result the output signal exhibits a slowly varying baseline drift (minutes to hours). The purpose of these sensors is to protect the fenceline of industrial facilities by detecting whether VOC emissions from a local source are present and providing wind and concentration data to help identify the source and speed repairs.   
-	
+
 	There have been a number of occasions when researchers have sought to estimate the trend in the quantiles of a random variable over time or another co-variate given noisy observations of that variable. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution.    	
 	
+	\begin{figure}
+		\caption{Example of 3 co-located SPod PID sensor readings.}
+		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
+	\end{figure}
+
 	A variety of approaches have been proposed for estimating quantile trends. \cite{Koenker1978} was the first to propose the use of the check loss function to estimate conditional quantiles. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of the $\tau$th quantile of $y$ conditional on $x$. The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where $\rho_{\tau}(y) = \sum_{i=1}^n y_i(1-\mathbf{I}(y_i<0))$ is the check-loss function and $\mathbf{I}$ is the indicator function.  
 	
 	In the trend filtering problem \citep{Kim2009, Tib2014}, one is interested in finding an adaptive polynomial approximation to noisy data $y \in \mathbb{R}^n$ by solving the following convex problem.
@@ -276,6 +281,17 @@
 	
 	\section{Application}
 	
+	We compared our detrend method with the eBIC criteria with the qsreg method on a subset of the real data since the qsreg method cannot handle all 15 hours simultaneously. We estimate the baseline trend using both the 5th and 10th quantiles and then classify the signal as any observation above the median plus 2.5 times the median absolute deviation after the baseline trend removal. We report both the confusion matrices and the normalized mutual information (NMI) score. 
+	
+	\input{short_confusion_detrend.tex} 
+	
+	\begin{figure}
+		\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 10th quantile.}
+		\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
+	\end{figure}
+
+	
+	\input{NMI.tex}
 	
 	Our windowed detrend method was used to removed the baseline drift from low cost air quality sensors so that the signal could be categorized using a simple threshold. The measurements were first standardized to have mean zero and variance 1. Three quantile levels for estimating the baseline trend were compared. The total dataset consisted of 52,322 observations per node. 
 	The signal thresholds were set using the first 15,000 observations where it was known no signal was present. The thresholds were set as 3 times the standard deviation plus the mean of observations in this time period. The total number of seconds of signal for each node as well as the number of seconds where multiple nodes both reported signal is shown in Table 1. Table 2 shows the fraction of observations with different signal classifications by node combination. 
@@ -283,14 +299,12 @@
 	\begin{figure}
 		\caption{Low cost sensor data before drift removal (top), after drift removal using windowed detrend with eBIC (middle), 
 			and zoomed in on signal area (bottom). Horizontal lines represent signal thresholds.}
-		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
 		\includegraphics[width = \linewidth]{Figures/corrected_data.png}
 		\includegraphics[width = \linewidth]{Figures/corrected_zoom_data.png}
 	\end{figure}
 
 	\input{complete_confusion.tex}	
 	
-	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
 
 	\section{Conclusion}
 	\label{sec:conc}
