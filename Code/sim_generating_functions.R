@@ -1,14 +1,12 @@
+library(splines)
+
 generate_peaks_design <- function(n){
   x <- seq(0.5, n, 1)/n
-  # df <- sample((n/50):(n/25), 1)
-  # Changed on 1/7, need to re-run simulation
   df <- rpois(1, n/100) + 1
   splineBasis <- ns(x, df=df)
   theta <- rexp(ncol(splineBasis), 1)
   baseline <- splineBasis%*%theta
-  # plot(baseline[1:300], type="l")
-  
-  # numberOfPeaks <- sample((n/100):(n/50), 1)
+
   numberOfPeaks <- rbinom(1, n, .005)
   peakCenters <- round(runif(numberOfPeaks)*(n-2) + 1)
   peakArea <- rnorm(numberOfPeaks, 20, 4)
@@ -21,14 +19,9 @@ generate_peaks_design <- function(n){
         peakArea[i]*dnorm(seq(1,n,1), mean=peakCenters[i], sd = peakWidths[i])
     }
   }
-  # plot(peaks[1:300], type="l")
-  
+
   noise <- 0.25*rnorm(n)
   y <- peaks + baseline + noise
-  # plot(y~x, type="l", col="grey")
-  # lines((peaks+baseline)~x)
-  # lines(baseline~x, col="red")
-  
   df <- data.frame(y=y, x=x, baseline=baseline, peaks = peaks)
   return(df)
 }

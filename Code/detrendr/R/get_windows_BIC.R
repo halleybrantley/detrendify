@@ -79,8 +79,8 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
     abline(v=log(lambda))
   }
   
-  f_trend <- get_trend_windows(y, tau, lambda, k, rho=1, window_size,
-                               overlap, max_iter=3, update=5, 
+  f_trend <- get_trend_windows(y, tau, lambda, k, window_size,
+                               overlap, max_iter=10, update=5, 
                                quad = TRUE)
   
   return(list(trend = f_trend,
