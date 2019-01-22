@@ -39,11 +39,12 @@ The following objects are masked from ‘package:devtools’:
 > 
 > times <- 50
 > overlap <- 500
-> data_lengths <- seq(5000, 20000, 1000)
-> times_df <- data.frame(n = NA, t = NA, time = NA, windows = NA)
-> diff_df <- data.frame(n = NA, t = NA, maxdiff = NA, sd = NA)
-> i <- 1
-> j <- 1
+> data_lengths <- seq(12000, 20000, 1000)
+> # times_df <- data.frame(n = NA, t = NA, time = NA, windows = NA)
+> # diff_df <- data.frame(n = NA, t = NA, maxdiff = NA, sd = NA)
+> load("../TimingData/timing_comparison.RData")
+> i <- nrow(times_df)
+> j <- nrow(diff_df)
 > for (n in data_lengths){
 +   for (t in 1:times){
 +     print(sprintf("n = %i", n))
@@ -78,12 +79,11 @@ The following objects are masked from ‘package:devtools’:
 +       }
 +       i <- i+1
 +       times_df[i,] <- NA
-+ 	save(times_df, diff_df,
-+      	file = "../TimingData/timing_comparison.RData")
++ 	save(times_df, diff_df, file = "../TimingData/timing_comparison.RData")
 +     }
 +   }
 + }
-[1] "n = 5000"
+[1] "n = 12000"
 [1] "t = 1"
 Using same lambda for all quantiles
 Loading required package: gurobi
@@ -94,13 +94,813 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 2"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
-[1] "n = 5000"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 3"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 4"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 5"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 6"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 7"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 8"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 9"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 10"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "n = 12000"
+[1] "t = 11"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 12"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 13"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 14"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 15"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 16"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 17"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 18"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 19"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 20"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 21"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 22"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 23"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 24"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 25"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 26"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "n = 12000"
+[1] "t = 27"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 28"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 29"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 30"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 31"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 32"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 33"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 34"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "n = 12000"
+[1] "t = 35"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 36"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 37"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 38"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 39"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "n = 12000"
+[1] "t = 40"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 41"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 42"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 43"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 44"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 45"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 46"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "n = 12000"
+[1] "t = 47"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 48"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 49"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 12000"
+[1] "t = 50"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
+[1] "t = 1"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 2"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -114,8 +914,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 3"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -124,13 +924,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 4"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -144,8 +944,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 5"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -159,8 +959,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 6"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -174,8 +974,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 7"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -184,13 +984,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 5 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 8"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -204,8 +1004,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 9"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -219,38 +1019,38 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 10"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 11"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
 [1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "n = 13000"
 [1] "t = 12"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -265,7 +1065,7 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
-[1] "n = 5000"
+[1] "n = 13000"
 [1] "t = 13"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -274,13 +1074,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 14"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -289,13 +1089,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 15"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -304,13 +1104,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 16"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -324,8 +1124,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 17"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -339,8 +1139,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 18"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -349,13 +1149,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
-[1] "n = 5000"
+[1] "n = 13000"
 [1] "t = 19"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -364,13 +1164,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 20"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -385,12 +1185,12 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
-[1] "n = 5000"
+[1] "n = 13000"
 [1] "t = 21"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 5 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -399,8 +1199,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 6 iterations"
-[1] "n = 5000"
+[1] "Converged in 3 iterations"
+[1] "n = 13000"
 [1] "t = 22"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -409,13 +1209,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 23"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -430,7 +1230,7 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
-[1] "n = 5000"
+[1] "n = 13000"
 [1] "t = 24"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -439,13 +1239,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 25"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -454,13 +1254,13 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 26"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -474,8 +1274,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 27"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -484,18 +1284,18 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Converged in 2 iterations"
-[1] "n = 5000"
+[1] "n = 13000"
 [1] "t = 28"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -504,8 +1304,8 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 29"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -514,162 +1314,12 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
+[1] "Converged in 2 iterations"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
+[1] "Converged in 2 iterations"
+[1] "n = 13000"
 [1] "t = 30"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
-[1] "t = 31"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 5 iterations"
-[1] "n = 5000"
-[1] "t = 32"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
-[1] "t = 33"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-[1] "n = 5000"
-[1] "t = 34"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-[1] "n = 5000"
-[1] "t = 35"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
-[1] "t = 36"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 4 iterations"
-[1] "n = 5000"
-[1] "t = 37"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-[1] "n = 5000"
-[1] "t = 38"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
-[1] "t = 39"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 2 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 3 iterations"
-[1] "n = 5000"
-[1] "t = 40"
 Using same lambda for all quantiles

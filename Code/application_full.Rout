@@ -110,3 +110,424 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Loading required package: gurobi
+Loading required package: slam
+[1] "Converged in 2 iterations"
+[1] "i=1 lambda=19651.648418"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "i=2 lambda=29300.137052"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 4 iterations"
+[1] "i=3 lambda=43685.802484"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 4 iterations"
+[1] "i=4 lambda=65134.485046"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Iteration: 5 Primal Resid Norm: 0.5215 eps_pri: 0.7437, Dual Resid Norm: 0.6413  eps_dual 0.7423"
+[1] "Converged in 5 iterations"
+[1] "i=5 lambda=97113.956960"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Iteration: 5 Primal Resid Norm: 0.5326 eps_pri: 0.7437, Dual Resid Norm: 0.6580  eps_dual 0.7425"
+[1] "Converged in 5 iterations"
+[1] "i=6 lambda=144794.583543"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 4 iterations"
+[1] "i=7 lambda=215885.255628"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Iteration: 5 Primal Resid Norm: 0.6513 eps_pri: 0.7438, Dual Resid Norm: 0.7181  eps_dual 0.7432"
+[1] "Converged in 5 iterations"
+[1] "i=8 lambda=321879.744787"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Iteration: 5 Primal Resid Norm: 0.7355 eps_pri: 0.7438, Dual Resid Norm: 0.9236  eps_dual 0.7435"
+[1] "Converged in 7 iterations"
+[1] "i=9 lambda=479914.989114"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Iteration: 5 Primal Resid Norm: 0.8500 eps_pri: 0.7438, Dual Resid Norm: 1.0422  eps_dual 0.7440"
+[1] "Converged in 9 iterations"
+[1] "i=10 lambda=715541.752800"
+[1] "Problem not solved."
+[1] "Problem not solved."
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=1 lambda=19651.648418"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=2 lambda=29300.137052"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=3 lambda=43685.802484"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=4 lambda=65134.485046"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=5 lambda=97113.956960"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=6 lambda=144794.583543"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 2 iterations"
+[1] "i=7 lambda=215885.255628"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Converged in 2 iterations"
+[1] "i=8 lambda=321879.744787"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Converged in 3 iterations"
+[1] "i=9 lambda=479914.989114"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Converged in 3 iterations"
+[1] "i=10 lambda=715541.752800"
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Converged in 2 iterations"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "i=1 lambda=19651.648418"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "i=2 lambda=29300.137052"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 4 iterations"
+[1] "i=3 lambda=43685.802484"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "i=4 lambda=65134.485046"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "i=5 lambda=97113.956960"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 3 iterations"
+[1] "i=6 lambda=144794.583543"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 4 iterations"
+[1] "i=7 lambda=215885.255628"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Converged in 4 iterations"
+[1] "i=8 lambda=321879.744787"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Converged in 4 iterations"
+[1] "i=9 lambda=479914.989114"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Converged in 3 iterations"
+[1] "i=10 lambda=715541.752800"
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+[1] "Problem not solved."
+Warning messages:
+1: In names(spod_trends)[(ncol(spod_trends) - 2):ncol(spod_trends)] <- paste(node,  :
+  number of items to replace is not a multiple of replacement length
+2: In names(spod_trends)[(ncol(spod_trends) - 2):ncol(spod_trends)] <- paste(node,  :
+  number of items to replace is not a multiple of replacement length
+3: In names(spod_trends)[(ncol(spod_trends) - 2):ncol(spod_trends)] <- paste(node,  :
+  number of items to replace is not a multiple of replacement length
+> save(spod_trends, file = "../SPod/spod_trends.RData")
+> ################################################################################
+> 
+> 
+> proc.time()
+    user   system  elapsed 
+49821.49 25462.05 13158.07 
