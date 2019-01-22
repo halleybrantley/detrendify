@@ -6,49 +6,27 @@ library(caret)
 library(zoo)
 library(aricode)
 load_all("detrendr")
+source("application_functions.R")
 rm(list=ls())
 load("../SPod/trends_short.RData")
 
 spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
-                                              contains(paste(0.05)))
-plot(spodPeaks$f, type="l")
+                                              contains(paste(0.15)))
+plot(spodPeaks$h, type="l")
 thresholds <- apply(spodPeaks, 2, 
-                      function(x) median(x) + 2.5*mean(abs(x-median(x))))
-abline(h=thresholds[1], col="red")
+                      function(x) median(x, na.rm=T) + 
+                      4*median(abs(x-median(x, na.rm=T)), na.rm=T))
+abline(h=thresholds[3], col="red")
+plot(g~f, spodPeaks)
 
 
 ################################################################################
-get_spod_signal <- function(tau, spod_trends, spodPIDs){
-  spodPeaks <- select(spodPIDs, -time) - select(spod_trends, contains(paste(tau)))
-  thresholds <- apply(spodPeaks, 2, 
-                  function(x) median(x) + 3*mean(abs(x-median(x))))
-  spodSignal <- spodPeaks
-  for (i in 1:length(thresholds)){
-    spodSignal[,i] <- as.numeric(spodPeaks[,i]>thresholds[i])
-  }
-  return(spodSignal)
-}
-
-get_confusion <- function(spod_signal){
-  spod_signal <- na.omit(spod_signal)
-  for (i in 1:ncol(spod_signal)){
-    spod_signal[,i] <- factor(spod_signal[,i])
-  }
-  mat_h1 <- confusionMatrix(spod_signal$f[spod_signal$h==1],
-                            spod_signal$g[spod_signal$h==1])
-
-  mat_h0 <- confusionMatrix(spod_signal$f[spod_signal$h==0],
-                            spod_signal$g[spod_signal$h==0])
-
-  conf_out <- cbind(mat_h0$table, mat_h1$table)
-  return(conf_out)
-}
-
+crit <- 5
 NMI <- {}
 conf <- {}
 for (j in 1:length(tau)){
-  detrendr_signal <- get_spod_signal(tau[j], detrendr_trends, spodPIDs)
-  qsreg_signal <- get_spod_signal(tau[j], qsreg_trends, spodPIDs)
+  detrendr_signal <- get_spod_signal(tau[j], detrendr_trends, spodPIDs, crit)
+  qsreg_signal <- get_spod_signal(tau[j], qsreg_trends, spodPIDs, crit)
   conf <- rbind(conf, cbind(get_confusion(detrendr_signal), 
                             get_confusion(qsreg_signal)))
   NMI <- rbind(NMI, 

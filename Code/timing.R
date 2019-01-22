@@ -55,22 +55,6 @@ for (n in data_lengths){
     }
   }
 }
-times_df <- times_df[-i,]    
-diff_df <- diff_df[-j,]  
 
 
-times_df %>% group_by(n, windows) %>%
-  summarise(time_mean = mean(time)) %>%
-  ggplot(aes(x=n, y=time_mean, group=factor(windows), col=factor(windows))) + 
-  geom_line()
-
-
-
-# load("../TimingData/single_window_times_3.RData")
-# time.df <- data.frame(n = data_lengths, 
-#            median = apply(all.times, 2, median)*1e-9,
-#            mean = apply(all.times, 2, mean)*1e-9)
-# 
-# ggplot(time.df, aes(x=n, y=median)) + geom_line() + geom_point()
-# 
 

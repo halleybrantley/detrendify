@@ -17,16 +17,16 @@ spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp),
 
 load("../SPod/spod_trends.RData")
 nodes <- c("f", "g", "h")
-spodPIDs <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")]/1000)
-names(spodPIDs) <- nodes
-spodPIDs$time <- spod$time
+spodPID <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")]/1000)
+names(spodPID) <- nodes
+spodPID$time <- spod$time
 
-spodPIDs <- spodPIDs %>% 
-  filter(time > as.POSIXct("2017-11-30 10:15:00"),
-         time <= as.POSIXct("2017-11-30 10:15:00")+8000)
+spodPIDs <- spodPID %>% 
+  filter(time > as.POSIXct("2017-11-30 9:30:00"),
+         time <= as.POSIXct("2017-11-30 9:30:00")+5000)
 plot(spodPIDs$h, type="l")
 
-tau <- c(0.05, 0.1)
+tau <- c(0.05, 0.1, 0.15)
 k <- 3
 detrendr_trends <- data.frame(time = spodPIDs$time)
 qsreg_trends <- data.frame(time = spodPIDs$time)
@@ -35,7 +35,7 @@ x <- seq(1, nrow(spodPIDs), 1)
 for (node in c("f", "g", "h")){
   spodPIDs[, node] <- na.locf(spodPIDs[, node])
   result <- get_trend_BIC(spodPIDs[, node], tau, k, 
-                            lambdaSeq = n^seq(.5, 1.2, length.out=10),
+                            lambdaSeq = n^seq(.8, 1.7, length.out=10),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
