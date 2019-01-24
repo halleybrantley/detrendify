@@ -13,9 +13,9 @@ spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp),
                                  format= "%m/%d/%Y %H:%M:%S")) 
 
 window_size <- 5000
-overlap <- 1000
-max_iter <- 10
-tau <- c(0.05, 0.1)
+overlap <- 500
+max_iter <- 20
+tau <- c(0.05, 0.1, 0.15)
 k <- 3
 spod_trends <- data.frame(time = spod$time)
 
@@ -26,15 +26,16 @@ for (node in c("f", "g", "h")){
   names(spodNode)[2] <- c("pid")
   spodNode$pid <- spodNode$pid/1000
   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-                          lambdaSeq = window_size^seq(0.8, 1.7, length.out=10),
+                          lambdaSeq = window_size^seq(0.8, 1.5, length.out=10),
                           df_tol = 1e-9,
                           gamma = 1,
                           plot_lambda = FALSE,
                           solver = NULL,
-                          criteria = "eBIC")
+                          criteria = "eBIC", 
+                          max_iter = max_iter)
   save(result, file=sprintf("../SPod/node_%s_trend.RData", node))
   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
-  names(spod_trends)[(ncol(spod_trends)-2):ncol(spod_trends)] <-
+  names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
 }
 save(spod_trends, tau, file = "../SPod/spod_trends.RData")
