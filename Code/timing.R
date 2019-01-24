@@ -9,13 +9,16 @@ tau <- c(0.05, 0.1, 0.2)
 simDesign <- "peaks"
 
 
-times <- 50
+times <- 25
 overlap <- 500
-data_lengths <- seq(5000, 20000, 1000)
-times_df <- data.frame(n = NA, t = NA, time = NA, windows = NA)
-diff_df <- data.frame(n = NA, t = NA, maxdiff = NA, sd = NA)
-i <- 1
-j <- 1
+data_lengths <- seq(30000, 39000, 3000)
+# times_df <- data.frame(n = NA, t = NA, time = NA, windows = NA)
+# diff_df <- data.frame(n = NA, t = NA, maxdiff = NA, sd = NA)
+# i <- 1
+# j <- 1
+load("../TimingData/timing_comparison.RData")
+i <- nrow(times_df)
+j <- nrow(diff_df)
 for (n in data_lengths){
   for (t in 1:times){
     print(sprintf("n = %i", n))
@@ -50,8 +53,7 @@ for (n in data_lengths){
       }
       i <- i+1
       times_df[i,] <- NA
-	save(times_df, diff_df,
-     	file = "../TimingData/timing_comparison.RData")
+	save(times_df, diff_df, file = "../TimingData/timing_comparison.RData")
     }
   }
 }

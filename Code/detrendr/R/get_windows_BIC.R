@@ -19,7 +19,8 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
                              gamma = 1,
                              plot_lambda = FALSE, 
                              solver = NULL, 
-                             criteria = "eBIC"){
+                             criteria = "eBIC", 
+                             max_iter = 10){
   
   if(!(criteria %in% c("eBIC", "valid", "SIC"))){
     stop("criteria must be one of 'eBIC', 'valid', 'SIC'")
@@ -58,7 +59,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   
   for (i in 1:length(lambdaSeq)){
     f_trend <- get_trend_windows(y, tau, lambdaSeq[i], k=k, window_size = window_size,
-                                 overlap=overlap, max_iter=10, update=5, 
+                                 overlap=overlap, max_iter=max_iter, update=5, 
                                  quad = TRUE)
     model_crit <- get_criteria(criteria, f_trend, y, tau, 
                                D, df_tol, gamma, 
@@ -80,7 +81,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   }
   
   f_trend <- get_trend_windows(y, tau, lambda, k, window_size,
-                               overlap, max_iter=10, update=5, 
+                               overlap, max_iter=max_iter, update=5, 
                                quad = TRUE)
   
   return(list(trend = f_trend,

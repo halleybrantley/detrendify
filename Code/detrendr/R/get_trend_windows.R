@@ -33,7 +33,7 @@
 #' plot(result$dual_norm)
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, window_size,
-                           overlap, max_iter, rho=3, update=10, 
+                           overlap, max_iter, rho=5, update=10, 
                            quad = TRUE, use_gurobi = TRUE, 
                            eps_abs = 2e-3, 
                            eps_rel = 1e-3){
@@ -127,7 +127,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
     
     # Convergence Metrics
 
-    dual_norm[iter] <- sqrt(rho*sum(mapply(list_diff_norm, phiBar_list, phiBar_listk)))
+    dual_norm[iter] <- rho*sqrt(sum(mapply(list_diff_norm, phiBar_list, phiBar_listk)))
     primal_norm[iter] <- sqrt(sum(mapply(list_diff_norm, phi_list, phiBar_list)))
     eps_pri <- sqrt(num_param)*eps_abs + 
       eps_rel*max(sqrt(c(sapply(phi_list, Matrix::norm, type="F"), 
