@@ -15,7 +15,7 @@ times_df %>% group_by(n, windows) %>%
   theme_bw() +
   scale_color_brewer(palette="Set1")+
   labs(y = "Time (s)", col = "# Windows")
-ggsave("../Manuscript/Figures/Fig_timing_experiment.png", width = 7, height = 2.5)
+ggsave("../Manuscript/Figures/Fig_timing_experiment.png", width = 6, height = 2.5)
 
 diff_df %>% group_by(windows) %>%
   summarise(max = max(maxdiff), 

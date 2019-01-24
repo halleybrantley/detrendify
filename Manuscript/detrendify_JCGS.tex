@@ -5,7 +5,8 @@
 \usepackage{natbib}
 \usepackage{url} % not crucial - just used below for the URL 
 \usepackage{placeins}
-
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 %\pdfminorversion=4
 % NOTE: To produce blinded version, replace "0" with "1" below.
 \newcommand{\blind}{0}
@@ -67,16 +68,17 @@
 	\section{Introduction}
 	\label{sec:intro}
 	
-	We are interested in the problem posed by \cite{thoma2016south} concerning low-cost air pollutant sensors. Researchers at the U.S. Environmental Protection Agency have built prototypes of low-cost sensors that provide an un-calibrated measure of volatile organic compounds (VOCs) and hazardous air pollutants (HAPs) at a 1 second time resolution. To reduce cost and power consumption, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled. A result the output signal exhibits a slowly varying baseline drift (minutes to hours). The purpose of these sensors is to protect the fenceline of industrial facilities by detecting whether VOC emissions from a local source are present and providing wind and concentration data to help identify the source and speed repairs.   
-
-	There have been a number of occasions when researchers have sought to estimate the trend in the quantiles of a random variable over time or another co-variate given noisy observations of that variable. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution.    	
-	
-	\begin{figure}
+	The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours (Fig. \ref{fig:raw_spod}).   
+	 
+	\begin{figure}[b!]
+		\label{fig:raw_spod}
 		\caption{Example of 3 co-located SPod PID sensor readings.}
 		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
 	\end{figure}
 
-	A variety of approaches have been proposed for estimating quantile trends. \cite{Koenker1978} was the first to propose the use of the check loss function to estimate conditional quantiles. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of the $\tau$th quantile of $y$ conditional on $x$. The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where $\rho_{\tau}(y) = \sum_{i=1}^n y_i(1-\mathbf{I}(y_i<0))$ is the check-loss function and $\mathbf{I}$ is the indicator function.  
+	There have been a number of other occasions when researchers have sought to estimate the trend in the quantiles of a random variable over time or another co-variate given noisy observations of that variable. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution.    	
+	
+	A variety of approaches have been proposed for estimating quantile trends. \cite{Koenker1978} was the first to propose the use of the check loss function to estimate conditional quantiles. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of the $\tau$th quantile of $y$ conditional on $x$. The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where $\rho_{\tau}(z) = \sum_{i=1}^n z_i(1-\mathbf{I}(z_i<0))$ is the check-loss function and $\mathbf{I}$ is the indicator function.  
 	
 	In the trend filtering problem \citep{Kim2009, Tib2014}, one is interested in finding an adaptive polynomial approximation to noisy data $y \in \mathbb{R}^n$ by solving the following convex problem.
 	\begin{eqnarray}
@@ -107,13 +109,13 @@
 	We combine the ideas of quantile regression and trend filtering, namely consider the case where the design $\mathbf{X}$ is the identity matrix. For a single quantile level $\tau$ the estimation of the quantile trend filtering model can be posed as the following optimization problem.
 	\begin{eqnarray}
 	\label{eq:quantile_trend}
-	\underset{\theta}{\min}\; \frac{1}{n} \sum_{i=1}^n \rho_\tau(y_i - \theta_i) + \lambda \lVert \mathbf{D}^{(k)} \theta \rVert_1,
+	\underset{\theta}{\min}\; \rho_\tau(y - \theta) + \lambda \lVert \mathbf{D}^{(k)} \theta \rVert_1,
 	\end{eqnarray}
 	where $\lambda$ is a non-negative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of free or commercial solvers. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$. Given quantiles $\{\tau_1, ..., \tau_J\}$ such that $\tau_1 < \tau_2 < ... < \tau_J$, the optimization problem becomes 
 	
 	\begin{eqnarray}
 	\label{eq:quantile_trend}
-	\underset{\theta}{\min}\; \sum_{j=1}^J \left [\frac{1}{n} \sum_{i=1}^n \rho_{\tau_j}(y_i - \theta_{ji}) + 
+	\underset{\theta}{\min}\; \sum_{j=1}^J \left [\frac{1}{n} \rho_{\tau_j}(y - \theta_{j}) + 
 	\lambda_j \lVert \mathbf{D}^{(k)} \theta_j \rVert_1 \right ] \\
 	 \text{subject to: }\; \theta_{1i} \le \theta_{2i} \le ... \le \theta_{Ji} \text{ for all } i,
 	\end{eqnarray}
@@ -124,68 +126,59 @@
 	
 	\subsection{ADMM for Big Data}
 	
-	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm is fully described by \cite{boyd2011distributed, gabay1975dual, glowinski1975approximation}. We apply the consensus ADMM algorithm to the the quantile regression trend filtering problem, 
-	\begin{equation}
-	\text{minimize } \rho_\tau(y-\theta) + \lambda||D^{(k)}\theta||_1\\
-	\end{equation}
-	where $y,\theta \in \mathbf{R}^n$, $y$ is the observed data, $\rho_{\tau}(u) = \sum_i(\tau - I(u_i < 0))u_i$ is the check loss function corresponding to quantile level $\tau$ and $D^{(k)}$ is the discrete differencing matrix of order $k$ and $\lambda$ is a tuning parameter that controls smoothness. We first re-parameterize $\phi = y-\theta$ so the problem is
-	\begin{equation}
-	\text{minimize } \rho_\tau(\phi) + \lambda||D^{(k)}(y-\phi)||_1\\
-	\end{equation}
-	We further divide $\phi$ order to solve smaller problems: Defining
-	\begin{align}
-	&\phi_1 = (\phi_{11}, \phi_{12})\\
-	&\phi_2 = (\phi_{21}, \phi_{22}, \phi_{23})\\
-	&\phi_3 = (\phi_{31}, \phi_{32})\\
-	&\phi = (\phi_{11}, \phi_{12}=\phi_{21}, \phi_{22}, \phi_{23}=\phi_{31}, \phi_{32}) \\
-	\end{align}
-	Dividing $y$ similarly, the problem then becomes 
-	\begin{align}
-	&\text{minimize } \sum_{i=1}^3 \rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1\\
-	&\text{subject to: } \phi_{12}=\phi_{21}, ~~ \phi_{23}=\phi_{31}\\
-	\end{align}
-	We can further simplify by defining 
-	\begin{align}
-	&\overline{\phi} = (\phi_{11}, \frac{\phi_{12}+\phi_{21}}{2}, \phi_{22}, \frac{\phi_{23}+\phi_{31}}{2}, \phi_{32}) \\
-	&\overline{\phi_1} = (\phi_{11}, \frac{\phi_{12}+\phi_{21}}{2})\\
-	&\overline{\phi_2} = ( \frac{\phi_{12}+\phi_{21}}{2}, \phi_{22}, \frac{\phi_{23}+\phi_{31}}{2})\\
-	&\overline{\phi_3} = (\frac{\phi_{23}+\phi_{31}}{2}, \phi_{32})
-	\end{align}
-	so the problem becomes
-	\begin{align}
-	&\text{minimize } \sum_{i=1}^3 \rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1\\
-	&\text{subject to: } \phi_{i}=\overline{\phi_i}\\
-	\end{align}
-	The augmented Lagrangian for this problem is 
-	\begin{align}
-	&L_\gamma(\phi_1,\phi_2, \phi_3, \overline{\phi_1}, \overline{\phi_2}, \overline{\phi_3}, \omega) = \\
-	&\sum_{i=1}^3 \rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1 + \omega_i^T(\phi_i - \overline{\phi_i}) + \frac{\gamma}{2}||\phi_i - \overline{\phi_i}||_2^2
-	\end{align}
-	The ADMM updates are then given by
-	\begin{align}
-	&\phi_i^{k+1} = \arg\min_{\phi_i}\rho_\tau(\phi_i) + \lambda||D^{(k)}(y_i-\phi_i)||_1 + \omega_i^{kT}(\phi_i - \overline{\phi_i}^k) + \frac{\gamma}{2}||\phi_i - \overline{\phi_i}^k||_2^2\\
-	&\omega_i^{k+1} = \omega_i^{k} + \gamma(\phi_i^{k+1} - \overline{\phi_i}^{k+1})
-	\end{align}
-	The $\phi_i$ updates can be obtained using a quadratic program solver such as Gurobi and can be obtained in parallel. 
-	
-	\pagebreak 
-	
-	\begin{figure}[!h] 
-		\caption{Windows fit separately compared to simultaneous fit, no signal present.}
-		\includegraphics[width = \linewidth]{Figures/overlapping_windows.png}
-	\end{figure}
-	
-	\begin{figure}[!h] 
-		\caption{Windows fit with 150 iterations of ADMM, no signal present.}
-		\includegraphics[width = \linewidth]{Figures/admm_windows.png}
-	\end{figure}
-	
+	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm is fully described by \cite{boyd2011distributed, gabay1975dual, glowinski1975approximation}. We apply the consensus ADMM algorithm to the the quantile regression trend filtering problem given in Eq. \ref{eq:quantile_trend}, by dividing our observed series $y$ into overlapping windows $\{y_1, ..., y_M\}$, we then estimate the trend separately in each window while constraining the overlapping pieces of the trends to be equal. 
+	 
 
-	We conducted timing experiments to show the advantages of using our ADMM algorithm on large datasets. We use 2 windows for each data size with an overlap of 2000 and two iterations of the algorithm after the initial estimates. 
+	\begin{algorithm}
+		\caption{ADMM algorithm for quantile trend filtering with windows}\label{euclid}
+		\begin{algorithmic}
+			\State{Given $y$ divided into overlapping windows $\{y_1, ..., y_M\}$ and quantiles $\{\tau_1 < ... < \tau_J\}$}
+			\State {\textbf{initialize:} \\
+				 $\theta_{j,m}^{(0)} = \arg \min \sum_{j=1}^J\rho_{\tau_j}(y_m - \theta_{j,m})+\lambda \lVert D\theta_{j,m}\rVert_1$ subject to $\theta_{1,m} < ...<\theta_{J,m}$. \\
+				 $\bar{\theta}_{j,m}^{(0)}$ is the mean of $\theta_{j,m}^{(0)}$ and all overlapping windows.}\\
+			 	 $\omega_{j,m}^{(0)} = \gamma(\theta_{j,m}^0 - \bar{\theta}_{j,m}^0)$	
+			\Repeat{}
+			 $$
+		\theta_{j,m}^{(q)} = \arg \min \sum_{j=1}^J\rho_{\tau_j}(y_m - \theta_{j,m})+\lambda \lVert D\theta_{j,m}\rVert_1 +  \omega_{j,m}^{(q-1)T}(\theta_{j,m} - \bar{\theta}_{j,m}^{(q-1)}) + 
+			\frac{\gamma}{2}||\theta_{j,m} - \bar{\theta}_{j,m}^{(q-1)}||_2^2
+			$$
+			\qquad \qquad subject to $\theta_{1,m} < ...<\theta_{J,m}$
+						
+			\State  $\bar{\theta}_{j,m}^{(q)}$ is the mean of $\theta_{j,m}^{(q)}$ and all overlapping windows.
+			\State $\omega_{j,m}^{(q)} = \omega_{j,m}^{(q-1)} + \gamma(\theta_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q)})$	
+			\Until {convergence}
+			\State \textbf{return} Non-overlapping sequence of $\bar{\theta}_{j,m}^{(q)}$ for all $j$, $m$.
+			
+		\end{algorithmic}
+	\end{algorithm}
+
+	We used the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals which represent the residuals for the primal and dual feasibility, respectively. The primal and dual residuals are defined as 
+	
+	\begin{eqnarray}
+	r_p^{(q)} = \sqrt{\sum_{m=1}^M \left(\theta_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q)}\right)^2}\\
+	r_d^{(q)} = \gamma\sqrt{\sum_{m=1}^M \left(\bar{\theta}_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q-1)}\right)^2}
+	\end{eqnarray}
 	
 	\begin{figure}[!h] 
-		\caption{Timing experiments comparing quantile trend filtering on a single window versus 2 windows by data size.}
-		\includegraphics[width = \linewidth]{Figures/Fig_timing_experiment.png}
+		\centering
+		\caption{(Top) Windows fit separately compared to simultaneous fit, no signal present. (Bottom) Windows fit with our ADMM algorithm which converged in 7 iterations.}
+		\includegraphics[width = 0.7\linewidth]{Figures/overlapping_windows.png}
+		\includegraphics[width = 0.7\linewidth]{Figures/admm_windows.png}
+	\end{figure}
+	
+	Given $N$ equal to the total number of elements in $\bar{\theta}$ and values for $\epsilon_{abs}$ and $\epsilon_{rel}$, the algorithm is stopped when 
+	
+	\begin{eqnarray}
+		r_p^{(q)} < \epsilon_{abs}\sqrt{N} + \epsilon_{rel}\max(\lVert \theta_{j,m}^{(q)} \rVert_2, \lVert \bar{\theta}_{j,m}^{(q)} \rVert_2 )\\
+		r_d^{(q)} < \epsilon_{abs}\sqrt{N} + \epsilon_{rel}\sqrt{\sum_{m=1}^M \left(\omega_{j,m}^{(q)}\right)^2}
+	\end{eqnarray}
+	
+	Timing experiments illustrate the advantages of using our ADMM algorithm even on datasets where solving the problem simultaneously is possible. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below and trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using a $\lambda = n/5$.
+	
+	\begin{figure}[!h] 
+		\centering
+		\caption{Timing experiments comparing quantile trend filtering with varying numbers of windows by data size.}
+		\includegraphics[width = 0.7\linewidth]{Figures/Fig_timing_experiment.png}
 	\end{figure}
 
 	\subsection{Smoothing parameter choice}
@@ -283,7 +276,14 @@
 	
 	We compared our detrend method with the eBIC criteria with the qsreg method on a subset of the real data since the qsreg method cannot handle all 15 hours simultaneously. We estimate the baseline trend using both the 5th and 10th quantiles and then classify the signal as any observation above the median plus 2.5 times the median absolute deviation after the baseline trend removal. We report both the confusion matrices and the normalized mutual information (NMI) score. 
 	
-	\input{short_confusion_detrend.tex} 
+
+	
+		\begin{figure}
+		\centering
+		\caption{Variation of Information between sensor nodes after trend removal by quantile and method and thresholding by factor of MAD.}
+		\includegraphics[width = .9\linewidth]{Figures/VI_app_short.png}
+	\end{figure}
+	
 	
 	\begin{figure}
 		\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 10th quantile.}
@@ -291,16 +291,12 @@
 	\end{figure}
 
 	
-	\input{NMI.tex}
-	
 	Our windowed detrend method was used to removed the baseline drift from low cost air quality sensors so that the signal could be categorized using a simple threshold. The measurements were first standardized to have mean zero and variance 1. Three quantile levels for estimating the baseline trend were compared. The total dataset consisted of 52,322 observations per node. 
 	The signal thresholds were set using the first 15,000 observations where it was known no signal was present. The thresholds were set as 3 times the standard deviation plus the mean of observations in this time period. The total number of seconds of signal for each node as well as the number of seconds where multiple nodes both reported signal is shown in Table 1. Table 2 shows the fraction of observations with different signal classifications by node combination. 
 	
 	\begin{figure}
-		\caption{Low cost sensor data before drift removal (top), after drift removal using windowed detrend with eBIC (middle), 
-			and zoomed in on signal area (bottom). Horizontal lines represent signal thresholds.}
+		\caption{Low cost sensor data after drift removal using windowed detrend with eBIC.}
 		\includegraphics[width = \linewidth]{Figures/corrected_data.png}
-		\includegraphics[width = \linewidth]{Figures/corrected_zoom_data.png}
 	\end{figure}
 
 	\input{complete_confusion.tex}	

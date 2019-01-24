@@ -5,72 +5,132 @@ library(Hmisc)
 library(caret)
 library(zoo)
 library(aricode)
+library(mcclust)
 load_all("detrendr")
-source("application_functions.R")
 rm(list=ls())
 load("../SPod/trends_short.RData")
+source("application_functions.R")
+colPal <- c('#1b7837', '#c2a5cf')
+            '#762a83','#9970ab',,
+                '#a6dba0','#5aae61',)
 
 spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
                                               contains(paste(0.15)))
-plot(spodPeaks$h, type="l")
+plot(spodPeaks$f, type="l")
 thresholds <- apply(spodPeaks, 2, 
                       function(x) median(x, na.rm=T) + 
-                      4*median(abs(x-median(x, na.rm=T)), na.rm=T))
+                      3*median(abs(x-median(x, na.rm=T)), na.rm=T))
 abline(h=thresholds[3], col="red")
 plot(g~f, spodPeaks)
 
+cor(spodPeaks$g, spodPeaks$f, method = "spearman")
 
 ################################################################################
-crit <- 5
-NMI <- {}
-conf <- {}
-for (j in 1:length(tau)){
-  detrendr_signal <- get_spod_signal(tau[j], detrendr_trends, spodPIDs, crit)
-  qsreg_signal <- get_spod_signal(tau[j], qsreg_trends, spodPIDs, crit)
-  conf <- rbind(conf, cbind(get_confusion(detrendr_signal), 
-                            get_confusion(qsreg_signal)))
-  NMI <- rbind(NMI, 
-               cbind("fg", round(NMI(detrendr_signal$f, detrendr_signal$g, 
-                               variant="sqrt"),2),
-                     round(NMI(qsreg_signal$f, qsreg_signal$g, 
-                               variant="sqrt"), 2)), 
-               cbind("fh", round(NMI(detrendr_signal$f, detrendr_signal$h, 
-                               variant="sqrt"),2),
-                     round(NMI(qsreg_signal$f, qsreg_signal$h, 
-                               variant="sqrt"), 2)), 
-               cbind("gh", round(NMI(detrendr_signal$g, detrendr_signal$h, 
-                               variant="sqrt"),2),
-                     round(NMI(qsreg_signal$g, qsreg_signal$h, 
-                               variant="sqrt"), 2)) 
-  )
+
+methods <- c("detrendr", "qsreg")
+metric_df <- tibble(metric=NA, method=NA, tau=NA, crit=NA, metric_type=NA)
+i <- 1
+metrics <- c("confusion", "NMI", "VI")
+  
+for (method in methods){
+  trends <- get(paste(method, "trends", sep = "_"))
+  for (j in 1:length(tau)){
+    for (crit in c(3, 4, 5)){
+      signal <- get_spod_signal(tau[j], trends, spodPIDs, crit)
+      for (metric in metrics){
+        if (metric == "confusion"){
+          metric_df$metric[i] <- I(list(get_confusion(signal)))
+        } else if (metric == "NMI"){
+          metric_df$metric[i] <- I(list(get_NMI(signal)))
+        } else if (metric == "VI") {
+          metric_df$metric[i] <- I(list(get_VI(signal)))
+        }
+        metric_df$method[i] <- method
+        metric_df$tau[i] <- tau[j]
+        metric_df$crit[i] <- crit
+        metric_df$metric_type[i] <- metric
+        i <- i+1
+        metric_df[i, ] <- NA
+      }
+    }
+  }
 }
+metric_df <- metric_df[-i,]
+  
+NMI <- metric_df %>% 
+  filter(metric_type %in% c("NMI")) %>% 
+  select(-metric_type) %>% unnest() %>% 
+  gather("nodes", "value", -c(method, tau, crit)) 
 
-conf <- rbind(rep(c("g = 0", "g = 1"),4), conf)
+VI <- metric_df %>% 
+  filter(metric_type %in% c("VI")) %>% 
+  select(-metric_type) %>% unnest() %>% 
+  gather("nodes", "value", -c(method, tau, crit)) 
 
-latex(conf,
-      file = "../Manuscript/short_confusion_detrend.tex",
+
+ggplot(NMI, aes(x=nodes, y = value, col = method)) + 
+  geom_point(position = position_dodge(width = .5), size = 2) +
+  theme_bw() +
+  scale_color_manual(values=colPal, breaks = methods) +
+  facet_grid(crit~factor(tau)) +
+  labs(y="Normalized Mutual Information", x = "Sensor Nodes", col = "")
+ggsave("../Manuscript/Figures/NMI_app_short.png", width = 7, height = 3.5)
+
+
+
+ggplot(VI, aes(x=nodes, y = value, col = method)) + 
+  geom_point(position = position_dodge(width = .5), size = 2) +
+  theme_bw() +
+  scale_color_manual(values=colPal, breaks = methods) +
+  facet_grid(crit~factor(tau)) +
+  labs(y="Variation of Information", x = "Sensor Nodes", col = "")
+ggsave("../Manuscript/Figures/VI_app_short.png", width = 7, height = 3.5)
+
+################################################################################
+
+confusion <- metric_df %>% 
+  filter(metric_type %in% c("confusion")) %>% 
+  select(-metric_type) %>% unnest() %>% 
+  arrange(tau, crit)
+  
+
+latex(confusion %>% filter(crit == 3) %>% select(-crit),
+      file = "../Manuscript/short_confusion_detrend_MAD3.tex",
       rowlabel = "",
-      rowname = c("", "f = 0", "f = 1", "f=0", "f=1"),
-      cgroup = c("detrendr", "qsreg"),
-      rgroup = c("", "tau=0.05", "tau=0.1"),
-      n.rgroup = c(1, 2, 2),
-      colheads = rep(c("h = 0", "", "h = 1", ""),2),
-      n.cgroup = c(4,4),
-      caption = "Confusion matrices for 3 SPod nodes after baseline removal (n=8000).")
+      rowname = "",
+      colheads = c("Method", "Quantile", 
+                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
+                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
+      caption = "Confusion matrices for 3 SPod nodes after baseline 
+      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
+      set as the median + 3*MAD.")
 
-latex(NMI[,2:3], 
-      file = "../Manuscript/NMI.tex", 
-      rowlabel="",
-      rowname = NMI[,1],
-      colheads = c("detrendr", "qsreg"), 
-      n.rgroup = c(3,3), 
-      rgroup = c("tau=0.05", "tau=0.1"), 
-      caption = "Normalized mutual information between signal classifications."
-)
+latex(confusion %>% filter(crit == 4) %>% select(-crit),
+      file = "../Manuscript/short_confusion_detrend_MAD4.tex",
+      rowlabel = "",
+      rowname = "",
+      colheads = c("Method", "Quantile", 
+                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
+                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
+      caption = "Confusion matrices for 3 SPod nodes after baseline 
+      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
+      set as the median + 4*MAD.")
+
+latex(confusion %>% filter(crit == 5) %>% select(-crit),
+      file = "../Manuscript/short_confusion_detrend_MAD5.tex",
+      rowlabel = "",
+      rowname = "",
+      colheads = c("Method", "Quantile", 
+                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
+                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
+      caption = "Confusion matrices for 3 SPod nodes after baseline 
+      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
+      set as the median + 5*MAD.")
+
 ################################################################################
 # Rug plot
 
-spod_signal <- get_spod_signal(0.1, detrendr_trends, spodPIDs)
+spod_signal <- get_spod_signal(0.15, detrendr_trends, spodPIDs, crit = 3)
 spod_signal$time <- spodPIDs$time
 spod_signal <- spod_signal %>%  gather(node, PID, -time) %>% filter(!is.na(node))
 spodPeaks$time <- spodPIDs$time
