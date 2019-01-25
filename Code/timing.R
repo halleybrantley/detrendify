@@ -11,7 +11,7 @@ simDesign <- "peaks"
 
 times <- 25
 overlap <- 500
-data_lengths <- seq(30000, 39000, 3000)
+data_lengths <- seq(30000, 51000, 3000)
 # times_df <- data.frame(n = NA, t = NA, time = NA, windows = NA)
 # diff_df <- data.frame(n = NA, t = NA, maxdiff = NA, sd = NA)
 # i <- 1
@@ -58,5 +58,11 @@ for (n in data_lengths){
   }
 }
 
-
+# trend <- get_trend_windows(df$y, tau, lambda = n/5, k=3, 
+#                   window_size = round(n/w+overlap*(w-1)/w), 
+#                   overlap = overlap, max_iter = 20, 
+#                   update = 1, rho = 3, eps_abs = .01, 
+#                   eps_rel = 1e-3, 
+#                   quad = TRUE, use_gurobi = TRUE)
+# plot(trend[,3], type='l')
 

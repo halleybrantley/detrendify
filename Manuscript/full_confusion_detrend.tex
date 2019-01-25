@@ -1,20 +1,16 @@
-%latex.default(conf, file = "../Manuscript/full_confusion_detrend.tex",     rowlabel = "", rowname = c("f = 0", "f = 1", "f=0", "f=1"),     cgroup = c("h = 0", "h = 1"), rgroup = c("tau=0.05", "tau=0.1"),     n.rgroup = c(2, 2), colheads = rep(c("g = 0", "g = 1"), 2),     n.cgroup = c(2, 2), caption = "Confusion matrices for 3 SPod nodes after baseline removal (n=52322).")%
+%latex.default(conf, file = "../Manuscript/full_confusion_detrend.tex",     rowlabel = "", rowname = c("g = 0", "g = 1", "g=0", "g=1"),     cgroup = c("f = 0", "f = 1"), colheads = rep(c("h = 0", "h = 1"),         2), n.cgroup = c(2, 2), caption = "Confusion matrices for 3 SPod nodes after baseline \n      removal using 15th quantil and threshold of 3*MAD (n=52322).")%
 \begin{table}[!tbp]
-\caption{Confusion matrices for 3 SPod nodes after baseline removal (n=52322).\label{conf}} 
+\caption{Confusion matrices for 3 SPod nodes after baseline 
+      removal using 15th quantil and threshold of 3*MAD (n=52322).\label{conf}} 
 \begin{center}
 \begin{tabular}{lrrcrr}
 \hline\hline
-\multicolumn{1}{l}{\bfseries }&\multicolumn{2}{c}{\bfseries h = 0}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries h = 1}\tabularnewline
+\multicolumn{1}{l}{\bfseries }&\multicolumn{2}{c}{\bfseries f = 0}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries f = 1}\tabularnewline
 \cline{2-3} \cline{5-6}
-\multicolumn{1}{l}{}&\multicolumn{1}{c}{g = 0}&\multicolumn{1}{c}{g = 1}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{g = 0}&\multicolumn{1}{c}{g = 1}\tabularnewline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{h = 0}&\multicolumn{1}{c}{h = 1}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{h = 0}&\multicolumn{1}{c}{h = 1}\tabularnewline
 \hline
-{\bfseries tau=0.05}&&&&&\tabularnewline
-~~f = 0&$51641$&$222$&&$1$&$  9$\tabularnewline
-~~f = 1&$   23$&$190$&&$7$&$229$\tabularnewline
-\hline
-{\bfseries tau=0.1}&&&&&\tabularnewline
-~~f=0&$51639$&$231$&&$1$&$  9$\tabularnewline
-~~f=1&$   23$&$187$&&$7$&$225$\tabularnewline
+g = 0&$50779$&$72$&&$186$&$ 14$\tabularnewline
+g = 1&$  336$&$67$&&$314$&$554$\tabularnewline
 \hline
 \end{tabular}\end{center}
 \end{table}

@@ -16,10 +16,15 @@ colPal <- c('#1b7837', '#c2a5cf')
 
 spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
                                               contains(paste(0.15)))
-plot(spodPeaks$f, type="l")
+
+plot(spodPIDs$g, type="l")
+lines(detrendr_trends$g_0.15, col="red")
+lines(qsreg_trends$g_0.15, col="red")
+
+plot(spodPeaks$h, type="l")
 thresholds <- apply(spodPeaks, 2, 
                       function(x) median(x, na.rm=T) + 
-                      3*median(abs(x-median(x, na.rm=T)), na.rm=T))
+                      2*median(abs(x-median(x, na.rm=T)), na.rm=T))
 abline(h=thresholds[3], col="red")
 plot(g~f, spodPeaks)
 
@@ -35,7 +40,7 @@ metrics <- c("confusion", "NMI", "VI")
 for (method in methods){
   trends <- get(paste(method, "trends", sep = "_"))
   for (j in 1:length(tau)){
-    for (crit in c(3, 4, 5)){
+    for (crit in c(2, 3, 4)){
       signal <- get_spod_signal(tau[j], trends, spodPIDs, crit)
       for (metric in metrics){
         if (metric == "confusion"){
@@ -116,7 +121,7 @@ latex(confusion %>% filter(crit == 4) %>% select(-crit),
       removal (n=5000). Node order is f, g, h. The threshold for the signal was 
       set as the median + 4*MAD.")
 
-latex(confusion %>% filter(crit == 5) %>% select(-crit),
+latex(confusion %>% filter(crit == 2) %>% select(-crit),
       file = "../Manuscript/short_confusion_detrend_MAD5.tex",
       rowlabel = "",
       rowname = "",
@@ -125,12 +130,21 @@ latex(confusion %>% filter(crit == 5) %>% select(-crit),
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
       removal (n=5000). Node order is f, g, h. The threshold for the signal was 
-      set as the median + 5*MAD.")
+      set as the median + 2*MAD.")
 
 ################################################################################
 # Rug plot
 
-spod_signal <- get_spod_signal(0.15, detrendr_trends, spodPIDs, crit = 3)
+plot(spodPIDs$f, type="l")
+lines(qsreg_trends$f_0.15, col="red")
+lines(detrendr_trends$f_0.15, col="red")
+tmp1 <- spodPIDs$f - qsreg_trends$f_0.15
+tmp2 <- spodPIDs$f - detrendr_trends$f_0.15
+
+plot(tmp2, type="l")
+lines(tmp1, col="red")
+
+spod_signal <- get_spod_signal(0.15, qsreg_trends, spodPIDs, crit = 2)
 spod_signal$time <- spodPIDs$time
 spod_signal <- spod_signal %>%  gather(node, PID, -time) %>% filter(!is.na(node))
 spodPeaks$time <- spodPIDs$time

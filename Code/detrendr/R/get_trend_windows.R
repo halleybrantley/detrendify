@@ -18,19 +18,12 @@
 #' y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
 #' lambda <- 10
 #' k <- 3
-#' tau <- c(0.05)
-#' overlap <- 20
-#' rho <- 1
-#' result <- consensus_ADMM(y, tau, lambda, k, rho, overlap, 300)
 #' y_n <- length(y)
 #' window_size <- floor((y_n+overlap)/2)
-#' plot(result$phiBar~x, type="l")
-#' points(result$phi1~x[1:window_size])
-#' points(result$phi2~x[(y_n-window_size+1):y_n], col="blue")
-#' plot(y~x)
-#' lines(result$theta)
-#' plot(result$primal_norm)
-#' plot(result$dual_norm)
+#' tau <- c(0.05)
+#' max_iter <- 20
+#' trend <- get_trend_windows(y, tau, lambda, k, window_size overlap, max_iter)
+#' plot(trend~x, type="l")
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, window_size,
                            overlap, max_iter, rho=5, update=10, 
@@ -80,8 +73,6 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
   etaBar_list <- mapply(get_eta, phiBar_list, y_list, k=k, SIMPLIFY = FALSE)
   
-  num_param <- sum(sapply(phiBar_list, length))
-  
   if (quad){
     # Use w_list for z since it is all zeros, don't want to store current z
     eta0 <- etaBar_list
@@ -129,12 +120,12 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
 
     dual_norm[iter] <- rho*sqrt(sum(mapply(list_diff_norm, phiBar_list, phiBar_listk)))
     primal_norm[iter] <- sqrt(sum(mapply(list_diff_norm, phi_list, phiBar_list)))
-    eps_pri <- sqrt(num_param)*eps_abs + 
-      eps_rel*max(sqrt(c(sapply(phi_list, Matrix::norm, type="F"), 
-                    sapply(phiBar_list, Matrix::norm, type="F"))))
+    eps_pri <- sqrt(nT*y_n)*eps_abs + 
+      eps_rel*max(c(sapply(phi_list, Matrix::norm, type="F"), 
+                    sapply(phiBar_list, Matrix::norm, type="F")))
     
-    eps_dual <- sqrt(num_param)*eps_abs + 
-      eps_rel*sqrt(sum(sapply(w_list, norm, type="2")))
+    eps_dual <- sqrt(nT*y_n)*eps_abs + 
+      eps_rel*sqrt(sum(sapply(w_list, norm, type="2")^2))
     
     phiBar_listk <- phiBar_list
     

@@ -35,7 +35,7 @@ x <- seq(1, nrow(spodPIDs), 1)
 for (node in c("f", "g", "h")){
   spodPIDs[, node] <- na.locf(spodPIDs[, node])
   result <- get_trend_BIC(spodPIDs[, node], tau, k, 
-                            lambdaSeq = n^seq(.8, 1.7, length.out=10),
+                            lambdaSeq = n^seq(1.1, 1.8, length.out=10),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
@@ -49,7 +49,7 @@ for (node in c("f", "g", "h")){
   trend <- matrix(NA, n, length(tau))
   for (j in 1:length(tau)){
     fit_qsreg <- qsreg(x, spodPIDs[, node], maxit.cv = 50, 
-                       alpha=tau[j], hmin = -5)
+                       alpha=tau[j], hmin = -6)
     trend[,j] <- predict(fit_qsreg)    
   }
   qsreg_trends <- cbind(qsreg_trends, as.data.frame(trend))
