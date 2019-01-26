@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-#BSUB -W 1800
+#BSUB -W 3600
 #BSUB -n 4
 #BSUB -o out.%J
 #BSUB -e err.%J
