@@ -6,6 +6,7 @@
 #' @param tau quantile levels at which to evaluate trend
 #' @param lambda penalty paramter controlling smoothness
 #' @param k order of differencing
+#' @importFrom utils installed.packages
 #' @export
 get_trend <- function(y, tau, lambda, k){
   model <- get_model(y, tau, lambda, k)

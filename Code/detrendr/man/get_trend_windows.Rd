@@ -4,8 +4,9 @@
 \alias{get_trend_windows}
 \title{Consensus ADMM for overlapping windows}
 \usage{
-get_trend_windows(y, tau, lambda, k, rho = 1, window_size, overlap,
-  max_iter, update = 10, quad = FALSE)
+get_trend_windows(y, tau, lambda, k, window_size, overlap, max_iter,
+  rho = 5, update = 10, use_gurobi = TRUE, eps_abs = 0.002,
+  eps_rel = 0.001)
 }
 \arguments{
 \item{y}{observed data}
@@ -16,38 +17,37 @@ get_trend_windows(y, tau, lambda, k, rho = 1, window_size, overlap,
 
 \item{k}{order of differencing}
 
-\item{rho}{step size for ADMM}
-
 \item{window_size}{size of windows to use}
 
 \item{overlap}{integer length of overlap between windows}
 
 \item{max_iter}{Maximum number of iterations}
 
+\item{rho}{parameter for ADMM}
+
 \item{update}{number of iterations at which to print residuals}
 
-\item{eps}{}
+\item{use_gurobi}{TRUE if gurobi solver is installed and should be used}
+
+\item{eps_abs}{absolute threshold for stopping criteria}
+
+\item{eps_rel}{relative threshold for stopping criteria}
 }
 \description{
 \code{consensus ADMM} Uses ADMM to smooth overlapping windows
 }
 \examples{
+library(Matrix)
 n <- 100
 x <- seq(1, n, 1)
 y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
 lambda <- 10
 k <- 3
-tau <- c(0.05)
-overlap <- 20
-rho <- 1
-result <- consensus_ADMM(y, tau, lambda, k, rho, overlap, 300)
 y_n <- length(y)
-window_size <- floor((y_n+overlap)/2)
-plot(result$phiBar~x, type="l")
-points(result$phi1~x[1:window_size])
-points(result$phi2~x[(y_n-window_size+1):y_n], col="blue")
-plot(y~x)
-lines(result$theta)
-plot(result$primal_norm)
-plot(result$dual_norm)
+overlap <- 20
+window_size <- round((y_n+overlap)/2)
+tau <- c(0.05, .2)
+max_iter <- 20
+trend <- get_trend_windows(y, tau, lambda, k, window_size, overlap, max_iter)
+plot(trend[,1]~x, type="l")
 }

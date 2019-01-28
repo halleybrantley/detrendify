@@ -4,14 +4,15 @@ library(ggplot2)
 library(microbenchmark)
 library(kernlab)
 load_all("detrendr")
+document("detrendr")
 rm(list=ls())
 source("sim_generating_functions.R")
 set.seed(12345678)
 tau <- c(0.05, .1)
 simDesign <- "peaks"
-df <- generate_peaks_design(100000)
-n <- 20000
-overlap <- 2000
+df <- generate_peaks_design(1000)
+n <- 1000
+overlap <- 200
 y <- df$y[1:n]
 
 lambda = n

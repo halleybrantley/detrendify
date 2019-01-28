@@ -4,8 +4,7 @@
 #'
 #' @param model  model object containing coefficients and constraints
 #' @param solver solver to be used, options are "gurobi", "Rglpk", and "lpSolve"
-#' @param lambda penalty paramter controlling smoothness
-#' @param k order of differencing
+#' @param y vector of observations, only needed if trend = TRUE
 #' @param trend if TRUE returns trend, if FALSE returns residuals
 #' @export
 solve_model <- function(model, solver, y=NULL, trend = TRUE){
@@ -55,7 +54,7 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
 
 solve_gurobi <- function(model){
   params <- list(OutputFlag=0)
-  result <- gurobi(model, params)
+  result <- gurobi::gurobi(model, params)
   if (result$status != "OPTIMAL"){
     print("Problem not solved.")
   }
@@ -63,7 +62,7 @@ solve_gurobi <- function(model){
 }
 
 solve_glpk <- function(model_list){
-  result <- Rglpk_solve_LP(obj = model_list$obj, 
+  result <- Rglpk::Rglpk_solve_LP(obj = model_list$obj, 
                            mat = model_list$A, 
                            dir = paste0(model_list$sense, "="), 
                            rhs = model_list$rhs)
@@ -72,7 +71,7 @@ solve_glpk <- function(model_list){
 
 solve_lp <- function(model_list){
   model_list$sense <- sub("=", "==", model_list$sense)
-  result <- lp(objective.in = model_list$obj, 
+  result <- lpSolve::lp(objective.in = model_list$obj, 
                const.mat = as.matrix(model_list$A), 
                const.dir = model_list$sense, 
                const.rhs = model_list$rhs)
@@ -102,7 +101,7 @@ solve_ipop <- function(model){
 solve_quadprog <- function(model){
   Amat <- Matrix::t(rbind(model$A, Matrix::Diagonal(length(model$obj))))
   bvec <- c(model$rhs, rep(0, length(model$obj)))
-  result <- solve.QP(
+  result <- quadprog::solve.QP(
     Dmat = 2*model$Q, 
     dvec = -model$obj,
     Amat = Amat, 

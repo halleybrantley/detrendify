@@ -14,6 +14,8 @@ get_trend_spingarn(y, tau, lambda, k, numIter = 10000)
 \item{lambda}{penalty paramter controlling smoothness}
 
 \item{k}{order of differencing}
+
+\item{numIter}{number of iterations to run algorithm}
 }
 \description{
 \code{get_trend_spingarn} Returns the quantile trend vector

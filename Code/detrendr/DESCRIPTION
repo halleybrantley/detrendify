@@ -6,11 +6,9 @@ Author: Halley Brantley, Eric Chi, Joe Guinness
 Maintainer: Halley Brantley <hlbrantl@ncsu.edu>
 Description: This package implements a method for estimating baseline drift in
     spikey and noisy univariate signals.
-Depends:
-    Matrix
-License: What license is it under?
+License: MIT + file LICENSE
 Imports:
-    Rcpp (>= 0.12.06), testthat, tidyverse, lpSolve
+    Rcpp (>= 0.12.06), testthat, tidyverse, Matrix
 LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: true

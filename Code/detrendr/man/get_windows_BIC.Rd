@@ -6,7 +6,9 @@
 \usage{
 get_windows_BIC(y, tau, k, window_size, overlap,
   lambdaSeq = length(y)^seq(0, 1.5, length.out = 20), df_tol = 1e-09,
-  gamma = 1, plot_lambda = FALSE, solver = NULL, criteria = "eBIC")
+  gamma = 1, plot_lambda = FALSE, solver = NULL, criteria = "eBIC",
+  max_iter = 10, eps_abs = 0.01, eps_rel = 0.001, update = 10,
+  rho = 5)
 }
 \arguments{
 \item{y}{observed data}
@@ -15,18 +17,31 @@ get_windows_BIC(y, tau, k, window_size, overlap,
 
 \item{k}{order of differencing}
 
+\item{window_size}{integer of size of windows, last window may be shorter}
+
+\item{overlap}{number of observations in overlap between windows}
+
 \item{lambdaSeq}{smoothing penalty parameter options to compare}
 
-\item{df_tol}{tolerance for determining degrees of freedom (D%*%theta > df_tol)}
+\item{df_tol}{tolerance for determining degrees of freedom (Dtheta > df_tol)}
+
+\item{gamma}{parameter for eBIC}
 
 \item{plot_lambda}{TRUE/FALSE for plotting lambda by model criteria}
 
-\item{solver}{LP solver, can be "gurobi", "Rglpk", or "lpSolve"}
+\item{solver}{LP solver, can be "gurobi" or "lpSolve"}
 
-\item{parameter}{for eBIC}
+\item{criteria}{criteria to use for lambda selection, must be "eBIC", "SIC", or "valid"}
 
-\item{criter}{criteria to use for lambda selection, must be "eBIC", "SIC", or 
-"valid"}
+\item{max_iter}{Maximum number of iteration}
+
+\item{eps_abs}{absolute threshold for stopping criteria}
+
+\item{eps_rel}{relative threshold for stopping criteria}
+
+\item{update}{number of iterations to print residual values}
+
+\item{rho}{ADMM parameter}
 }
 \description{
 \code{get_windows_BIC} Selects smoothing parameter using Schwarz Information

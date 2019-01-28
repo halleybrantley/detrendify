@@ -6,11 +6,11 @@
 #' @param tau quantile levels at which to evaluate trend
 #' @param k order of differencing
 #' @param lambdaSeq smoothing penalty parameter options to compare
-#' @param df_tol tolerance for determining degrees of freedom (D%*%theta > df_tol)
+#' @param df_tol tolerance for determining degrees of freedom (Dtheta > df_tol)
 #' @param gamma parameter for eBIC
 #' @param plot_lambda TRUE/FALSE for plotting lambda by model criteria
 #' @param solver LP solver, can be "gurobi", "Rglpk", or "lpSolve"
-#' @param criter criteria to use for lambda selection, must be "eBIC", "SIC", or 
+#' @param criteria criteria to use for lambda selection, must be "eBIC", "SIC", or 
 #' "valid"  
 #' @export
 get_trend_BIC <- function(y, tau, k,
