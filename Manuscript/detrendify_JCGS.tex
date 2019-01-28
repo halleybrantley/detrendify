@@ -68,30 +68,11 @@
 	\section{Introduction}
 	\label{sec:intro}
 	
-	There have been a number of occasions when researchers have sought to estimate the trends over time given noisy measurements. \cite{nychka1995nonparametric} estimated smooth quantile curves of friction profiles of syringes in order to automate their quality assessment procedures. \cite{Ning2014} proposed a method for separating chromatogram peaks from the smooth baseline and noise present in the measurements. \cite{brantley2014mobile} examined air pollutant measurements collected using a monitoring vehicle and proposed using a smooth baseline trend as an estimate of regional background pollution. 
-	
-	The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours (Fig. \ref{fig:raw_spod}).   
-	 
-	\begin{figure}[b!]
-		\label{fig:raw_spod}
-		\caption{Example of 3 co-located SPod PID sensor readings.}
-		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
-	\end{figure}
-   	
-	
-	A variety of approaches have been proposed for estimating quantile trends.	 \cite{Koenker1978} was the first to propose the use of the check loss function to estimate conditional quantiles. Given a design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ and continuous responses $y \in \mathbb{R}^n$, we estimate a regression vector $\theta \in \mathbb{R}^p$ so that $\mathbf{X}\theta$ is a good approximation of the $\tau$th quantile of $y$ conditional on $x$. The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where $\rho_{\tau}(z) = \sum_{i=1}^n z_i(1-\mathbf{I}(z_i<0))$ is the check-loss function and $\mathbf{I}$ is the indicator function.   \cite{nychka1995nonparametric} estimated quantile splines by combining the smoothing spline penalty commonly used in non-parametric regression with the check-loss function used in qunatile regression:
-	
-	\begin{equation*}
-	\rho_{\tau}(Y - f) + \lambda\int (f''(t))^2 dt, 
- 	\end{equation*}
-	
-	where $Y(t)$ is a response variable observed at time $t$, $f(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degrees of smoothing. 
-
-	In the trend filtering problem \citep{Kim2009, Tib2014}, one is interested in finding an adaptive polynomial approximation to noisy data $y \in \mathbb{R}^n$ by solving the following convex problem.
+	In many applications spanning the fields of chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar time series are observed and assumed to consist of a slowly varying trend other more rapidly varying components. Given observations $y(t)$, with $t=1, ..., N$, \cite{Kim2009} proposed using \textit{$\ell_1$ trend filtering} to estimate trends that are smooth in the sense of being piecewise linear or piecewise polynomial. \cite{Tib2014} then discovered that empirically the trend filtering estimates adapt to the local level of smoothness much better than the more common smoothing splines. In the trend filtering problem \citep{Kim2009, Tib2014}, the trend, $\theta \in \mathbb{R}^n$, is estimated by solving the following convex problem.
 	\begin{eqnarray}
-	\underset{\theta}{\arg\min}\; \frac{1}{2n} \lVert y - \theta \rVert_2^2 + \lambda \lVert \mathbf{D}^{(k+1)}\theta \rVert_1,
+	\underset{\theta}{\arg\min}\; \frac{1}{2} \lVert y - \theta \rVert_2^2 + \lambda \lVert \mathbf{D}^{(k+1)}\theta \rVert_1,
 	\end{eqnarray}
-	where $\lambda \geq 0$ is a regularization parameter that trades off the emphasis on the data fidelity term and the matrix $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\mathbf{D}^{(k+1)}$ consider the difference operator when $k = 0$.
+	where $\lambda \geq 0$ is a regularization parameter and the matrix $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\mathbf{D}^{(k+1)}$ consider the difference operator when $k = 0$.
 	\begin{eqnarray}
 	\mathbf{D}^{(1)} = \begin{pmatrix}
 	-1 & 1 & 0 & \cdots & 0 & 0 \\
@@ -104,14 +85,41 @@
 	\begin{eqnarray}
 	\mathbf{D}^{(k+1)} & = & \mathbf{D}^{(1)}\mathbf{D}^{(k)}.
 	\end{eqnarray}
-	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$.
-	
+	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$. Trend filtering provides excellent estimates of trends when the only components of the time series are the trend and random noise (Fig. \ref{fig:trendfilter}). In some cases, time series may also include a rapidly varying signal component in addition to the trend and noise, in these cases the trend filtering estimate over-estimate the trend in the places where signal is present (Fig. \ref{fig:trendfilter}).  
+	   	
 	\begin{figure}
+		\label{fig:trendfilter}
 		\centering
-		\caption{Examples of trend filtering solutions.}
+		\caption{Examples of trend filtering solutions. True trend is shown in black, estimated trend is shown in red.}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg1.png}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg2.png}
 	\end{figure}
+	 
+	
+	One application in which the observed time series consists of a slowly varying trend, non-negative signal, and rapidly varying noise is the ouput of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours (Fig. \ref{fig:raw_spod}). 
+	 
+	\begin{figure}[b!]
+		\label{fig:raw_spod}
+		\caption{Example of 3 co-located SPod PID sensor readings.}
+		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
+	\end{figure}
+   	
+	
+	In this application, as well as those described in \cite{Ning2014}, \cite{marandi2015qualitative}, and \cite{pettersson2013algorithm}, it is not the mean trend that is desired but rather the baseline trend, which we can think of as the trend in a low quantile of the data.  \cite{Koenker1978} was the first to propose substituting the squared loss used in regression with the check loss function  (Eq. \ref{eq1}) to estimate a conditional quantile instead of the conditional mean. 
+	
+	\begin{equation}
+	\label{eq1}
+	 \rho_{\tau}(z) = \sum_{i=1}^n z_i(1-\mathbf{I}(z_i<0))
+	\end{equation}
+	
+	A variety of approaches have been proposed for estimating quantile trends.  The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where is the check-loss function and $\mathbf{I}$ is the indicator function.   \cite{nychka1995nonparametric} estimated quantile splines by combining the smoothing spline penalty commonly used in non-parametric regression with the check-loss function used in qunatile regression:
+	
+	\begin{equation*}
+	\rho_{\tau}(Y - f) + \lambda\int (f''(t))^2 dt, 
+ 	\end{equation*}
+	
+	where $Y(t)$ is a response variable observed at time $t$, $f(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degrees of smoothing. 
+
 
 	We propose to use the trend filtering penalty with the check loss function to produce a non-parametric quantile regression estimate for removing trends in time series. The formulation was proposed by \cite{Kim2009} as a possible extension of $\ell_1$-trend filtering but not studied. Moreover we extend the basic framework to ensure non-crossing while modeling multiple quantiles. We also implement a parallel ADMM algorithm for series that are too large to be computed simultaneously and proposed a modified criteria for choosing the smoothing parameter. We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods and is a more effective method of drift removal for low-cost air quality sensors. 
 	
