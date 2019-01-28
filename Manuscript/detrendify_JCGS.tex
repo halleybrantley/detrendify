@@ -88,28 +88,28 @@
 	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$. Trend filtering provides excellent estimates of trends when the only components of the time series are the trend and random noise (Fig. \ref{fig:trendfilter}). In some cases, time series may also include a rapidly varying signal component in addition to the trend and noise, in these cases the trend filtering estimate over-estimate the trend in the places where signal is present (Fig. \ref{fig:trendfilter}).  
 	   	
 	\begin{figure}
-		\label{fig:trendfilter}
 		\centering
-		\caption{Examples of trend filtering solutions. The true trend is shown in black, while the estimated trend is shown in red.}
+		\caption{Examples of trend filtering solutions. The true trend is shown in black, while the .estimated trend is shown in red.}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg1.png}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg2.png}
+		\label{fig:trendfilter}
 	\end{figure}
 	 
 	
 	One application in which the observed time series consists of a slowly varying trend, non-negative signal, and rapidly varying noise is the output of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours (Fig. \ref{fig:raw_spod}). 
 	 
 	\begin{figure}[b!]
-		\label{fig:raw_spod}
 		\caption{Example of 3 co-located SPod PID sensor readings.}
 		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
+		\label{fig:raw_spod}
 	\end{figure}
    	
 	
-	In this application, as well as those described in \cite{Ning2014}, \cite{marandi2015qualitative}, and \cite{pettersson2013algorithm}, it is not the mean trend that is desired but rather the baseline trend, which we can think of as the trend in a low quantile of the data.  \cite{Koenker1978} was the first to propose substituting the squared loss used in regression with the check loss function  (Eq. \ref{eq1}) to estimate a conditional quantile instead of the conditional mean. 
+	In this application, as well as those described in \cite{Ning2014}, \cite{marandi2015qualitative}, and \cite{pettersson2013algorithm}, it is not the mean trend that is desired but rather the baseline trend, which we can think of as the trend in a low quantile of the data.  \cite{Koenker1978} were the first to propose substituting the squared loss used in regression with the check loss function  (Eq. \ref{eq1}) to estimate a conditional quantile instead of the conditional mean. 
 	
 	\begin{equation}
 	\label{eq1}
-	 \rho_{\tau}(z) = \sum_{i=1}^n z_i(1-\mathbf{I}(z_i<0))
+	 \rho_{\tau}(z) = \sum_{i=1}^n z_i(1-\mathbf{I}(z_i<0)).
 	\end{equation}
 	
 	A variety of approaches have been proposed for estimating quantile trends.  The regression vector $\theta$ is estimated by finding the minimizer of $\rho_{\tau}(y-X\theta)$ where is the check-loss function and $\mathbf{I}$ is the indicator function.   \cite{nychka1995nonparametric} estimated quantile splines by combining the smoothing spline penalty commonly used in non-parametric regression with the check-loss function used in qunatile regression:
@@ -144,7 +144,7 @@
 	
 	where $\theta_j \in \mathcal{R}^n$. The additional constraints are linear in the parameters so the non-crossing quantile trends can still be estimated by a number of available solvers. In the rest of this paper we rely on the commercial solver Gurobi \citep{gurobi}. 
 	
-	The number of parameters to be estimates is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break. 
+	The number of parameters to be estimated is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break. 
 	
 	\subsection{ADMM for Big Data}
 	
@@ -306,25 +306,34 @@
 	In all of the designs the proposed detrend methods are either better than or comparable to existing methods. The npqw method performs particularly poorly in the mixed normal design, due to the fact that it assumes the data comes from a scale-location model which is violated in this case. 
 	
 	\subsection{Peak Detection}
-	We use another simulation design based on the applied problem we aim to solve. We assume that the measured data can be represented by 
-	\begin{equation}
-	Y(t) = s(t) + b(t) + \epsilon(t)
-	\end{equation} 
-	where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon(t) \sim N(0, \sigma^2)$ is an error component. We assume $t$ is a uniformly spaced sequence of time points between 0 and 1. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from $n/50$ to $n/25$ with equal probability, and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with Gaussian peaks. The number of peaks is sampled from $n/100$ to $n/50$ with equal probability with centers uniformly distributed between 0.1 and 0.9 and bandwidths uniformly distributed between $1/n$ and $5/n$ and areas uniformly distributed between 0 and $20/n$. One hundred datasets were generated for $n=\{300, 500, 1000, 5000\}$. We compare the methods ability to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the root mean squared error (RMSE). 
-	
 	\begin{figure}[h]
 		\caption{Example of simulated peaks, baseline, and observed measurements.}
 		\includegraphics[width = \linewidth]{Figures/ex_peaks.png}
 	\end{figure}
 
-	In addition to the RMSE we also calculated the signal miss-classification rate. We first classified the ``true" peaks function into signal or not based on a threshold of 0.1. We then classified the detrended data using three different thresholds and calculated the fraction miss-classified. An illustration of the observations classified as signal after detrending compared to the ``true signal" is shown in Fig. 9. 
+	We use another simulation design based on the applied problem we aim to solve. We assume that the measured data can be represented by 
+	\begin{equation}
+	Y(t) = s(t) + b(t) + \epsilon(t)
+	\end{equation} 
+	with $t = 1, ..., n$, where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon(t) \sim N(0, \sigma^2)$ is an error component. We generate $b(t)$ using a cubic natural spline basis function with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The peaks were then multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. One hundred datasets were generated for $n=\{500, 1000, 2000, 4000\}$. We compare the ability of the methods to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (Fig. \ref{fig:peaks_rmse}). 	
+	\begin{figure}
+		\caption{RMSE by method, quantile and data size for peaks design.}
+		\includegraphics[width = \linewidth]{Figures/peaks_mse.png}	
+		\label{fig:peaks_rmse}
+	\end{figure}
 	
-	
+	In our application, we want to accurately classify the observations into signal and no signal using a threshold. To evaluate the accuracy of our method compared to other methods we define true signal as any time when the simulated peak value is greater than 0.5. We compared three different trends for the baseline estimation and four different thresholds for separating the estimated signal after subtracting the estimated baseline from the observations.  An illustration of the observations classified as signal after detrending compared to the ``true signal" is shown in Fig. \ref{fig:peaks_class_eg}.  To compare the resulting signal classifications we calculate the class averaged accuracy (CAA). Defining $s(t) \in \{0,1\}$ as the true vector of signal classification and $\hat{s}(t) \in \{0,1\}$ as the estimated signal classification, the CAA is defined as
+	\begin{equation}
+	\mbox{CAA} = \frac{1}{2}\left(\frac{\sum_{t=1}^n \mathbf{I}[s(t) = 1 \cap \hat{s}(t)=1]}{\sum_{t=1}^n \mathbf{I}[s(t) = 1]} + \frac{\sum_{t=1}^n \mathbf{I}[s(t) = 0 \cap \hat{s}(t)=0]}{\sum_{t=1}^n \mathbf{I}[s(t) = 0]}\right).
+	\end{equation}  
+	We use this metric because our classes tend to be very un-balanced in this case with many more $0$s than $1$s. The CAA metric will always give a score of 0.5 for random guessing and also for trivial classifiers such as $\hat{s}(t) = 0$ for all $t$. 
+
 	Our detrend\_BIC method performs the best overall in terms of both RMSE and miss-classification rate. The lowest miss-classification rates were obtained using the detrend\_eBIC method and a threshold of 1 for all data sizes. While qsreg was competitive with our method in some cases, both the RMSE and miss-classification rate increased substantially with the size of the dataset. 
 	
 	\begin{figure}[h!]
-		\caption{Example signal classification using threshold. Red indicates true signal $>0.1$, blue indicates classified as signal after baseline removal using eBIC detrendr and a threshold of 1.}
+		\caption{Example signal classification using threshold. Red indicates true signal $>0.5$, blue indicates observations classified as signal after baseline removal using eBIC detrendr and a threshold of 1.2.}
 		\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
+		\label{fig:peaks_class_eg}
 	\end{figure}
 	
 

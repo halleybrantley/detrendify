@@ -5,7 +5,7 @@ library(l1tf)
 library(genlasso)
 library(ggplot2)
 source("sim_generating_functions.R")
-set.seed(1122334456)
+set.seed(1122334457)
 n <- 500
 df <- generate_gaus(n)
 trend <- trendfilter(df$y, ord = 3)
