@@ -4,11 +4,12 @@ load_all("detrendr")
 
 rm(list=ls())
 source("sim_generating_functions.R")
-set.seed(987651)
+set.seed(987652)
 overlap <- 150
 window_size <- 500
 n <- window_size*3 - overlap*2
 df.data <- generate_peaks_design(n)
+df.data$x <- seq(1, n, 1)
 y <- df.data$y
 x <- df.data$x
 k <- 3
@@ -33,7 +34,9 @@ ggplot(df.data, aes(x=x, y=y)) +
   geom_line(data = df.sep.no, aes(y=X2, col = "0.10", linetype = method))+
   scale_color_brewer(palette = "Set1")+
   labs(col="Quantile", linetype = "", x = "") + 
-  theme_bw() 
+  theme_bw() +
+  geom_segment(aes(x = x[500], xend=x[500], y=0, yend=1.5)) +
+  geom_label(aes(x=x[500], y=-.2, label = bquote(u_1)))
 ggsave("../Manuscript/Figures/overlapping_windows.png", width=7, height=2.5)
 
 result <- get_trend_windows(y, tau, lambda, k, window_size, overlap, 

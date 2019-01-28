@@ -90,13 +90,13 @@
 	\begin{figure}
 		\label{fig:trendfilter}
 		\centering
-		\caption{Examples of trend filtering solutions. True trend is shown in black, estimated trend is shown in red.}
+		\caption{Examples of trend filtering solutions. The true trend is shown in black, while the estimated trend is shown in red.}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg1.png}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg2.png}
 	\end{figure}
 	 
 	
-	One application in which the observed time series consists of a slowly varying trend, non-negative signal, and rapidly varying noise is the ouput of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours (Fig. \ref{fig:raw_spod}). 
+	One application in which the observed time series consists of a slowly varying trend, non-negative signal, and rapidly varying noise is the output of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours (Fig. \ref{fig:raw_spod}). 
 	 
 	\begin{figure}[b!]
 		\label{fig:raw_spod}
@@ -131,18 +131,18 @@
 	We combine the ideas of quantile regression and trend filtering, namely consider the case where the design $\mathbf{X}$ is the identity matrix. For a single quantile level $\tau$ the estimation of the quantile trend filtering model can be posed as the following optimization problem.
 	\begin{eqnarray}
 	\label{eq:quantile_trend}
-	\underset{\theta}{\min}\; \rho_\tau(y - \theta) + \lambda \lVert \mathbf{D}^{(k)} \theta \rVert_1,
+	\underset{\theta}{\min}\; \rho_\tau(y - \theta) + \lambda \lVert \mathbf{D}^{(k+1)} \theta \rVert_1,
 	\end{eqnarray}
-	where $\lambda$ is a non-negative tuning parameter. As with the classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of free or commercial solvers. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$. Given quantiles $\{\tau_1, ..., \tau_J\}$ such that $\tau_1 < \tau_2 < ... < \tau_J$, the optimization problem becomes 
+	where $\lambda$ is a non-negative regularization parameter. We address the problem of choosing $\lambda$ in Section \ref{sec:lambda_choice}. As with the classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of free or commercial solvers. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$. Given quantiles $\{\tau_1, ..., \tau_J\}$ such that $\tau_1 < \tau_2 < ... < \tau_J$, the optimization problem becomes 
 	
 	\begin{eqnarray}
-	\label{eq:quantile_trend}
+	\label{eq:noncross_trend}
 	\underset{\theta_1, ..., \theta_J}{\min}\; \sum_{j=1}^J \left [\rho_{\tau_j}(y - \theta_{j}) + 
-	\lambda_j \lVert \mathbf{D}^{(k)} \theta_j \rVert_1 \right ] \\
+	\lambda_j \lVert \mathbf{D}^{(k+1)} \theta_j \rVert_1 \right ] \\
 	 \text{subject to: }\; \theta_{1i} \le \theta_{2i} \le ... \le \theta_{Ji} \text{ for all } i,
 	\end{eqnarray}
 	
-	where $\theta_j \in \mathcal{R}^n$. The additional constraints are linear in the parameters so the non-crossing quantile trends can still be estimated by a number of available solvers. 
+	where $\theta_j \in \mathcal{R}^n$. The additional constraints are linear in the parameters so the non-crossing quantile trends can still be estimated by a number of available solvers. In the rest of this paper we rely on the commercial solver Gurobi \citep{gurobi}. 
 	
 	The number of parameters to be estimates is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break. 
 	
@@ -160,7 +160,7 @@
 	\end{cases}
 	\end{align*}
 
-	 with breakpoints $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< N$. Given quantiles $\tau_1 < ... < \tau_J$ to be estimated we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $M$ at time point $t$. In order to write out the constraint the that overlapping sections must be equal we define a consensus variable
+	 with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< N$. Given quantiles $\tau_1 < ... < \tau_J$ to be estimated we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $M$ at time point $t$. In order to write out the constraint the that overlapping sections must be equal we define a consensus variable
 	 
 	 \begin{align}
 		 \bar{\theta}_{j,m} =&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
@@ -174,22 +174,28 @@
 	 \begin{align}
 		 \label{eq:quantile_windows}
 		 &\sum_{m=1}^M\underset{\theta_{1,m}, ..., \theta_{J,m}}{\min}\; \sum_{j=1}^J \left [\rho_{\tau_j}(y_m - \theta_{j,m}) + 
-		 \lambda_j \lVert \mathbf{D}^{(k)} \theta_{j,m} \rVert_1 \right ] \\
+		 \lambda_j \lVert \mathbf{D}^{(k+1)} \theta_{j,m} \rVert_1 \right ] \\
 		 &\text{subject to: }\; \theta_{1,m}(t) \le \theta_{2,m}(t) \le ... \le \theta_{J,m}(t) \text{ for all } m,t \\
 		 &\text{subject to: }\; \theta_{j,m}(t) = \bar{\theta}_{j,m}(t) \text{ for all } j, m, t
 	 \end{align}
 	 Given values for the Lagrange multiplier $\omega_{j,m}$ and the consensus variable $\bar{\theta}_{j,m}$ we can write the augmented Lagrangian for finding the trends in window $m$:
 	 \begin{equation}
-	 \mathcal{L}(\theta_{j,m}, \bar{\theta}_{j,m}, \omega_{j,m}) = \sum_{j=1}^J\rho_{\tau_j}(y_m - \theta_{j,m})+\lambda \lVert \mathbf{D}^{(k)}\theta_{j,m}\rVert_1 +  \omega_{j,m}^T(\theta_{j,m} - \bar{\theta}_{j,m}) + 
+	 \mathcal{L}(\theta_{j,m}, \bar{\theta}_{j,m}, \omega_{j,m}) = \sum_{j=1}^J\rho_{\tau_j}(y_m - \theta_{j,m})+\lambda \lVert \mathbf{D}^{(k+1)}\theta_{j,m}\rVert_1 +  \omega_{j,m}^T(\theta_{j,m} - \bar{\theta}_{j,m}) + 
 	 \frac{\gamma}{2}||\theta_{j,m} - \bar{\theta}_{j,m}||_2^2
 	 \end{equation}
 	 
 	 We then estimate the trend separately in each window while constraining the overlapping pieces of the trends to be equal according the algorithm 1. 
 	 
+	\begin{figure}[!h] 
+		\centering
+		\caption{Window boundaries and trends fit separately in each window.}
+		\includegraphics[width = 0.8\linewidth]{Figures/overlapping_windows.png}
+	\end{figure}
 
 	\begin{algorithm}
 		\caption{ADMM algorithm for quantile trend filtering with windows}\label{euclid}
 		\begin{algorithmic}		
+			\State Define $D = D^{(k+1)}$. 
 			\State \textbf{initialize:} \\
 				 $\theta_{j,m}^{(0)} = \arg \min \sum_{j=1}^J\rho_{\tau_j}(y_m - \theta_{j,m})+\lambda \lVert D\theta_{j,m}\rVert_1$ subject to $\theta_{1,m}(t) < ...<\theta_{J,m}(t)$ for all $t$. \\		
 			 	 $\omega_{j,m}^{(0)} = \mathbf{0}$	
@@ -222,11 +228,12 @@
 		&r_d^{(q)} < \epsilon_{abs}\sqrt{NJ} + \epsilon_{rel}\sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert \omega_{j,m}^{(q)}\rVert_2^2}
 	\end{align}
 	
-	\begin{figure}[!h] 
+
+	
+	\begin{figure}
 		\centering
-		\caption{(Top) Windows fit separately compared to simultaneous fit, no signal present. (Bottom) Windows fit with our ADMM algorithm which converged in 7 iterations.}
-		\includegraphics[width = 0.7\linewidth]{Figures/overlapping_windows.png}
-		\includegraphics[width = 0.7\linewidth]{Figures/admm_windows.png}
+		\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.}
+		\includegraphics[width = 0.8\linewidth]{Figures/admm_windows.png}
 	\end{figure}
 
 	Timing experiments illustrate the advantages of using our ADMM algorithm even on datasets where solving the problem simultaneously is possible. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below and trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using a $\lambda = n/5$.
@@ -237,7 +244,8 @@
 		\includegraphics[width = 0.7\linewidth]{Figures/Fig_timing_experiment.png}
 	\end{figure}
 
-	\subsection{Smoothing parameter choice}
+	\subsection{Regularization Parameter Choice}
+	\label{sec:lambda_choice}
 	Our method can easily handle missing data by changing the check loss function to output 0 for missing values. This allows us to leave out validation observations that can be used to select the tuning parameter $\lambda$ and to compare method performance on real data. A number of methods have been proposed for selecting the quantile regression smoothing spline tuning parameter \cite{yuan2006gacv}.  \cite{KoenkerNgPortnoy1994} relate $\lambda$ to the number of interpolated points $p_{\lambda} = \sum I(y_i = \widehat{g}_i(x_i))$, which can be thought of as active knots, they propose the Schwarz criterion for the selection of $\lambda$
 	\begin{equation}
 	\mbox{SIC}(p_{\lambda}) = \log[\frac{1}{n}\rho_{\tau}(y - \widehat{g}(x))] + \frac{1}{2n}p_{\lambda}\log n
