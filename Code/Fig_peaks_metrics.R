@@ -81,6 +81,8 @@ summary_peaks <-
          tau = as.numeric(substr(tau_fac, 5, 10)), 
          Method = factor(Method, levels = methods))
 
+text_size <- 14
+
 summary_peaks %>% 
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
@@ -89,9 +91,12 @@ summary_peaks %>%
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
   scale_color_manual(values=colPal, breaks = methods) +
+  theme(text = element_text(size=text_size), 
+        axis.text.x = element_text(size=(text_size-5)),
+        plot.title = element_text(size = text_size)) +
   labs(x = "", y="RMSE",  col = "Method") +
   ylim(c(0,1.2))
-ggsave("../Manuscript/Figures/peaks_mse.png", width = 10, height = 3)
+ggsave("../Manuscript/Figures/peaks_mse.png", width = 7, height = 2.5)
 
 
 

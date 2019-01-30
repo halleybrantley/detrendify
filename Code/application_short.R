@@ -23,10 +23,10 @@ spodPID$time <- spod$time
 
 spodPIDs <- spodPID %>% 
   filter(time > as.POSIXct("2017-11-30 9:30:00"),
-         time <= as.POSIXct("2017-11-30 9:30:00")+5000)
+         time <= as.POSIXct("2017-11-30 9:30:00")+10000)
 plot(spodPIDs$h, type="l")
 
-tau <- c(0.05, 0.1, 0.15)
+tau <- c(0.15)
 k <- 3
 detrendr_trends <- data.frame(time = spodPIDs$time)
 qsreg_trends <- data.frame(time = spodPIDs$time)
@@ -35,7 +35,7 @@ x <- seq(1, nrow(spodPIDs), 1)
 for (node in c("f", "g", "h")){
   spodPIDs[, node] <- na.locf(spodPIDs[, node])
   result <- get_trend_BIC(spodPIDs[, node], tau, k, 
-                            lambdaSeq = n^seq(1.1, 1.8, length.out=10),
+                            lambdaSeq = exp(seq(5,12,.5)),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
@@ -57,6 +57,6 @@ for (node in c("f", "g", "h")){
     paste(node, tau, sep = "_")
 }
 
-save(spodPIDs, detrendr_trends, qsreg_trends, tau,
-     file = "../SPod/trends_short.RData")
+# save(spodPIDs, detrendr_trends, qsreg_trends, tau,
+#      file = "../SPod/trends_short.RData")
 

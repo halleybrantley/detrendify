@@ -41,7 +41,7 @@ for (n in data_lengths){
                                  overlap = overlap, max_iter = 20, 
                                  update = 10, rho = 3, eps_abs = .01, 
                                  eps_rel = 1e-3, 
-                                 quad = TRUE, use_gurobi = TRUE), 
+                                 use_gurobi = TRUE), 
             times = 1)$time*1e-9
         diff_df$n[j] <- n
         diff_df$t[j] <- t

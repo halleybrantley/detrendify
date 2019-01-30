@@ -18,6 +18,9 @@ update_windows <- function(w_list, phiBar_list, etaBar_list,
                        rho=rho, nT=nT, SIMPLIFY = FALSE)
 
   phi_list <- lapply(model_list, solve_model, solver=solver, trend = FALSE)
+  # If solver didn't succeed use value of phiBar
+  phi_list0 <- mapply(function(x,y) {if(!any(x != 0)){return(y)}else{return(x)}}, 
+                     phi_list, phiBar_list)
   return(phi_list)
 }
 
@@ -30,8 +33,8 @@ update_windows <- function(w_list, phiBar_list, etaBar_list,
 #' @param overlapInd Indices of overlap between windows
 #' @export
 update_consensus <- function(phi_list, windows, overlapInd){
-
-  phiBar <- matrix(0, nrow = nrow(windows), ncol = ncol(phi_list[[1]]))
+  nT <- dim(phi_list[[1]])[2]
+  phiBar <- matrix(0, nrow = nrow(windows), ncol = nT)
   n_windows <- length(phi_list)
   
   for (i in 1:n_windows){

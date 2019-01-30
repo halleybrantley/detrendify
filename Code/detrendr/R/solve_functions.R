@@ -36,9 +36,11 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
   np <- model$np
   phi <- matrix(0, nrow=n, ncol = nT)
   
-  for (i in 1:nT){
-    phi[,i] <- x[(1+np*(i-1)):(n+np*(i-1))] - 
-      x[(n+1 + np*(i-1)):(2*n + np*(i-1))]
+  if (!is.null(x)){
+    for (i in 1:nT){
+      phi[,i] <- x[(1+np*(i-1)):(n+np*(i-1))] - 
+        x[(n+1 + np*(i-1)):(2*n + np*(i-1))]
+    }
   }
 
   if (trend){
@@ -55,8 +57,10 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
 solve_gurobi <- function(model){
   params <- list(OutputFlag=0)
   result <- gurobi::gurobi(model, params)
-  if (result$status != "OPTIMAL"){
-    print("Problem not solved.")
+  if (result$status == "NUMERIC"){
+    print("Increasing rho.")
+    model$Q <- model$Q*1.01
+    result <- gurobi::gurobi(model, params)
   }
   return(result$x)
 }

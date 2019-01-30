@@ -12,7 +12,8 @@ for (i in c("", "2", "3", "4")){
 
 times_all %>% group_by(n, windows) %>%
   summarise(time_mean = mean(time), 
-            se_time = sd(time)/sqrt(n())) %>%
+            se_time = sd(time)/sqrt(n()), 
+            ct = n()) %>%
   ggplot(aes(x=n, y=time_mean, group=factor(windows), col=factor(windows))) + 
   geom_line() + 
   geom_linerange(aes(ymin = time_mean - 2*se_time, ymax = time_mean + 2*se_time))+

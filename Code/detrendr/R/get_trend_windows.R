@@ -85,8 +85,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
     phi0[[i]][] <- 0
   }
   model_list <- mapply(update_model, model_list, w_list, phi0,
-                       eta0,
-                       rho=rho, nT=nT, SIMPLIFY = FALSE)
+                       eta0, rho=rho, nT=nT, SIMPLIFY = FALSE)
 
   # Dual update
   w_list <- mapply(update_dual, w_list, 
@@ -102,8 +101,9 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
   while(iter <= max_iter){
 
     # Window update
-    phi_list <- update_windows(w_list, phiBar_list, etaBar_list, 
+    phi_list <- update_windows(w_list, phiBar_list, etaBar_list,
                                model_list, rho, nT, solver)
+    
     # Consensus update
     phiBar_list <- update_consensus(phi_list, windows, overlapInd)
     etaBar_list <- mapply(get_eta, phiBar_list, y_list, k=k, SIMPLIFY = FALSE)

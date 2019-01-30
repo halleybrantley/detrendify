@@ -11,8 +11,7 @@ rm(list=ls())
 load("../SPod/trends_short.RData")
 source("application_functions.R")
 colPal <- c('#1b7837', '#c2a5cf')
-            '#762a83','#9970ab',,
-                '#a6dba0','#5aae61',)
+
 
 spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
                                               contains(paste(0.15)))
@@ -147,6 +146,8 @@ lines(tmp1, col="red")
 spod_signal <- get_spod_signal(0.15, qsreg_trends, spodPIDs, crit = 2)
 spod_signal$time <- spodPIDs$time
 spod_signal <- spod_signal %>%  gather(node, PID, -time) %>% filter(!is.na(node))
+spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
+                                              contains(paste(0.15)))
 spodPeaks$time <- spodPIDs$time
 spodLong <- spodPeaks %>% gather("node","PID", -time) %>% filter(!is.na(node))
 

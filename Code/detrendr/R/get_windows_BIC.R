@@ -39,13 +39,15 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   }
   
   # Set linear program solver
-  if (is.null(solver) | solver == "gurobi"){
+  if (is.null(solver)){
     pkgs <- installed.packages()[,"Package"]
     if("gurobi" %in% pkgs){
       use_gurobi <- TRUE
     } else {
       use_gurobi <- FALSE
     }
+  } else if (solver == "gurobi"){
+    use_gurobi <- TRUE
   } else {
     use_gurobi <- FALSE
   }
