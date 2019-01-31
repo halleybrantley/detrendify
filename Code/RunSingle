@@ -1,9 +1,10 @@
 #!/bin/tcsh
 
-#BSUB -W 3600
-#BSUB -n 4
+#BSUB -W 5600
+#BSUB -n 2
+#BSUB -x 
 #BSUB -o out.%J
 #BSUB -e err.%J
 module load gurobi
 module load R/gcc_4.8.5_R-3.5.1
-R CMD BATCH --vanilla timing.R
+R CMD BATCH --vanilla application_full.R

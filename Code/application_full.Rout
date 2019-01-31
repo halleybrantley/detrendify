@@ -82,7 +82,7 @@ The following object is masked from ‘package:purrr’:
 +                                  format= "%m/%d/%Y %H:%M:%S")) 
 > 
 > window_size <- 5000
-> overlap <- 500
+> overlap <- 1000
 > max_iter <- 20
 > tau <- c(0.05, 0.1, 0.15)
 > k <- 3
@@ -95,13 +95,14 @@ The following object is masked from ‘package:purrr’:
 +   names(spodNode)[2] <- c("pid")
 +   spodNode$pid <- spodNode$pid/1000
 +   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-+                           lambdaSeq = window_size^seq(0.8, 1.5, length.out=10),
++                           lambdaSeq = window_size^seq(1.1, 1.8, length.out=10),
 +                           df_tol = 1e-9,
 +                           gamma = 1,
 +                           plot_lambda = FALSE,
 +                           solver = NULL,
 +                           criteria = "eBIC", 
-+                           max_iter = max_iter)
++                           max_iter = max_iter, 
++                           rho = 9)
 +   save(result, file=sprintf("../SPod/node_%s_trend.RData", node))
 +   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
 +   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
@@ -119,13 +120,11 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
+Using same lambda for all quantiles
 Loading required package: gurobi
 Loading required package: slam
-[1] "Iteration: 5 Primal Resid Norm: 0.4600 eps_pri: 0.8372, Dual Resid Norm: 1.5646  eps_dual 0.8363"
-[1] "Iteration: 10 Primal Resid Norm: 0.3670 eps_pri: 0.8372, Dual Resid Norm: 1.0594  eps_dual 0.8368"
-[1] "Iteration: 15 Primal Resid Norm: 0.3261 eps_pri: 0.8372, Dual Resid Norm: 0.8853  eps_dual 0.8372"
-[1] "Converged in 17 iterations"
-[1] "i=1 lambda=910.282102"
+[1] "Converged in 4 iterations"
+[1] "i=1 lambda=11718.364558"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -138,13 +137,9 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4824 eps_pri: 0.8373, Dual Resid Norm: 1.6966  eps_dual 0.8365"
-[1] "Iteration: 10 Primal Resid Norm: 0.4108 eps_pri: 0.8373, Dual Resid Norm: 1.1067  eps_dual 0.8370"
-[1] "Iteration: 15 Primal Resid Norm: 0.3625 eps_pri: 0.8373, Dual Resid Norm: 1.0136  eps_dual 0.8375"
-[1] "Iteration: 20 Primal Resid Norm: 0.3337 eps_pri: 0.8373, Dual Resid Norm: 0.8327  eps_dual 0.8378"
-[1] "Converged in 20 iterations"
-[1] "i=2 lambda=1765.524182"
 Using same lambda for all quantiles
+[1] "Converged in 5 iterations"
+[1] "i=2 lambda=22728.180606"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -156,148 +151,10 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4843 eps_pri: 0.8373, Dual Resid Norm: 1.6348  eps_dual 0.8366"
-[1] "Iteration: 10 Primal Resid Norm: 0.3933 eps_pri: 0.8373, Dual Resid Norm: 1.1128  eps_dual 0.8371"
-[1] "Iteration: 15 Primal Resid Norm: 0.3560 eps_pri: 0.8373, Dual Resid Norm: 0.8885  eps_dual 0.8375"
-[1] "Converged in 17 iterations"
-[1] "i=3 lambda=3424.296307"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.5158 eps_pri: 0.8374, Dual Resid Norm: 1.6458  eps_dual 0.8368"
-[1] "Iteration: 10 Primal Resid Norm: 0.4062 eps_pri: 0.8374, Dual Resid Norm: 1.2523  eps_dual 0.8373"
-[1] "Iteration: 15 Primal Resid Norm: 0.3480 eps_pri: 0.8374, Dual Resid Norm: 0.8978  eps_dual 0.8376"
-[1] "Converged in 17 iterations"
-[1] "i=4 lambda=6641.543240"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4951 eps_pri: 0.8375, Dual Resid Norm: 1.7168  eps_dual 0.8367"
-[1] "Iteration: 10 Primal Resid Norm: 0.3738 eps_pri: 0.8375, Dual Resid Norm: 1.1702  eps_dual 0.8371"
-[1] "Converged in 14 iterations"
-[1] "i=5 lambda=12881.506930"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.5243 eps_pri: 0.8376, Dual Resid Norm: 2.0381  eps_dual 0.8369"
-[1] "Iteration: 10 Primal Resid Norm: 0.4067 eps_pri: 0.8376, Dual Resid Norm: 1.4287  eps_dual 0.8374"
-[1] "Iteration: 15 Primal Resid Norm: 0.3238 eps_pri: 0.8376, Dual Resid Norm: 1.1287  eps_dual 0.8376"
-[1] "Iteration: 20 Primal Resid Norm: 0.2956 eps_pri: 0.8376, Dual Resid Norm: 0.8581  eps_dual 0.8378"
-[1] "i=6 lambda=24984.136184"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.5640 eps_pri: 0.8377, Dual Resid Norm: 1.9345  eps_dual 0.8371"
-[1] "Iteration: 10 Primal Resid Norm: 0.4502 eps_pri: 0.8377, Dual Resid Norm: 1.2988  eps_dual 0.8376"
-[1] "Iteration: 15 Primal Resid Norm: 0.3866 eps_pri: 0.8377, Dual Resid Norm: 1.1472  eps_dual 0.8380"
-[1] "Iteration: 20 Primal Resid Norm: 0.3467 eps_pri: 0.8377, Dual Resid Norm: 1.0547  eps_dual 0.8382"
-[1] "i=7 lambda=48457.611696"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.6562 eps_pri: 0.8377, Dual Resid Norm: 2.3740  eps_dual 0.8376"
-[1] "Iteration: 10 Primal Resid Norm: 0.4984 eps_pri: 0.8377, Dual Resid Norm: 1.3856  eps_dual 0.8382"
-[1] "Iteration: 15 Primal Resid Norm: 0.4314 eps_pri: 0.8377, Dual Resid Norm: 1.0874  eps_dual 0.8386"
-[1] "Iteration: 20 Primal Resid Norm: 0.3863 eps_pri: 0.8377, Dual Resid Norm: 0.9903  eps_dual 0.8388"
-[1] "i=8 lambda=93985.243836"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.7518 eps_pri: 0.8378, Dual Resid Norm: 2.3658  eps_dual 0.8380"
-[1] "Iteration: 10 Primal Resid Norm: 0.5915 eps_pri: 0.8378, Dual Resid Norm: 1.5725  eps_dual 0.8388"
-[1] "Iteration: 15 Primal Resid Norm: 0.4637 eps_pri: 0.8378, Dual Resid Norm: 1.2578  eps_dual 0.8392"
-[1] "Iteration: 20 Primal Resid Norm: 0.4084 eps_pri: 0.8378, Dual Resid Norm: 1.0643  eps_dual 0.8395"
-[1] "i=9 lambda=182287.689173"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.7997 eps_pri: 0.8378, Dual Resid Norm: 3.1874  eps_dual 0.8385"
-[1] "Iteration: 10 Primal Resid Norm: 0.6608 eps_pri: 0.8378, Dual Resid Norm: 1.9462  eps_dual 0.8394"
-[1] "Iteration: 15 Primal Resid Norm: 0.5489 eps_pri: 0.8378, Dual Resid Norm: 1.7262  eps_dual 0.8399"
-[1] "Iteration: 20 Primal Resid Norm: 0.4598 eps_pri: 0.8378, Dual Resid Norm: 1.4238  eps_dual 0.8403"
-[1] "i=10 lambda=353553.390593"
-[1] "Iteration: 5 Primal Resid Norm: 0.7997 eps_pri: 0.8378, Dual Resid Norm: 3.1874  eps_dual 0.8385"
-[1] "Iteration: 10 Primal Resid Norm: 0.6608 eps_pri: 0.8378, Dual Resid Norm: 1.9462  eps_dual 0.8394"
-[1] "Iteration: 15 Primal Resid Norm: 0.5489 eps_pri: 0.8378, Dual Resid Norm: 1.7262  eps_dual 0.8399"
-[1] "Iteration: 20 Primal Resid Norm: 0.4598 eps_pri: 0.8378, Dual Resid Norm: 1.4238  eps_dual 0.8403"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3243 eps_pri: 0.8353, Dual Resid Norm: 0.8858  eps_dual 0.8352"
 [1] "Converged in 6 iterations"
-[1] "i=1 lambda=910.282102"
+[1] "i=3 lambda=44082.106431"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -310,9 +167,24 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3513 eps_pri: 0.8354, Dual Resid Norm: 0.8485  eps_dual 0.8353"
+Using same lambda for all quantiles
+[1] "Converged in 5 iterations"
+[1] "i=4 lambda=85498.797334"
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
 [1] "Converged in 6 iterations"
-[1] "i=2 lambda=1765.524182"
+[1] "i=5 lambda=165827.927416"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -325,10 +197,9 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3437 eps_pri: 0.8354, Dual Resid Norm: 0.7959  eps_dual 0.8352"
-[1] "Converged in 5 iterations"
-[1] "i=3 lambda=3424.296307"
 Using same lambda for all quantiles
+[1] "Converged in 7 iterations"
+[1] "i=6 lambda=321629.103201"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -340,86 +211,12 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3574 eps_pri: 0.8355, Dual Resid Norm: 0.8448  eps_dual 0.8353"
-[1] "Converged in 8 iterations"
-[1] "i=4 lambda=6641.543240"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
+[1] "Iteration: 10 Primal Resid Norm: 0.5152 eps_pri: 3.9857, Dual Resid Norm: 3.8787  eps_dual 3.9806"
+[1] "Converged in 10 iterations"
+[1] "i=7 lambda=623810.968619"
 Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3700 eps_pri: 0.8356, Dual Resid Norm: 0.8238  eps_dual 0.8353"
-[1] "Converged in 5 iterations"
-[1] "i=5 lambda=12881.506930"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3640 eps_pri: 0.8356, Dual Resid Norm: 0.7770  eps_dual 0.8354"
-[1] "Converged in 5 iterations"
-[1] "i=6 lambda=24984.136184"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4085 eps_pri: 0.8356, Dual Resid Norm: 1.2294  eps_dual 0.8357"
-[1] "Converged in 8 iterations"
-[1] "i=7 lambda=48457.611696"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4973 eps_pri: 0.8357, Dual Resid Norm: 1.1087  eps_dual 0.8360"
-[1] "Iteration: 10 Primal Resid Norm: 0.4214 eps_pri: 0.8357, Dual Resid Norm: 0.8578  eps_dual 0.8367"
-[1] "Iteration: 15 Primal Resid Norm: 0.3582 eps_pri: 0.8357, Dual Resid Norm: 0.8188  eps_dual 0.8371"
-[1] "Converged in 15 iterations"
-[1] "i=8 lambda=93985.243836"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.5172 eps_pri: 0.8357, Dual Resid Norm: 1.0194  eps_dual 0.8361"
-[1] "Converged in 9 iterations"
-[1] "i=9 lambda=182287.689173"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -433,195 +230,7 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 [1] "Problem not solved."
-[1] "Problem not solved."
-[1] "Iteration: 5 Primal Resid Norm: 0.5354 eps_pri: 0.8357, Dual Resid Norm: 1.1941  eps_dual 0.8362"
-[1] "Problem not solved."
-[1] "Iteration: 10 Primal Resid Norm: 0.4613 eps_pri: 0.8357, Dual Resid Norm: 0.9411  eps_dual 0.8370"
-[1] "Problem not solved."
-[1] "Problem not solved."
-[1] "Converged in 14 iterations"
-[1] "i=10 lambda=353553.390593"
-[1] "Problem not solved."
-[1] "Problem not solved."
-[1] "Iteration: 5 Primal Resid Norm: 0.5354 eps_pri: 0.8357, Dual Resid Norm: 1.1941  eps_dual 0.8362"
-[1] "Problem not solved."
-[1] "Iteration: 10 Primal Resid Norm: 0.4613 eps_pri: 0.8357, Dual Resid Norm: 0.9411  eps_dual 0.8370"
-[1] "Problem not solved."
-[1] "Problem not solved."
-[1] "Converged in 14 iterations"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4142 eps_pri: 0.8358, Dual Resid Norm: 1.5826  eps_dual 0.8362"
-[1] "Iteration: 10 Primal Resid Norm: 0.3245 eps_pri: 0.8358, Dual Resid Norm: 1.0397  eps_dual 0.8366"
-[1] "Converged in 14 iterations"
-[1] "i=1 lambda=910.282102"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3917 eps_pri: 0.8359, Dual Resid Norm: 1.4089  eps_dual 0.8360"
-[1] "Iteration: 10 Primal Resid Norm: 0.3234 eps_pri: 0.8359, Dual Resid Norm: 0.8855  eps_dual 0.8364"
-[1] "Converged in 11 iterations"
-[1] "i=2 lambda=1765.524182"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4044 eps_pri: 0.8359, Dual Resid Norm: 1.3128  eps_dual 0.8358"
-[1] "Iteration: 10 Primal Resid Norm: 0.3321 eps_pri: 0.8359, Dual Resid Norm: 0.9175  eps_dual 0.8362"
-[1] "Converged in 14 iterations"
-[1] "i=3 lambda=3424.296307"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.3997 eps_pri: 0.8361, Dual Resid Norm: 1.5577  eps_dual 0.8358"
-[1] "Iteration: 10 Primal Resid Norm: 0.3276 eps_pri: 0.8361, Dual Resid Norm: 0.8856  eps_dual 0.8362"
-[1] "Converged in 14 iterations"
-[1] "i=4 lambda=6641.543240"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4102 eps_pri: 0.8362, Dual Resid Norm: 1.3621  eps_dual 0.8359"
-[1] "Iteration: 10 Primal Resid Norm: 0.3247 eps_pri: 0.8362, Dual Resid Norm: 0.9360  eps_dual 0.8363"
-[1] "Converged in 13 iterations"
-[1] "i=5 lambda=12881.506930"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.4310 eps_pri: 0.8363, Dual Resid Norm: 1.4913  eps_dual 0.8362"
-[1] "Iteration: 10 Primal Resid Norm: 0.3324 eps_pri: 0.8363, Dual Resid Norm: 0.9009  eps_dual 0.8365"
-[1] "Converged in 13 iterations"
-[1] "i=6 lambda=24984.136184"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.5115 eps_pri: 0.8364, Dual Resid Norm: 1.7427  eps_dual 0.8367"
-[1] "Iteration: 10 Primal Resid Norm: 0.3593 eps_pri: 0.8364, Dual Resid Norm: 1.3218  eps_dual 0.8371"
-[1] "Iteration: 15 Primal Resid Norm: 0.3150 eps_pri: 0.8364, Dual Resid Norm: 0.9383  eps_dual 0.8373"
-[1] "Converged in 18 iterations"
-[1] "i=7 lambda=48457.611696"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.5746 eps_pri: 0.8364, Dual Resid Norm: 1.8887  eps_dual 0.8371"
-[1] "Iteration: 10 Primal Resid Norm: 0.4624 eps_pri: 0.8364, Dual Resid Norm: 1.3257  eps_dual 0.8376"
-[1] "Iteration: 15 Primal Resid Norm: 0.3629 eps_pri: 0.8364, Dual Resid Norm: 1.0500  eps_dual 0.8379"
-[1] "Iteration: 20 Primal Resid Norm: 0.3096 eps_pri: 0.8364, Dual Resid Norm: 1.0085  eps_dual 0.8381"
-[1] "i=8 lambda=93985.243836"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.6537 eps_pri: 0.8365, Dual Resid Norm: 1.9621  eps_dual 0.8372"
-[1] "Iteration: 10 Primal Resid Norm: 0.5269 eps_pri: 0.8365, Dual Resid Norm: 1.4904  eps_dual 0.8379"
-[1] "Iteration: 15 Primal Resid Norm: 0.4287 eps_pri: 0.8365, Dual Resid Norm: 1.2755  eps_dual 0.8384"
-[1] "Iteration: 20 Primal Resid Norm: 0.3552 eps_pri: 0.8365, Dual Resid Norm: 1.2429  eps_dual 0.8386"
-[1] "i=9 lambda=182287.689173"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 5 Primal Resid Norm: 0.6773 eps_pri: 0.8365, Dual Resid Norm: 2.0696  eps_dual 0.8371"
-[1] "Iteration: 10 Primal Resid Norm: 0.5808 eps_pri: 0.8365, Dual Resid Norm: 1.3777  eps_dual 0.8380"
-[1] "Iteration: 15 Primal Resid Norm: 0.5105 eps_pri: 0.8365, Dual Resid Norm: 1.5515  eps_dual 0.8386"
-[1] "Iteration: 20 Primal Resid Norm: 0.4433 eps_pri: 0.8365, Dual Resid Norm: 1.2767  eps_dual 0.8390"
-[1] "i=10 lambda=353553.390593"
-[1] "Iteration: 5 Primal Resid Norm: 0.6764 eps_pri: 0.8365, Dual Resid Norm: 2.0891  eps_dual 0.8372"
-[1] "Problem not solved."
-[1] "Iteration: 10 Primal Resid Norm: 0.5783 eps_pri: 0.8365, Dual Resid Norm: 1.4094  eps_dual 0.8380"
-[1] "Iteration: 15 Primal Resid Norm: 0.5091 eps_pri: 0.8365, Dual Resid Norm: 1.5425  eps_dual 0.8386"
-[1] "Iteration: 20 Primal Resid Norm: 0.4421 eps_pri: 0.8365, Dual Resid Norm: 1.2787  eps_dual 0.8390"
-> save(spod_trends, tau, file = "../SPod/spod_trends.RData")
-> ################################################################################
-> 
-> 
-> proc.time()
-    user   system  elapsed 
-53298.30 15531.39 23661.41 
+Error in phi[, i] <- x[(1 + np * (i - 1)):(n + np * (i - 1))] - x[(n +  : 
+  replacement has length zero
+Calls: get_windows_BIC -> get_trend_windows -> mapply -> <Anonymous>
+Execution halted
