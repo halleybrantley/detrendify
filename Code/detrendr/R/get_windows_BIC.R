@@ -29,7 +29,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
                              solver = NULL, 
                              criteria = "eBIC", 
                              max_iter = 10, 
-                             eps_abs = 0.01, 
+                             eps_abs = 0.05, 
                              eps_rel = 1e-3, 
                              update = 10, 
                              rho = 5){

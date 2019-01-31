@@ -32,8 +32,11 @@
 get_trend_windows <- function(y, tau, lambda, k, window_size,
                            overlap, max_iter, rho=5, update=10, 
                            use_gurobi = TRUE, 
-                           eps_abs = 2e-3, 
+                           eps_abs = .05, 
                            eps_rel = 1e-3){
+  mean_y <- mean(y, na.rm=T)
+  sd_y <- sd(y, na.rm=T)
+  y <- as.numeric(scale(y))*200
   if (use_gurobi){
     solver <- "gurobi"
   } else {
@@ -150,7 +153,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
     iter <- iter+1
   }
   y[is.na(y)] <- 0
-  theta <- y - get_phiBar(phiBar_list, windows)
+  theta <- ((y - get_phiBar(phiBar_list, windows))/200)*sd_y + mean_y
   return(theta)
 }
 

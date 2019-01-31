@@ -44,7 +44,7 @@ update_consensus <- function(phi_list, windows, overlapInd){
 
   phiBar_list <- list()
   for (i in 1:n_windows){
-    phiBar_list[[i]] <- phiBar[windows[,i],]
+    phiBar_list[[i]] <- phiBar[windows[,i],,drop=FALSE]
   }
   return(phiBar_list)
 }

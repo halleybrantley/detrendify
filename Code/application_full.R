@@ -7,50 +7,65 @@ library(devtools)
 library(Hmisc)
 load_all("detrendr")
 rm(list=ls())
-spod <- read.csv("../SPod/fhrdata_2017-11-30.csv", 
+spod <- read.csv("../SPod/SENTINEL Data_2017-04-13.csv", 
                  header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
 
-window_size <- 10000
+surge0 <- which(spod$d.SPOD.Sonic.Voltage > 14)
+surge <- c()
+for (i in seq(-70, 70, 1)){
+  surge <- c(surge, surge0+i)
+}
+surge <- unique(surge)
+
+nodes <- c("c", "d", "e")
+spodPIDs <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")])
+names(spodPIDs) <- nodes
+spodPIDs$time <- spod$time
+spodPIDs$d[surge] <- NA
+for (node in nodes){
+  spodPIDs[,node] <- (spodPIDs[,node] - min(spodPIDs[,node], na.rm=T))*5/
+    (max(spodPIDs[,node], na.rm=T)-min(spodPIDs[,node], na.rm=T))
+}
+save(spodPIDs, file = "../SPod/spodPIDs.RData")
+
+window_size <- 5000
 overlap <- 1000
 max_iter <- 30
-tau <- c(0.05, 0.1, 0.15)
+tau <- c(0.15)
 k <- 3
 spod_trends <- data.frame(time = spod$time)
 
-max_iter <- 100
-result <- get_trend_windows(spodNode$pid[10001:28000], tau, 
-                          lambda = 2e5,
+
+result <- get_trend_windows(spodNode$pid[10001:19000], tau, 
+                          lambda = exp(17),
                           k, window_size, overlap,
                           max_iter = max_iter, 
                           update = 1,
-                          eps_abs = 0.005,
-                          rho = 20)
+                          rho = 1)
 
 result0 <- get_trend(spodNode$pid[30001:33100], tau, 
                      lambda = 1e4,
                      k)
-plot(spodNode$pid[30001:33100], type="l")
-lines(result0[,3])
-lines(result[,3], col="red")
+plot(spodNode$pid[20001:29000], type="l")
+lines(result$trend[,1], col="red")
+plot(result$trend[,1], col="red", type="l")
 
 
-for (node in c("f", "g", "h")){
-  pidCol <- paste(node, "SPOD.PID..V.", sep=".")
-  spodNode <- spod[, c("time", pidCol)]
+for (node in c("c", "d", "e")){
+  spodNode <- spodPIDs[, c("time", node)]
   names(spodNode)[2] <- c("pid")
-  spodNode$pid <- spodNode$pid/1000
-  result <- get_windows_BIC(spodNode$pid[30000:40000], tau, k, window_size, overlap,
-                          lambdaSeq = window_size^seq(1.8, 2.3, length.out=4)[2],
+  result <- get_windows_BIC(spodNode$pid[20001:29000], tau, k, window_size, overlap,
+                          lambdaSeq = exp(seq(12,19,1)),
                           df_tol = 1e-9,
                           gamma = 1,
                           plot_lambda = TRUE,
                           solver = NULL,
                           criteria = "eBIC", 
                           max_iter = max_iter, 
-                          eps_abs = 0.01,
-                          rho = 15)
+                          rho = 1, 
+                          update = 2)
   save(result, file=sprintf("../SPod/node_%s_trend.RData", node))
   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
