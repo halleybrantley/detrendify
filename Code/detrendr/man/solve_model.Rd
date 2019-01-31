@@ -7,15 +7,13 @@
 solve_model(model, solver, y = NULL, trend = TRUE)
 }
 \arguments{
-\item{y}{observed data, should be equally spaced, may contain NA}
+\item{model}{model object containing coefficients and constraints}
+
+\item{solver}{solver to be used, options are "gurobi", "Rglpk", and "lpSolve"}
+
+\item{y}{vector of observations, only needed if trend = TRUE}
 
 \item{trend}{if TRUE returns trend, if FALSE returns residuals}
-
-\item{tau}{quantile levels at which to evaluate trend}
-
-\item{lambda}{penalty paramter controlling smoothness}
-
-\item{k}{order of differencing}
 }
 \description{
 \code{solve_model} Returns the trend

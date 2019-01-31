@@ -1,3 +1,13 @@
+#' Get evaluation metrics for classification
+#'
+#' \code{get_metric} Returns classification metric requested
+#'
+#' @param trend estimated trend vector
+#' @param y vector of observations
+#' @param signal vector of true signal classification
+#' @param threshold value for threshold defining signal
+#' @param metric choise of "missclass", "recall", "CAA", "precision" or "F1"
+#' @export
 get_metric <- function(trend, y, signal, threshold, metric){
   y_adj <- y - trend
   signal_hat <- as.numeric(y_adj > threshold)

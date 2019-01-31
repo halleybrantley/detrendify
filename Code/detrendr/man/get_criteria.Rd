@@ -10,21 +10,21 @@ get_criteria(criteria, f_trend, y, tau, D = NULL, df_tol = 1e-09,
 \arguments{
 \item{criteria}{label of criteria to be used, must be one of "eBIC", "SIC", "valid"}
 
-\item{f_trend}{fitted quantile trend(s)}
+\item{f_trend}{matrix of fitted quantile trend(s)}
+
+\item{y}{observed data vector}
 
 \item{tau}{quantile vector}
 
 \item{D}{discrete differencing matrix (for SIC and eBIC)}
 
-\item{df_tol}{tolerance for determining degrees of freedom (D%*%theta > df_tol)}
+\item{df_tol}{tolerance for determining degrees of freedom (Dtheta > df_tol)}
 
 \item{gamma}{parameter for eBIC}
 
 \item{validID}{index of data to be used for validation (for valid method)}
 
 \item{yValid}{validation data (for valid method)}
-
-\item{observed}{data vector}
 }
 \description{
 \code{get_criteria}

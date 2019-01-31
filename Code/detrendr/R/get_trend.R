@@ -6,8 +6,12 @@
 #' @param tau quantile levels at which to evaluate trend
 #' @param lambda penalty paramter controlling smoothness
 #' @param k order of differencing
+#' @importFrom utils installed.packages
 #' @export
 get_trend <- function(y, tau, lambda, k){
+  mean_y <- mean(y, na.rm=T)
+  sd_y <- sd(y, na.rm=T)
+  y <- as.numeric(scale(y))*200
   model <- get_model(y, tau, lambda, k)
   pkgs <- installed.packages()[,"Package"]
   if("gurobi" %in% pkgs){
@@ -18,6 +22,6 @@ get_trend <- function(y, tau, lambda, k){
     solver <- "lpSove"
   }
   theta <- solve_model(model, solver, y)
-  return(theta)
+  return(theta/200*sd_y + mean_y)
 }
 

@@ -1,0 +1,53 @@
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@n2c2-13>
+Subject: Job 753182: <#!/bin/tcsh; #BSUB -W 5600;#BSUB -n 2;#BSUB -x ;#BSUB -o out.%J;#BSUB -e err.%J;module load gurobi;module load R/gcc_4.8.5_R-3.5.1;R CMD BATCH --vanilla application_full.R> in cluster <henry2> Exited
+
+Job <#!/bin/tcsh; #BSUB -W 5600;#BSUB -n 2;#BSUB -x ;#BSUB -o out.%J;#BSUB -e err.%J;module load gurobi;module load R/gcc_4.8.5_R-3.5.1;R CMD BATCH --vanilla application_full.R> was submitted from host <login01> by user <hlbrantl> in cluster <henry2> at Thu Jan 31 17:32:35 2019.
+Job was executed on host(s) <2*n2c2-13>, in queue <single_chassis>, as user <hlbrantl> in cluster <henry2> at Thu Jan 31 17:32:41 2019.
+</home/hlbrantl> was used as the home directory.
+</share/triclustering/hlbrantl/detrendify/Code> was used as the working directory.
+Started at Thu Jan 31 17:32:41 2019.
+Terminated at Thu Jan 31 17:32:56 2019.
+Results reported at Thu Jan 31 17:32:56 2019.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/tcsh
+
+#BSUB -W 5600
+#BSUB -n 2
+#BSUB -x 
+#BSUB -o out.%J
+#BSUB -e err.%J
+module load gurobi
+module load R/gcc_4.8.5_R-3.5.1
+R CMD BATCH --vanilla application_full.R
+
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   9.91 sec.
+    Max Memory :                                 51.79 MB
+    Average Memory :                             51.79 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   643 MB
+    Max Processes :                              5
+    Max Threads :                                6
+    Run time :                                   23 sec.
+    Turnaround time :                            21 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <err.753182> for stderr output of this job.
+

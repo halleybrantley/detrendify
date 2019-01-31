@@ -39,7 +39,8 @@ ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 4)
 simDesign <- "peaks"
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
-
+colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
+                '#a6dba0','#5aae61','#1b7837'))
 methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", 
              "rqss", "npqw") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
@@ -77,7 +78,10 @@ summary_peaks <-
   ) %>%
   ungroup() %>%
   mutate(tau_fac = tau, 
-         tau = as.numeric(substr(tau_fac, 5, 10)))
+         tau = as.numeric(substr(tau_fac, 5, 10)), 
+         Method = factor(Method, levels = methods))
+
+text_size <- 14
 
 summary_peaks %>% 
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
@@ -86,10 +90,13 @@ summary_peaks %>%
                  position = position_dodge(width = 0.5))+
   facet_grid(.~factor(tau), scales = "free")+
   theme_bw() +
-  scale_color_brewer(palette = "Paired") +
+  scale_color_manual(values=colPal, breaks = methods) +
+  theme(text = element_text(size=text_size), 
+        axis.text.x = element_text(size=(text_size-5)),
+        plot.title = element_text(size = text_size)) +
   labs(x = "", y="RMSE",  col = "Method") +
   ylim(c(0,1.2))
-ggsave("../Manuscript/Figures/peaks_mse.png", width = 10, height = 3)
+ggsave("../Manuscript/Figures/peaks_mse.png", width = 7, height = 2.5)
 
 
 

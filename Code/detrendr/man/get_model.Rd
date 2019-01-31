@@ -9,9 +9,9 @@ get_model(y, tau, lambda, k)
 \arguments{
 \item{y}{observed data, should be equally spaced, may contain NA}
 
-\item{tau}{quantile levels at which to evaluate trend}
+\item{tau}{vector of quantile levels at which to evaluate trend}
 
-\item{lambda}{penalty paramter controlling smoothness}
+\item{lambda}{vector of penalty parameters controlling smoothness}
 
 \item{k}{order of differencing}
 }

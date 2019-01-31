@@ -1,6 +1,6 @@
-#' Get constraint matrix for linear program 
+#' Get objective linear program 
 #'
-#' \code{get_constraint_mat} Returns the constraint matrix
+#' \code{get_objective} Returns objective coefficent vector
 #'
 #' @param tau quantiles being estimated
 #' @param lambda smoothing parameters, should be same length as tau
@@ -32,22 +32,22 @@ get_constraint_mat <- function(D, nT){
   np <- 2*n + 2*m
   # Constraint Matrix
   if (nT == 1){
-    A  <- cbind(D, -D, Diagonal(m), -Diagonal(m))
+    A  <- cbind(D, -D, Matrix::Diagonal(m), -Matrix::Diagonal(m))
   } else {
-    A <- Matrix(0, nrow =  m*nT + n*(nT-1), ncol= np*nT, sparse=TRUE)
+    A <- Matrix::Matrix(0, nrow =  m*nT + n*(nT-1), ncol= np*nT, sparse=TRUE)
     for (i in 1:nT){
       # D%*%theta = eta constraint
       A[(1+m*(i-1)):(m*i), (1+np*(i-1)):(np*i)] <-
-        cbind(D, -D, Diagonal(m), -Diagonal(m))
+        cbind(D, -D, Matrix::Diagonal(m), -Matrix::Diagonal(m))
       
       # Non-crossing theta(tau) constrains
       if (i < nT){
         A[(m*nT+1+n*(i-1)):(m*nT+n*(i)), (1+(i-1)*np):(2*n + (i-1)*np)] <-
-          cbind(Diagonal(n), -Diagonal(n))
+          cbind(Matrix::Diagonal(n), -Matrix::Diagonal(n))
         
         A[(m*nT+1+n*(i-1)):(m*nT+n*(i)),
           (1+i*np):(2*n + i*np)] <-
-          cbind(-Diagonal(n), Diagonal(n))
+          cbind(-Matrix::Diagonal(n), Matrix::Diagonal(n))
       }
     }
   }
@@ -59,8 +59,8 @@ get_constraint_mat <- function(D, nT){
 #' \code{get_model} Returns the linear program solver arguments
 #'
 #' @param y observed data, should be equally spaced, may contain NA
-#' @param tau quantile levels at which to evaluate trend
-#' @param lambda penalty paramter controlling smoothness
+#' @param tau vector of quantile levels at which to evaluate trend
+#' @param lambda vector of penalty parameters controlling smoothness
 #' @param k order of differencing
 #' @export
 get_model <- function(y, tau, lambda, k){

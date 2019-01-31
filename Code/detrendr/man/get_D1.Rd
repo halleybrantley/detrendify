@@ -12,7 +12,3 @@ get_D1(n)
 \description{
 \code{get_D1} computes the sparse discrete derivative matrix.
 }
-\examples{
-n <- 5
-D1 <- get_D1(n)
-}

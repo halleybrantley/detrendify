@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_model.R
 \name{get_objective}
 \alias{get_objective}
-\title{Get constraint matrix for linear program}
+\title{Get objective linear program}
 \usage{
 get_objective(tau, lambda, n, m, missInd)
 }
@@ -18,5 +18,5 @@ get_objective(tau, lambda, n, m, missInd)
 \item{missInd}{output of which(is.na(y))}
 }
 \description{
-\code{get_constraint_mat} Returns the constraint matrix
+\code{get_objective} Returns objective coefficent vector
 }

@@ -11,7 +11,11 @@ simDesign <- "peaks"
 
 times <- 5
 overlap <- 500
+<<<<<<< HEAD
 data_lengths <- seq(5000, 55000, 5000)
+=======
+data_lengths <- seq(6000, 51000, 3000)
+>>>>>>> f28209e37aa3946a9b715194b283d5af87da824a
 times_df <- data.frame(n = NA, t = NA, time = NA, windows = NA)
 diff_df <- data.frame(n = NA, t = NA, maxdiff = NA, sd = NA)
 i <- 1
@@ -41,7 +45,7 @@ for (n in data_lengths){
                                  overlap = overlap, max_iter = 20, 
                                  update = 10, rho = 3, eps_abs = .01, 
                                  eps_rel = 1e-3, 
-                                 quad = TRUE, use_gurobi = TRUE), 
+                                 use_gurobi = TRUE), 
             times = 1)$time*1e-9
         diff_df$n[j] <- n
         diff_df$t[j] <- t

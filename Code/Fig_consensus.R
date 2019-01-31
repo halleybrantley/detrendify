@@ -1,14 +1,16 @@
 library(tidyverse)
 library(devtools)
+devtools::install_github("const-ae/ggsignif")
 load_all("detrendr")
 
 rm(list=ls())
 source("sim_generating_functions.R")
-set.seed(987651)
+set.seed(987652)
 overlap <- 150
 window_size <- 500
 n <- window_size*3 - overlap*2
 df.data <- generate_peaks_design(n)
+df.data$x <- seq(1, n, 1)
 y <- df.data$y
 x <- df.data$x
 k <- 3
@@ -21,7 +23,7 @@ result1 <- get_trend(y[1:window_size], tau, lambda, k)
 result2 <- get_trend(y[(window_size - overlap + 1):(2*window_size - overlap)], tau, lambda, k)
 result3 <- get_trend(y[(2*window_size - 2*overlap + 1):(3*window_size - 2*overlap)], tau, lambda, k)
 
-df.sep.no <- data.frame(rbind(data.frame(x = x, result0, method="Single Fit"), 
+df.sep.no <- data.frame(rbind(#data.frame(x = x, result0, method="Single Fit"), 
                               data.frame(x = x[1:window_size], result1, method = "Window 1"),
                               data.frame(x = x[(window_size - overlap + 1):(2*window_size - overlap)], result2, method = "Window 2"),
                               data.frame(x = x[(2*window_size - 2*overlap + 1):(3*window_size - 2*overlap)], result3, method = "Window 3"))) 
@@ -33,7 +35,29 @@ ggplot(df.data, aes(x=x, y=y)) +
   geom_line(data = df.sep.no, aes(y=X2, col = "0.10", linetype = method))+
   scale_color_brewer(palette = "Set1")+
   labs(col="Quantile", linetype = "", x = "") + 
-  theme_bw() 
+  guides(linetype = "none") +
+  theme_bw() +
+  geom_segment(aes(x = 1, xend = 1, y=0, yend=1.5, linetype = "dotted")) +
+  geom_segment(aes(x = x[350], xend=x[350], y=0, yend=1.5, linetype = "dotted")) +
+  geom_segment(aes(x = x[500], xend=x[500], y=0, yend=1.5, linetype = "dotted")) +
+  geom_segment(aes(x = x[700], xend=x[700], y=0, yend=1.5, linetype = "dotted")) +
+  geom_segment(aes(x = x[850], xend=x[850], y=0, yend=1.5, linetype = "dotted")) +
+  geom_segment(aes(x = n, xend = n, y=0, yend=1.5, linetype = "dotted")) +
+  
+  geom_segment(aes(x = x[1], xend=x[500], y=2, yend=2)) +
+  geom_text(aes(x=250, y=2.15, label = "Window 1")) +
+  
+  geom_segment(aes(x = 350, xend=850, y=2.4, yend=2.4)) +
+  geom_text(aes(x=600, y=2.55, label = "Window 2")) +
+  
+  geom_segment(aes(x = 700, xend=1200, y=2.7, yend=2.7)) +
+  geom_text(aes(x=950, y=2.85, label = "Window 3")) +
+  geom_label(aes(x=1, y=-.2, label = "1")) +
+  geom_label(aes(x=350, y=-.2, label = "l[2]"), parse=TRUE) + 
+  geom_label(aes(x=500, y=-.2, label = "u[1]"), parse=TRUE) +  
+  geom_label(aes(x=700, y=-.2, label = "l[3]"), parse=TRUE) +
+  geom_label(aes(x=850, y=-.2, label = "u[2]"), parse=TRUE) +
+  geom_label(aes(x=1250, y=-.2, label = "n"))
 ggsave("../Manuscript/Figures/overlapping_windows.png", width=7, height=2.5)
 
 result <- get_trend_windows(y, tau, lambda, k, window_size, overlap, 

@@ -17,7 +17,7 @@ get_trend_BIC(y, tau, k, lambdaSeq = length(y)^seq(0, 1.5, length.out =
 
 \item{lambdaSeq}{smoothing penalty parameter options to compare}
 
-\item{df_tol}{tolerance for determining degrees of freedom (D%*%theta > df_tol)}
+\item{df_tol}{tolerance for determining degrees of freedom (Dtheta > df_tol)}
 
 \item{gamma}{parameter for eBIC}
 
@@ -25,7 +25,7 @@ get_trend_BIC(y, tau, k, lambdaSeq = length(y)^seq(0, 1.5, length.out =
 
 \item{solver}{LP solver, can be "gurobi", "Rglpk", or "lpSolve"}
 
-\item{criter}{criteria to use for lambda selection, must be "eBIC", "SIC", or 
+\item{criteria}{criteria to use for lambda selection, must be "eBIC", "SIC", or 
 "valid"}
 }
 \description{

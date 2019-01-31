@@ -6,30 +6,37 @@
 #' @param tau quantile levels at which to evaluate trend
 #' @param lambda smoothing penalty parameter
 #' @param k order of differencing
-#' @param rho step size for ADMM
 #' @param window_size size of windows to use
 #' @param overlap integer length of overlap between windows
 #' @param max_iter Maximum number of iterations
-#' @param eps 
+#' @param rho parameter for ADMM
 #' @param update number of iterations at which to print residuals
+#' @param use_gurobi TRUE if gurobi solver is installed and should be used
+#' @param eps_abs absolute threshold for stopping criteria
+#' @param eps_rel relative threshold for stopping criteria
 #' @examples
+#' library(Matrix)
 #' n <- 100
 #' x <- seq(1, n, 1)
 #' y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
 #' lambda <- 10
 #' k <- 3
 #' y_n <- length(y)
-#' window_size <- floor((y_n+overlap)/2)
-#' tau <- c(0.05)
+#' overlap <- 20
+#' window_size <- round((y_n+overlap)/2)
+#' tau <- c(0.05, .2)
 #' max_iter <- 20
-#' trend <- get_trend_windows(y, tau, lambda, k, window_size overlap, max_iter)
-#' plot(trend~x, type="l")
+#' trend <- get_trend_windows(y, tau, lambda, k, window_size, overlap, max_iter)
+#' plot(trend[,1]~x, type="l")
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, window_size,
                            overlap, max_iter, rho=5, update=10, 
-                           quad = TRUE, use_gurobi = TRUE, 
-                           eps_abs = 2e-3, 
+                           use_gurobi = TRUE, 
+                           eps_abs = .05, 
                            eps_rel = 1e-3){
+  mean_y <- mean(y, na.rm=T)
+  sd_y <- sd(y, na.rm=T)
+  y <- as.numeric(scale(y))*200
   if (use_gurobi){
     solver <- "gurobi"
   } else {
@@ -73,22 +80,16 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
   phiBar_list <- update_consensus(phi_list, windows, overlapInd)
   etaBar_list <- mapply(get_eta, phiBar_list, y_list, k=k, SIMPLIFY = FALSE)
   
-  if (quad){
-    # Use w_list for z since it is all zeros, don't want to store current z
-    eta0 <- etaBar_list
-    phi0 <- phiBar_list
-    for (i in 1:length(eta0)){
-      eta0[[i]][] <- 0
-      phi0[[i]][] <- 0
-    }
-    model_list <- mapply(update_model, model_list, w_list, phi0,
-                         eta0,
-                         rho=rho, nT=nT, SIMPLIFY = FALSE)
-  } else {
-    model_list <- mapply(get_model_abs, model_list, phiBar_list, rho, nT, 
-                         SIMPLIFY = FALSE)  
+  # Use w_list for z since it is all zeros, don't want to store current z
+  eta0 <- etaBar_list
+  phi0 <- phiBar_list
+  for (i in 1:length(eta0)){
+    eta0[[i]][] <- 0
+    phi0[[i]][] <- 0
   }
-  
+  model_list <- mapply(update_model, model_list, w_list, phi0,
+                       eta0, rho=rho, nT=nT, SIMPLIFY = FALSE)
+
   # Dual update
   w_list <- mapply(update_dual, w_list, 
                    phi_list, phiBar_list, 
@@ -103,9 +104,9 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
   while(iter <= max_iter){
 
     # Window update
-    phi_list <- update_windows(w_list, phiBar_list, etaBar_list, 
-                               model_list, rho, nT, 
-                               quad, solver)
+    phi_list <- update_windows(w_list, phiBar_list, etaBar_list,
+                               model_list, rho, nT, solver)
+    
     # Consensus update
     phiBar_list <- update_consensus(phi_list, windows, overlapInd)
     etaBar_list <- mapply(get_eta, phiBar_list, y_list, k=k, SIMPLIFY = FALSE)
@@ -152,7 +153,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
     iter <- iter+1
   }
   y[is.na(y)] <- 0
-  theta <- y - get_phiBar(phiBar_list, windows)
+  theta <- ((y - get_phiBar(phiBar_list, windows))/200)*sd_y + mean_y
   return(theta)
 }
 

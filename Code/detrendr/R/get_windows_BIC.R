@@ -5,13 +5,21 @@
 #' @param y observed data
 #' @param tau quantile levels at which to evaluate trend
 #' @param k order of differencing
+#' @param window_size integer of size of windows, last window may be shorter
+#' @param overlap number of observations in overlap between windows
 #' @param lambdaSeq smoothing penalty parameter options to compare
-#' @param df_tol tolerance for determining degrees of freedom (D%*%theta > df_tol)
-#' @param parameter for eBIC
+#' @param df_tol tolerance for determining degrees of freedom (Dtheta > df_tol)
+#' @param gamma parameter for eBIC
 #' @param plot_lambda TRUE/FALSE for plotting lambda by model criteria
-#' @param solver LP solver, can be "gurobi", "Rglpk", or "lpSolve"
-#' @param criter criteria to use for lambda selection, must be "eBIC", "SIC", or 
-#' "valid"  
+#' @param solver LP solver, can be "gurobi" or "lpSolve"
+#' @param criteria criteria to use for lambda selection, must be "eBIC", "SIC", or "valid"  
+#' @param max_iter Maximum number of iteration
+#' @param eps_abs absolute threshold for stopping criteria
+#' @param eps_rel relative threshold for stopping criteria
+#' @param update number of iterations to print residual values
+#' @param rho ADMM parameter
+#' @importFrom graphics abline lines plot
+#' @importFrom utils install.packages
 #' @export
 get_windows_BIC <- function(y, tau, k, window_size, overlap,
                              lambdaSeq = length(y)^seq(0, 1.5, length.out=20), 
@@ -21,7 +29,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
                              solver = NULL, 
                              criteria = "eBIC", 
                              max_iter = 10, 
-                             eps_abs = 0.01, 
+                             eps_abs = 0.05, 
                              eps_rel = 1e-3, 
                              update = 10, 
                              rho = 5){
@@ -34,12 +42,14 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   if (is.null(solver)){
     pkgs <- installed.packages()[,"Package"]
     if("gurobi" %in% pkgs){
-      solver <- "gurobi"
-    } else if ("Rglpk" %in% pkgs){
-      solver <- "Rglpk"
+      use_gurobi <- TRUE
     } else {
-      solver <- "lpSove"
+      use_gurobi <- FALSE
     }
+  } else if (solver == "gurobi"){
+    use_gurobi <- TRUE
+  } else {
+    use_gurobi <- FALSE
   }
 
   n <- length(y)
@@ -64,7 +74,8 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   for (i in 1:length(lambdaSeq)){
     f_trend <- get_trend_windows(y, tau, lambdaSeq[i], k=k, window_size = window_size,
                                  overlap=overlap, max_iter=max_iter, update=update, 
-                                 quad = TRUE, eps_abs = eps_abs, eps_rel = eps_rel, 
+                                 use_gurobi = use_gurobi, 
+                                 eps_abs = eps_abs, eps_rel = eps_rel, 
                                  rho = rho)
     model_crit <- get_criteria(criteria, f_trend, y, tau, 
                                D, df_tol, gamma, 
@@ -87,7 +98,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   
   f_trend <- get_trend_windows(y, tau, lambda, k, window_size,
                                overlap, max_iter=max_iter, update=update, 
-                               quad = TRUE, eps_abs = eps_abs, eps_rel = eps_rel, 
+                               eps_abs = eps_abs, eps_rel = eps_rel, 
                                rho = rho)
   
   return(list(trend = f_trend,

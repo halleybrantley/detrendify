@@ -9,28 +9,24 @@ library(caret)
 load_all("detrendr")
 rm(list=ls())
 source("application_functions.R")
-spod <- read.csv("../SPod/fhrdata_2017-11-30.csv", 
-                 header=TRUE,  na.strings = "N/A")
-spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
-                                 format= "%m/%d/%Y %H:%M:%S")) 
-
-load("../SPod/spod_trends.RData")
-
-nodes <- c("f", "g", "h")
-spodPIDs <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")]/1000)
-names(spodPIDs) <- nodes
-spodPeaks <- spodPIDs - select(spod_trends, contains("0.15"))
-spodPeaks$time <- spod_trends$time
-spodPIDs$time <- spod_trends$time
+load("../SPod/spodPIDs.RData")
 
 spodRaw <- spodPIDs %>%
   gather("node", "PID", -time)
+
 ggplot(spodRaw, aes(x=time, y=PID, col=node)) +
   geom_line(alpha=0.5) +
   theme_bw() +
-  scale_color_brewer(palette = "Set1", labels = nodes)
+  #facet_grid(node~., scales = "free")+
+  scale_color_brewer(palette = "Set1", labels = nodes)+
+  xlim(c(as.POSIXct("2017-04-13 12:30:01 EST"), 
+         as.POSIXct("2017-04-13 13:30:01 EST")))
 ggsave("../Manuscript/Figures/uncorrected_data.png", width = 7, height = 2.5)
 
+load("../SPod/spod_trends.RData")
+spodPeaks <- spodPIDs - select(spod_trends, contains("0.15"))
+spodPeaks$time <- spod_trends$time
+spodPIDs$time <- spod_trends$time
 spodLong <- spodPeaks %>% gather("node","PID", -time)
 
 ggplot(spodLong, aes(x=time, y=PID, col=node)) +

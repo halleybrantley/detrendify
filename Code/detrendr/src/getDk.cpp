@@ -1,7 +1,8 @@
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::plugins(cpp11)]]
 #include <cmath>
-#include "getDk.hpp"
+#include "include/getDk.hpp"
 using namespace Rcpp;
 using namespace arma;
 
@@ -11,9 +12,6 @@ using namespace arma;
 //'
 //' @param n length of input
 //' @export
-//' @examples
-//' n <- 5
-//' D1 <- get_D1(n)
 // [[Rcpp::export]]
 arma::sp_mat get_D1(int n){
   int numberNonZero = 2*(n-1);

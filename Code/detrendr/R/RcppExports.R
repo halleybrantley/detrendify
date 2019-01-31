@@ -7,9 +7,6 @@
 #'
 #' @param n length of input
 #' @export
-#' @examples
-#' n <- 5
-#' D1 <- get_D1(n)
 get_D1 <- function(n) {
     .Call('_detrendr_get_D1', PACKAGE = 'detrendr', n)
 }
@@ -51,19 +48,6 @@ chol_solve <- function(cholM, b, k, upper = TRUE) {
 #' @param w input
 #' @param tau quantile parameter
 #' @param alpha scale parameter
-#' @examples
-#' set.seed(12345)
-#' n <- 1e3
-#' w <- seq(-3, 3, length.out=n)
-#' tau <- 0.5
-#' alpha <- 2
-#' prox_out <- prox_quantile(w, tau, alpha)
-#' plot(w, prox_out, type='l', main=expression(paste(tau," = ")))
-#'
-#' tau <- 0.05
-#' alpha <- 2
-#' prox_out <- prox_quantile(w, tau, alpha)
-#' plot(w, prox_out, type='l', main=expression(paste(tau," = ")))
 #' @export
 prox_quantile <- function(w, tau, alpha) {
     .Call('_detrendr_prox_quantile', PACKAGE = 'detrendr', w, tau, alpha)
@@ -153,43 +137,18 @@ spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step 
 #'
 #' Multiple steps of Spingarn's algorithm
 #'
-#' \code{spingarn_one_step}
+#' \code{spingarn_multi_step}
 #' @param theta input 1
 #' @param eta input 2
 #' @param y response
-#' @param k order of derivative
+#' @param D discrete differencing matrix
+#' @param cholM cholesky of I + DtD
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param step step-size
 #' @param numberIter number of iterations
+#' @param k order of differencing
 #' @export
-#' @examples
-#' set.seed(12345)
-#' n <- 4e3
-#' x <- seq(1/n, 1, length.out=n)
-#' f <- 2*(x + 2)^2 + 3*cos(3*pi*x)
-#' tau <- 5e4
-#' g1 <- 40*exp(-tau*(x-0.3)^2)
-#' g2 <- 30*exp(-3*tau*(x-0.5)^2)
-#' g3 <- 37*exp(-tau*(x-0.7)^2)
-#' g4 <- 45*exp(-tau/10*(x-0.55)^2)
-#' y <- f + g1 + g2 + g3 + g4 + rnorm(n)
-#' plot(y~x, type="l")
-#' k <- 3
-#' D <- get_Dk(n, k)
-#' M <- diag(n) + crossprod(D)
-#' cholM <- as.matrix(chol(M))
-#' lambda <- 10
-#' tau <- 0.01
-#' step <- 1
-#' numberIter <- 100
-#' multi_step <- spingarn_multi_iter(theta, eta, y, n, k, lambda,
-#' tau, step, numberIter)
-#' theta <- multi_step[[1]]
-#' theta_last <- prox_f1(theta, y, tau)
-#' plot(x,f,type='l',col='blue', ylim=c(min(y),max(y)), lwd=3)
-#' points(x,y,pch=16)
-#' lines(x,theta_last,col='red', lwd=3)
 spingarn_multi_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, numberIter = 1, k = 3L) {
     .Call('_detrendr_spingarn_multi_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, numberIter, k)
 }

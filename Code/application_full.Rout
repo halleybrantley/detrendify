@@ -48,14 +48,16 @@ The following objects are masked from ‘package:base’:
 
 > load_all("detrendr")
 Loading detrendr
-Loading required package: Matrix
-
-Attaching package: ‘Matrix’
-
-The following object is masked from ‘package:tidyr’:
-
-    expand
-
+Re-compiling detrendr
+  ─  installing *source* package ‘detrendr’ ... (484ms)
+     ** libs
+     g++  -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/include" -DNDEBUG -DARMA_64BIT_WORD=1 -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/Rcpp/include" -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/RcppArmadillo/include" -I/usr/local/include  -std=c++11 -fpic  -O2  -UNDEBUG -Wall -pedantic -g -O0 -c RcppExports.cpp -o RcppExports.o
+     g++  -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/include" -DNDEBUG -DARMA_64BIT_WORD=1 -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/Rcpp/include" -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/RcppArmadillo/include" -I/usr/local/include  -std=c++11 -fpic  -O2  -UNDEBUG -Wall -pedantic -g -O0 -c getDk.cpp -o getDk.o
+     g++  -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/include" -DNDEBUG -DARMA_64BIT_WORD=1 -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/Rcpp/include" -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/RcppArmadillo/include" -I/usr/local/include  -std=c++11 -fpic  -O2  -UNDEBUG -Wall -pedantic -g -O0 -c prox.cpp -o prox.o
+     g++  -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/include" -DNDEBUG -DARMA_64BIT_WORD=1 -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/Rcpp/include" -I"/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/library/RcppArmadillo/include" -I/usr/local/include  -std=c++11 -fpic  -O2  -UNDEBUG -Wall -pedantic -g -O0 -c spingarn.cpp -o spingarn.o
+     g++ -shared -L/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/lib -L/usr/local/lib64 -L/lib64 -o detrendr.so RcppExports.o getDk.o prox.o spingarn.o -Wl,--no-as-needed -lmkl_gf_lp64 -Wl,--start-group -lmkl_gnu_thread -lmkl_core -Wl,--end-group -fopenmp -ldl -lpthread -lm -lgfortran -lm -lquadmath -L/usr/local/apps/R/gcc_4.8.5/R-3.5.1/lib64/R/lib -lR
+     installing to /gpfs_common/share02/triclustering/hlbrantl/tmp/RtmpedTHiR/devtools_install_35eb4539bb05/detrendr/libs
+  ─  DONE (detrendr)
 
 Attaching package: ‘testthat’
 
@@ -76,33 +78,49 @@ The following object is masked from ‘package:purrr’:
     is_null
 
 > rm(list=ls())
-> spod <- read.csv("../SPod/fhrdata_2017-11-30.csv", 
+> spod <- read.csv("../SPod/SENTINEL Data_2017-04-13.csv", 
 +                  header=TRUE,  na.strings = "N/A")
 > spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
 +                                  format= "%m/%d/%Y %H:%M:%S")) 
 > 
+> surge0 <- which(spod$d.SPOD.Sonic.Voltage > 14)
+> surge <- c()
+> for (i in seq(-70, 70, 1)){
++   surge <- c(surge, surge0+i)
++ }
+> surge <- unique(surge)
+> 
+> nodes <- c("c", "d", "e")
+> spodPIDs <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")])
+> names(spodPIDs) <- nodes
+> spodPIDs$time <- spod$time
+> spodPIDs$d[surge] <- NA
+> for (node in nodes){
++   spodPIDs[,node] <- (spodPIDs[,node] - min(spodPIDs[,node], na.rm=T))*5/
++     (max(spodPIDs[,node], na.rm=T)-min(spodPIDs[,node], na.rm=T))
++ }
+> save(spodPIDs, file = "../SPod/spodPIDs.RData")
+> 
 > window_size <- 5000
 > overlap <- 1000
-> max_iter <- 20
-> tau <- c(0.05, 0.1, 0.15)
+> max_iter <- 30
+> tau <- c(0.1, 0.15)
 > k <- 3
 > spod_trends <- data.frame(time = spod$time)
 > 
-> 
-> for (node in c("f", "g", "h")){
-+   pidCol <- paste(node, "SPOD.PID..V.", sep=".")
-+   spodNode <- spod[, c("time", pidCol)]
+> for (node in c("c", "d", "e")){
++   spodNode <- spodPIDs[, c("time", node)]
 +   names(spodNode)[2] <- c("pid")
-+   spodNode$pid <- spodNode$pid/1000
 +   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-+                           lambdaSeq = window_size^seq(1.1, 1.8, length.out=10),
++                           lambdaSeq = exp(seq(12,19,1)),
 +                           df_tol = 1e-9,
 +                           gamma = 1,
-+                           plot_lambda = FALSE,
++                           plot_lambda = TRUE,
 +                           solver = NULL,
 +                           criteria = "eBIC", 
 +                           max_iter = max_iter, 
-+                           rho = 9)
++                           rho = 1, 
++                           update = 2)
 +   save(result, file=sprintf("../SPod/node_%s_trend.RData", node))
 +   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
 +   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
@@ -121,10 +139,20 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
+Using same lambda for all quantiles
 Loading required package: gurobi
 Loading required package: slam
-[1] "Converged in 4 iterations"
-[1] "i=1 lambda=11718.364558"
+[1] "Iteration: 2 Primal Resid Norm: 20.1091 eps_pri: 24.5881, Dual Resid Norm: 17.4363  eps_dual 20.9017"
+[1] "Converged in 2 iterations"
+[1] "i=1 lambda=162754.791419"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -138,8 +166,6 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-[1] "Converged in 5 iterations"
-[1] "i=2 lambda=22728.180606"
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
@@ -149,88 +175,3 @@ Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
 Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 6 iterations"
-[1] "i=3 lambda=44082.106431"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 5 iterations"
-[1] "i=4 lambda=85498.797334"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 6 iterations"
-[1] "i=5 lambda=165827.927416"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Converged in 7 iterations"
-[1] "i=6 lambda=321629.103201"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Iteration: 10 Primal Resid Norm: 0.5152 eps_pri: 3.9857, Dual Resid Norm: 3.8787  eps_dual 3.9806"
-[1] "Converged in 10 iterations"
-[1] "i=7 lambda=623810.968619"
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-Using same lambda for all quantiles
-[1] "Problem not solved."
-Error in phi[, i] <- x[(1 + np * (i - 1)):(n + np * (i - 1))] - x[(n +  : 
-  replacement has length zero
-Calls: get_windows_BIC -> get_trend_windows -> mapply -> <Anonymous>
-Execution halted
