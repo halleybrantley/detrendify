@@ -10,7 +10,7 @@ text_size <- 14
 tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 100
 simDesigns <- c( "mixednorm", "shapebeta", "gaus")
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", "rqss", "npqw")
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "rqss", "npqw", "qsreg")
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns), 
                              ncol = length(tau)+4))
 colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))

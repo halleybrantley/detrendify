@@ -19,13 +19,13 @@ get_confusion <- function(spod_signal, nodes){
   for (i in 1:ncol(spod_signal)){
     spod_signal[,i] <- factor(spod_signal[,i])
   }
-  mat_h1 <- confusionMatrix(spod_signal[spod_signal[, nodes[3]]==1, nodes[1]],
-                            spod_signal[spod_signal[, nodes[3]]==1, nodes[2]])
+  mat_0 <- confusionMatrix(spod_signal[spod_signal[, nodes[1]]==0, nodes[2]],
+                            spod_signal[spod_signal[, nodes[1]]==0, nodes[3]])
   
-  mat_h0 <- confusionMatrix(spod_signal[spod_signal[, nodes[3]]==0, nodes[1]],
-                            spod_signal[spod_signal[, nodes[3]]==0, nodes[2]])
+  mat_1 <- confusionMatrix(spod_signal[spod_signal[, nodes[1]]==1, nodes[2]],
+                            spod_signal[spod_signal[, nodes[1]]==1, nodes[3]])
   
-  conf_out <- data.frame(t(c(as.numeric(mat_h0$table), as.numeric(mat_h1$table))))
+  conf_out <- data.frame(t(c(as.numeric(mat_0$table), as.numeric(mat_1$table))))
   names(conf_out) <- c("nodes000", "nodes010", 
                        "nodes001", "nodes011", 
                        "nodes100", "nodes110", 

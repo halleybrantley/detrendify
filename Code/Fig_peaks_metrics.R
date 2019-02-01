@@ -3,7 +3,7 @@
 # Halley Brantley
 ################################################################################
 library(tidyverse)
-
+rm(list=ls())
 i <- 10
 n <- 4000
 tau <- c(0.01, 0.05, 0.1)
@@ -41,8 +41,8 @@ tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
 colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
                 '#a6dba0','#5aae61','#1b7837'))
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", 
-             "rqss", "npqw") 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", 
+             "rqss", "npqw", "qsreg") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
                              ncol = length(tau)+3))
 colnames(MSEs) <- c("Sim", "Method", "n", paste0("tau_", tau))

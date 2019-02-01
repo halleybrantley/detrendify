@@ -9,13 +9,6 @@ library(Hmisc)
 library(zoo)
 load_all("detrendr")
 rm(list=ls())
-# spod <- read.csv("../SPod/fhrdata_2017-11-30.csv", 
-#                  header=TRUE,  na.strings = "N/A")
-# spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
-#                                  format= "%m/%d/%Y %H:%M:%S")) 
-# spodPID <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")]/1000)
-# names(spodPID) <- nodes
-# spodPID$time <- spod$time
 
 load("../SPod/spodPIDs.RData")
 nodes <- c("c", "d", "e")
@@ -26,7 +19,7 @@ spodPIDs <- spodPID %>%
          time <= as.POSIXct("2017-04-13 13:20:00")+6000)
 
 plot(spodPIDs$c, type="l")
-tau <- c(0.5, 0.1, 0.15)
+tau <- c(0.1, 0.15)
 k <- 3
 
 detrendr_trends <- data.frame(time = spodPIDs$time)
@@ -38,7 +31,7 @@ for (node in nodes){
   spodPIDs[,node] <- na.locf(spodPIDs[,node])
   spodPIDs[missID, node] <- spodPIDs[missID, node]  + rnorm(length(missID), 0, .001)
   result <- get_trend_BIC(spodPIDs[, node], tau, k, 
-                            lambdaSeq = exp(seq(11,18,1)),
+                            lambdaSeq = exp(seq(12,17,1)),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,

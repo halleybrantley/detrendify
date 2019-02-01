@@ -10,15 +10,26 @@ load_all("detrendr")
 rm(list=ls())
 load("../SPod/trends_short.RData")
 source("application_functions.R")
-colPal <- c('#1b7837', '#c2a5cf')
-
+colPal <- c('#1b7837', '#762a83')
+nodes <- c("c", "d", "e")
 
 spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
-                                              contains(paste(0.10)))
+                                              contains(paste(0.15)))
+spodFig <- data.frame(time = spodPIDs$time, 
+                      detrendr = detrendr_trends$c_0.15, 
+                      qsreg = qsreg_trends$c_0.15) %>%
+  gather("type","value", -time)
 
-plot(spodPIDs$d, type="l")
-lines(detrendr_trends$d_0.1, col="red")
-lines(qsreg_trends$d_0.1, col="blue")
+ggplot(spodFig, aes(x=time, y=value)) + 
+  geom_line(data=spodPIDs, aes(y=c), col="darkgrey")+
+  geom_line(aes(col=type, group=type)) + 
+  theme_bw() +
+  scale_color_manual(breaks = c("detrendr", "qsreg"), 
+                     values = c(colPal)) +
+  labs(col="", x="", y="PID")
+ggsave("../Manuscript/Figures/short_trends.png", width = 7, height = 2.5)
+
+
 ################################################################################
 
 methods <- c("detrendr", "qsreg")
@@ -29,7 +40,7 @@ metrics <- c("confusion", "NMI", "VI")
 for (method in methods){
   trends <- get(paste(method, "trends", sep = "_"))
   for (j in 1:length(tau)){
-    for (crit in c(2, 3, 4, 5)){
+    for (crit in c(3, 4, 5)){
       signal <- get_spod_signal(tau[j], trends, spodPIDs, crit)
       for (metric in metrics){
         if (metric == "confusion"){
@@ -76,6 +87,7 @@ ggplot(VI, aes(x=nodes, y = value, col = method)) +
   geom_point(position = position_dodge(width = .5), size = 2) +
   theme_bw() +
   scale_color_manual(values=colPal, breaks = methods) +
+  scale_x_discrete(labels = c("cd", "ce", "ed"))+
   facet_grid(crit~factor(tau), scales = "free") +
   labs(y="Variation of Information", x = "Sensor Nodes", col = "")
 ggsave("../Manuscript/Figures/VI_app_short.png", width = 7, height = 3.5)
@@ -96,7 +108,7 @@ latex(confusion %>% filter(crit == 3) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
+      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
       set as the median + 3*MAD.")
 
 latex(confusion %>% filter(crit == 4) %>% select(-crit),
@@ -107,10 +119,10 @@ latex(confusion %>% filter(crit == 4) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
+      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
       set as the median + 4*MAD.")
 
-latex(confusion %>% filter(crit == 2) %>% select(-crit),
+latex(confusion %>% filter(crit == 5) %>% select(-crit),
       file = "../Manuscript/short_confusion_detrend_MAD5.tex",
       rowlabel = "",
       rowname = "",
@@ -118,14 +130,14 @@ latex(confusion %>% filter(crit == 2) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
-      set as the median + 2*MAD.")
+      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
+      set as the median + 5*MAD.")
 
 ################################################################################
 # Rug plot
-crit <- 5
+crit <- 3
 tau0 <- 0.15
-trends <- qsreg_trends
+trends <- detrendr_trends
 
 # par(mfrow=c(2,1), mar = c(2,2,0,0))
 # plot(spodPIDs[, nodes[1]], type="l")
@@ -170,9 +182,9 @@ ggplot(spodLong, aes(x=time, y=PID)) +
   geom_rug(data = spodLong_signal, sides = "b") +
   geom_line(col="grey") +
   theme_bw() +
-  geom_hline(data=thresholds, aes(yintercept = thresh))+
+  geom_hline(data=thresholds, aes(yintercept = thresh), linetype="dashed")+
   facet_grid(node~., scales="free_y") 
   # xlim(c(as.POSIXct("2017-11-30 11:00:01 EST"), 
   #        as.POSIXct("2017-11-30 12:00:01 EST"))) +
   #ylim(c(0, .2))
-ggsave("../Manuscript/Figures/corrected_rugplot.png", width = 7, height = 3)
+ggsave("../Manuscript/Figures/corrected_rugplot.png", width = 7, height = 4)

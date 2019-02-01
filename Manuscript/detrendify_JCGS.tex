@@ -98,7 +98,7 @@
 	\end{figure}
 	 
 	
-	One application in which the observed time series consists of a slowly varying baseline, non-negative signal, and rapidly varying noise is the output of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Fig. \ref{fig:raw_spod} provides an example of 3 co-located SPod sensor outputs during a proximate release on a test range. While all of the sensors response to the pollutant signal, the amount of baseline drift varies from one node to another.
+	One application in which the observed time series consists of a slowly varying baseline, non-negative signal, and rapidly varying noise is the output of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Fig. \ref{fig:raw_spod} provides an example of 3 co-located SPod sensor outputs from near an industrial facility. While all of the sensors response to the pollutant signal, the amount of baseline drift varies from one node to another.
 	 
 	\begin{figure}[b!]
 		\caption{Example of 3 co-located SPod PID sensor readings.}
@@ -236,12 +236,13 @@
 		\includegraphics[width = 0.8\linewidth]{Figures/admm_windows.png}
 	\end{figure}
 
-	Timing experiments illustrate the advantages of using our ADMM algorithm even on datasets where solving the problem simultaneously is possible. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below and trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using a $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. 
+	Timing experiments illustrate the advantages of using our ADMM algorithm even on datasets where solving the problem simultaneously is possible. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below and trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using a $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. As is shown in Fig. \ref{fig:timing}, using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on   
 	
 	\begin{figure}[!h] 
 		\centering
 		\caption{Timing experiments comparing quantile trend filtering with varying numbers of windows by data size.}
 		\includegraphics[width = 0.7\linewidth]{Figures/Fig_timing_experiment.png}
+		\label{fig:timing}
 	\end{figure}
 
 	\subsection{Regularization Parameter Choice}
@@ -283,7 +284,7 @@
 	
 	We conduct two simulation studies to compare the performance of our quantile trend filtering method and regularization parameter selection criteria with previously published methods. The first study compares the method's ability to estimate quantiles when the only components of the observed series are a smooth trend and a random component. The second study is based on our application and compares the method's ability to estimate baseline trends and enable peak detection when the time series contains a non-negative signal component in addition to the trend and random component. 
 	
-	We compare the performance of our quantile trend filtering method with the three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011, nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The regularization parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation based on the quantile criterion \cite{Oh2011}. 
+	We compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011, nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The regularization parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation based on the quantile criterion \cite{Oh2011}. 
 	
 	We also compare three criteria for choosing the smoothing parameter with our quantile trend filtering method with a single window: \texttt{detrendr\_SIC} $\lambda$ chosen using SIC (Eq. \ref{eq:SIC}) \citep{KoenkerNgPortnoy1994}; \texttt{detrendr\_valid}: $\lambda$ is chosen by leaving out every 5th observation as a validation data set and minimizing the check loss function evaluated at the validation data; \texttt{detrendr\_eBIC}:  the proposed scaled eBIC criteria (Eq. \ref{eq:eBIC}). 
 	
@@ -324,7 +325,7 @@
 	\begin{equation}
 	Y(t) = s(t) + b(t) + \epsilon(t)
 	\end{equation} 
-	with $t = 1, ..., n$, where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon(t) \sim N(0, 0.25^2)$ is an error component. We generate $b(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The peaks were then multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. One hundred datasets were generated for $n=\{500, 1000, 2000, 4000\}$. We compare the ability of the methods to estimate the true quantiles of $b(t) + \epsilon$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (Fig. \ref{fig:peaks_rmse}). In this case our \texttt{detrend\_eBIC} method outperforms the others substantially, the \texttt{qsreg} method is comparable on the smaller datasets but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design. 
+	with $t = 1, ..., n$, where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon(t) \sim N(0, 0.25^2)$ is an error component. We generate $b(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The simulated peaks were multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. One hundred datasets were generated for each $n=\{500, 1000, 2000, 4000\}$. We compare the ability of the methods to estimate the true quantiles of $Y(t)-s(t)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (Fig. \ref{fig:peaks_rmse}). In this simulation study our \texttt{detrend\_eBIC} method outperforms the others substantially. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the smaller datasets but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design. 
 	
 	\begin{figure}
 		\caption{RMSE by method, quantile and data size for peaks design.}
@@ -332,16 +333,16 @@
 		\label{fig:peaks_rmse}
 	\end{figure}
 	
-	In our application, we want to accurately classify the observations into signal and no signal using a threshold. To evaluate the accuracy of our method compared to other methods we define true signal as any time when the simulated peak value is greater than 0.5. We compared three different quantiles for the baseline estimation and four different thresholds for separating the estimated signal after subtracting the estimated baseline from the observations.  An illustration of the observations classified as signal after subtracting the baseline trend compared to the ``true signal" is shown in Fig. \ref{fig:peaks_class_eg}. To compare the resulting signal classifications we calculate the class averaged accuracy (CAA). Defining $s(t) \in \{0,1\}$ as the vector of true signal classification and $\hat{s}(t) \in \{0,1\}$ as the estimated signal classification, the CAA is defined as
+	In our application, we want to accurately classify the observations into signal and no signal using a threshold. To evaluate the accuracy of our method compared to other methods we define true signal as any time point when the simulated peak value is greater than 0.5. We compare three different quantiles for the baseline estimation and four different thresholds for classifying the signal after subtracting the estimated baseline from the observations.  An illustration of the observations classified as signal after subtracting the baseline trend compared to the ``true signal" is shown in Fig. \ref{fig:peaks_class_eg}. To compare the resulting signal classifications we calculate the class averaged accuracy (CAA). Defining $s(t) \in \{0,1\}$ as the vector of true signal classification and $\hat{s}(t) \in \{0,1\}$ as the estimated signal classification, the CAA is defined as
 	\begin{equation}
 	\mbox{CAA} = \frac{1}{2}\left(\frac{\sum_{t=1}^n \mathbf{I}[s(t) = 1 \cap \hat{s}(t)=1]}{\sum_{t=1}^n \mathbf{I}[s(t) = 1]} + \frac{\sum_{t=1}^n \mathbf{I}[s(t) = 0 \cap \hat{s}(t)=0]}{\sum_{t=1}^n \mathbf{I}[s(t) = 0]}\right).
 	\end{equation}  
 	We use this metric because our classes tend to be very un-balanced with many more $0$s than $1$s. The CAA metric will always give a score of 0.5 for random guessing and also for trivial classifiers such as $\hat{s}(t) = 0$ for all $t$. 
 
-	Our detrend\_BIC method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles. 
+	Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles. 
 	
 	\begin{figure}[h!]
-		\caption{Example signal classification using threshold. Red indicates true signal $>0.5$, blue indicates observations classified as signal after baseline removal using eBIC detrendr and a threshold of 1.2.}
+		\caption{Example signal classification using threshold. Red indicates true signal $>0.5$, blue indicates observations classified as signal after baseline removal using \texttt{detrend\_eBIC} and a threshold of 1.2.}
 		\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
 		\label{fig:peaks_class_eg}
 	\end{figure}
@@ -357,29 +358,35 @@
 	
 	\section{Application}
 	
-	The low-cost ``SPod" sensors that are being investigated by researchers at the U.S. Environmental Protection Agency output a time series that includes a slowly varying baseline, high frequency random noise, and the sensor response to VOCs proximity. A potential use for these sensors is to monitor pollutant concentrations at fenceline facilities and detect time points when high concentrations are present. Ideally 3 co-located and time aligned sensors (as shown in Fig. \ref{fig:raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. 
+	The low-cost ``SPod" air quality sensors output a time series that includes a slowly varying baseline, high frequency random noise, and the sensor response to pollutants. A potential use for these sensors is to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in Fig. \ref{fig:raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. 
 	
-	We compare our \texttt{detrend\_eBIC} method with the \texttt{qsreg} method on a subset of the real data (n=5000) since the \texttt{qsreg} method cannot handle all 15 hours simultaneously. We estimate the baseline trend using the 5\textsuperscript{th}, 10\textsuperscript{th}, and 15\textsuperscript{th} quantiles and compare three thresholds for classifying signal. The thresholds are calculated using the median plus a multiple of the median absolute deviation (Eq. \ref{eq:MAD}) of the detrended series. 
+	\begin{figure}
+		\caption{Estimated 15\textsuperscript{th} quantile trends on subset of the data using \texttt{qsreg} and \texttt{detrend\_eBIC}.} 
+		\includegraphics[width = \linewidth]{Figures/short_trends.png}
+		\label{fig:short-trends}
+	\end{figure}
+
+	We compare our \texttt{detrend\_eBIC} method with the \texttt{qsreg} method on a subset of the SPod data (n=6000) since the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using the 10\textsuperscript{th} and 15\textsuperscript{th} quantiles and compare three thresholds for classifying signal. The thresholds are calculated using the median plus a multiple of the median absolute deviation (Eq. \ref{eq:MAD}) of the detrended series. 
 	\begin{equation}
 	\label{eq:MAD}
-	\mbox{MAD} = \mbox{median}(y-\tilde{y})
+	\mbox{MAD} = \mbox{median}(y-\tilde{y}),
 	\end{equation}
-	where $\tilde{y}$ is the median of $y$. Given a method, quantile level and MAD multiple, we estimate the quantile trend for each of the sensor nodes and subtract it from the observations. We then calculate the threshold using the median plus the multiple times MAD of the corrected series and classify the corrected series based on the threshold. Fig. \ref{fig:rugplot} shows the time series used after estimating the baseline using the \texttt{detrend\_eBIC} estimate of the 10\textsuperscript{th} quantile and a threshold with an MAD multiple of 2. 
+	where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensor nodes and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. An example of the estimated baseline fit for each method is shown in Fig. \ref{fig:short-trends}, while Fig. \ref{fig:rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 3. 
 	 
  	\begin{figure}
-	 	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 10th quantile.}
+	 	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 15th quantile. Horizontal dashed lines represent the thresholds.}
 	 	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
 	 	\label{fig:rugplot}
 	 \end{figure}
 	 
-	Given the signal classifications for node g, $s_g(t) \in \{0,1\}$ and node f, $s_f(t)\in\{0,1\}$ we want to compare the similarity between the two classifications. One metric for evaluating the distance between two classifications is the variation of information (VI): 
-	\begin{align}
-		r_{ij} =& \frac{1}{n}\sum_t \mathbf{I}(s_f(t) = i  \cap s_g(t) = j)\\
-		VI(s_f, s_g) =& -\sum_{i,j} r_{ij} \left[ \log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_f(t) = i)}\right) + 
-		\log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_g(t) = j)}\right) \right]
-	\end{align}	
-	The VI is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different. The VIs by method, quantile and trend are shown in Fig. \ref{fig:vi}. Using the smallest threshold the methods perform similarly although the lowest VIs are observed for the 15\textsuperscript{th} quantile using the \texttt{detrend\_eBIC} method. For the larger thresholds the \texttt{detrend\_eBIC} method produces substantially lower VI distances between nodes than the \texttt{qsreg} method.  
-	
+	Given the signal classifications for node 1, $s_1(t) \in \{0,1\}$ and node 2, $s_2(t)\in\{0,1\}$ we want to compare the similarity between the two classifications. One metric for evaluating the distance between two classifications is the variation of information (VI): 
+	\begin{align*}
+		r_{ij} =& \frac{1}{n}\sum_t \mathbf{I}(s_1(t) = i  \cap s_2(t) = j)\\
+		VI(s_1, s_2) =& -\sum_{i,j} r_{ij} \left[ \log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_1(t) = i)}\right) + 
+		\log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_2(t) = j)}\right) \right]
+	\end{align*}	
+	The VI is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different. The VIs by method, quantile and trend are shown in Fig. \ref{fig:vi}. In all cases our \texttt{detrend} method results in classifications that are more similar than those from the \texttt{qsreg} method. As is illustrated in Fig. \ref{fig:short-trends} and Fig. \ref{fig:rugplot}, our method results in a smoother baseline estimate which improves signal classification. 
+		
 	\begin{figure}
 		\centering
 		\caption{Variation of Information between sensor nodes after trend removal by quantile and method and thresholding by factor of MAD.}
@@ -387,7 +394,7 @@
 		\label{fig:vi}
 	\end{figure}
 	
-	Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 52,322 observations per node. The VI scores for the full dataset were 0.14, 0.13, and 0.14 for nodes f and g, f and h, and g and h, respectively. The complete confusion matrices for the nodes using a MAD multiple of 3 for the threshold is given in Table 1. 
+	Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 86,401 observations per node. The VI scores for the full dataset were 0.36, 0.24, and 0.41 for nodes c and d, c and e, and d and e, respectively. The complete confusion matrices for the nodes using a MAD multiple of 5 for the threshold is given in Table 1. 
 		
 	\begin{figure}
 		\caption{Low cost sensor data after drift removal using windowed detrend with eBIC.}
@@ -398,8 +405,9 @@
 	
 
 	\section{Conclusion and Discussion}
-	We have expanded the ideas of quantile trend filtering and demonstrated it's utility in both simulations and applied settings. Our ADMM algorithm for large series both reduces the computing time and allows trends to be estimated on series that cannot be estimated simultaneously while our scaled extended BIC criteria was shown to provided better estimated of quantile trends in series with and without a signal component. We have also shown that the baseline drift in low cost air quality sensors can be removed through estimating quantile trends. 
-	In the future quantile trend filtering could be extended to observations measured at non-uniform spacing by incorporating the distance in covariate spacing into the differencing matrix. It could further be extended to estimate smooth spatial trends by adjusting the differencing matrix accordingly. 
+	We have expanded the quantile trend filtering method by implementing a non-crossing constraint and a new algorithm for processing large series, and proposing a modified criteria for smoothing parameter selection. Furthermore we have demonstrated the utility of quantile trend filtering in both simulations and applied settings. Our ADMM algorithm for large series both reduces the computing time and allows trends to be estimated on series that cannot be estimated simultaneously while our scaled extended BIC criteria was shown to provided better estimated of quantile trends in series with and without a signal component. We have also shown that the baseline drift in low cost air quality sensors can be removed through estimating quantile trends.
+	 
+	In the future, quantile trend filtering could be extended to observations measured at non-uniform spacing by incorporating the distance in covariate spacing into the differencing matrix. It could also be extended to estimate smooth spatial trends by a similar adjustment to the differencing matrix based on spatial distances between observations. 
 	
 	\label{sec:conc}
 	

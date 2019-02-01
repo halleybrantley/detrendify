@@ -4,13 +4,14 @@
 ################################################################################
 library(tidyverse)
 library(devtools)
+rm(list=ls())
 load_all("detrendr")
 colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
                 '#a6dba0','#5aae61','#1b7837'))
-rm(list=ls())
+
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "qsreg", "rqss", "npqw") 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "rqss", "npqw", "qsreg") 
 metrics <- data.frame(method = NA, n = NA, sim = NA, 
                       metric = NA, metric_type = NA, threshold = NA)
 
@@ -100,8 +101,8 @@ signal_hat <- as.numeric(y_adj > thresh[4])
 trend <- as.data.frame(trend)
 trend$x <- df$x
 ggplot(df, aes(x=x, y=y)) + geom_line(col="grey") +
-  geom_point(data=subset(df, signal==1), col="red", size = 2) +
-  geom_point(data=df[signal_hat==1,], col="blue") + 
+  geom_point(data=subset(df, signal==1), col="red", size = 1.4) +
+  geom_point(data=df[signal_hat==1,], col="blue", size = 0.8) + 
   geom_line(data=trend, aes(y=V3)) +
   theme_bw() + 
   theme(text = element_text(size=16)) +

@@ -1,19 +1,17 @@
-%latex.default(confusion %>% filter(crit == 4) %>% select(-crit),     file = "../Manuscript/short_confusion_detrend_MAD4.tex",     rowlabel = "", rowname = "", colheads = c("Method", "Quantile",         "0,0,0", "1,0,0", "0,1,0", "1,1,0", "1,0,0", "1,1,0",         "1,0,1", "1,1,1"), caption = "Confusion matrices for 3 SPod nodes after baseline \n      removal (n=5000). Node order is f, g, h. The threshold for the signal was \n      set as the median + 4*MAD.")%
+%latex.default(confusion %>% filter(crit == 4) %>% select(-crit),     file = "../Manuscript/short_confusion_detrend_MAD4.tex",     rowlabel = "", rowname = "", colheads = c("Method", "Quantile",         "0,0,0", "1,0,0", "0,1,0", "1,1,0", "1,0,0", "1,1,0",         "1,0,1", "1,1,1"), caption = "Confusion matrices for 3 SPod nodes after baseline \n      removal (n=6000). Node order is c, d, e. The threshold for the signal was \n      set as the median + 4*MAD.")%
 \begin{table}[!tbp]
 \caption{Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=5000). Node order is f, g, h. The threshold for the signal was 
+      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
       set as the median + 4*MAD.\label{confusion}} 
 \begin{center}
 \begin{tabular}{llrrrrrrrrr}
 \hline\hline
 \multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{Quantile}&\multicolumn{1}{c}{0,0,0}&\multicolumn{1}{c}{1,0,0}&\multicolumn{1}{c}{0,1,0}&\multicolumn{1}{c}{1,1,0}&\multicolumn{1}{c}{1,0,0}&\multicolumn{1}{c}{1,1,0}&\multicolumn{1}{c}{1,0,1}&\multicolumn{1}{c}{1,1,1}\tabularnewline
 \hline
-&detrendr&$0.05$&$4670$&$24$&$40$&$38$&$ 3$&$19$&$14$&$192$\tabularnewline
-&qsreg&$0.05$&$4663$&$34$&$42$&$49$&$11$&$ 6$&$21$&$174$\tabularnewline
-&detrendr&$0.10$&$4670$&$25$&$44$&$35$&$ 3$&$17$&$14$&$192$\tabularnewline
-&qsreg&$0.10$&$4675$&$41$&$27$&$55$&$10$&$ 5$&$36$&$151$\tabularnewline
-&detrendr&$0.15$&$4683$&$26$&$31$&$34$&$ 3$&$17$&$14$&$192$\tabularnewline
-&qsreg&$0.15$&$4705$&$41$&$26$&$48$&$ 3$&$ 6$&$37$&$134$\tabularnewline
+&detrendr&$0.10$&$5632$&$53$&$  7$&$1$&$67$&$35$&$ 59$&$146$\tabularnewline
+&qsreg&$0.10$&$5204$&$33$&$237$&$2$&$96$&$45$&$178$&$205$\tabularnewline
+&detrendr&$0.15$&$5624$&$37$&$  3$&$1$&$85$&$48$&$ 60$&$142$\tabularnewline
+&qsreg&$0.15$&$5273$&$29$&$141$&$2$&$94$&$41$&$210$&$210$\tabularnewline
 \hline
 \end{tabular}\end{center}
 \end{table}

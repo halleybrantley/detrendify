@@ -10,7 +10,7 @@ load_all("detrendr")
 rm(list=ls())
 source("application_functions.R")
 load("../SPod/spodPIDs.RData")
-
+nodes <- c("c", "d", "e")
 spodRaw <- spodPIDs %>%
   gather("node", "PID", -time)
 
@@ -19,14 +19,13 @@ ggplot(spodRaw, aes(x=time, y=PID, col=node)) +
   theme_bw() +
   #facet_grid(node~., scales = "free")+
   scale_color_brewer(palette = "Set1", labels = nodes)+
-  xlim(c(as.POSIXct("2017-04-13 12:30:01 EST"), 
-         as.POSIXct("2017-04-13 13:30:01 EST")))
+  # xlim(c(as.POSIXct("2017-04-13 12:30:01 EST"), 
+  #        as.POSIXct("2017-04-13 13:30:01 EST")))
 ggsave("../Manuscript/Figures/uncorrected_data.png", width = 7, height = 2.5)
 
 load("../SPod/spod_trends.RData")
-spodPeaks <- spodPIDs - select(spod_trends, contains("0.15"))
+spodPeaks <- select(spodPIDs, -time) - select(spod_trends, contains("0.15"))
 spodPeaks$time <- spod_trends$time
-spodPIDs$time <- spod_trends$time
 spodLong <- spodPeaks %>% gather("node","PID", -time)
 
 ggplot(spodLong, aes(x=time, y=PID, col=node)) +
@@ -41,6 +40,7 @@ methods <- c("detrendr")
 metric_df <- tibble(metric=NA, method=NA, tau=NA, crit=NA, metric_type=NA)
 i <- 1
 metrics <- c("confusion", "NMI", "VI")
+nodes <- c("c", "d", "e")
 
 for (method in methods){
   trends <- get(paste(method, "trends", sep = "_"))
@@ -49,11 +49,11 @@ for (method in methods){
       signal <- get_spod_signal(tau[j], trends, spodPIDs, crit)
       for (metric in metrics){
         if (metric == "confusion"){
-          metric_df$metric[i] <- I(list(get_confusion(signal)))
+          metric_df$metric[i] <- I(list(get_confusion(signal, nodes)))
         } else if (metric == "NMI"){
-          metric_df$metric[i] <- I(list(get_NMI(signal)))
+          metric_df$metric[i] <- I(list(get_NMI(signal, nodes)))
         } else if (metric == "VI") {
-          metric_df$metric[i] <- I(list(get_VI(signal)))
+          metric_df$metric[i] <- I(list(get_VI(signal, nodes)))
         }
         metric_df$method[i] <- method
         metric_df$tau[i] <- tau[j]
@@ -68,27 +68,27 @@ for (method in methods){
 metric_df <- metric_df[-i,]
 
 confusion_df <- metric_df %>% 
-  filter(tau == 0.15, crit == 3, metric_type == "confusion") %>%
+  filter(tau == 0.15, crit == 5, metric_type == "confusion") %>%
   select(metric) %>% 
   unnest() %>% gather("Label", "Value") %>%
-  mutate(h = substr(Label, 2, 2), 
-         f = substr(Label, 4, 4),
-         g = substr(Label, 6, 6)) %>%
-  arrange(f, g, h) %>% 
+  mutate(c = substr(Label, 6, 6), 
+         d = substr(Label, 7, 7),
+         e = substr(Label, 8, 8)) %>%
+  arrange(c, d, e) %>% 
   select(-Label) %>%
-  spread(h, Value) 
+  spread(c, Value) 
 
 conf <- bind_cols(confusion_df[1:2,3:4], 
                           confusion_df[3:4,3:4])
 
-metric_df %>% filter(tau == 0.15, crit == 3, metric_type == "VI") %>% unnest()
+metric_df %>% filter(tau == 0.15, crit == 5, metric_type == "VI") %>% unnest()
 
 latex(conf,
       file = "../Manuscript/full_confusion_detrend.tex",
       rowlabel = "",
-      rowname = c("g = 0", "g = 1", "g=0", "g=1"),
-      cgroup = c("f = 0", "f = 1"),
-      colheads = rep(c("h = 0", "h = 1"),2),
+      rowname = c("d = 0", "d = 1", "d=0", "d=1"),
+      cgroup = c("c = 0", "c = 1"),
+      colheads = rep(c("e = 0", "e = 1"),2),
       n.cgroup = c(2,2),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
       removal using 15th quantil and threshold of 3*MAD (n=52322).")
