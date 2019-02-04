@@ -5,7 +5,7 @@
 \title{Consensus ADMM for overlapping windows}
 \usage{
 get_trend_windows(y, tau, lambda, k, window_size, overlap, max_iter,
-  rho = 5, update = 10, use_gurobi = TRUE, eps_abs = 0.002,
+  rho = 5, update = 10, use_gurobi = TRUE, eps_abs = 0.05,
   eps_rel = 0.001)
 }
 \arguments{
@@ -37,7 +37,7 @@ get_trend_windows(y, tau, lambda, k, window_size, overlap, max_iter,
 \code{consensus ADMM} Uses ADMM to smooth overlapping windows
 }
 \examples{
-library(Matrix)
+require(Matrix)
 n <- 100
 x <- seq(1, n, 1)
 y <- sin(x*2*pi/n) + rnorm(n, 0, .4)

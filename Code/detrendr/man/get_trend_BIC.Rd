@@ -4,9 +4,9 @@
 \alias{get_trend_BIC}
 \title{Choose smoothing parameter using SIC}
 \usage{
-get_trend_BIC(y, tau, k, lambdaSeq = length(y)^seq(0, 1.5, length.out =
-  20), df_tol = 1e-09, gamma = 1, plot_lambda = FALSE,
-  solver = NULL, criteria = "eBIC")
+get_trend_BIC(y, tau, k, lambdaSeq = exp(seq(0, 1.5, length.out = 20)),
+  df_tol = 1e-09, gamma = 1, plot_lambda = FALSE, solver = NULL,
+  criteria = "eBIC")
 }
 \arguments{
 \item{y}{observed data}
@@ -30,4 +30,15 @@ get_trend_BIC(y, tau, k, lambdaSeq = length(y)^seq(0, 1.5, length.out =
 }
 \description{
 \code{get_trend_cv} Selects smoothing parameter using Schwarz Information
+}
+\examples{
+require(Matrix)
+n <- 100
+x <- seq(1, n, 1)
+y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
+lambdaSeq <- exp(seq(-2, 5, 1))
+k <- 3
+tau <- c(0.05, .2)
+trend <- get_trend_BIC(y, tau, k, lambdaSeq, plot_lambda = TRUE)
+plot(trend$theta[,1]~x, type="l")  
 }

@@ -24,7 +24,7 @@ spingarn_one_step(theta, eta, y, D, cholM, lambda, tau = 0.05,
 
 \item{step}{step-size}
 
-\item{Vdiff}{vector}
+\item{k}{order of differencing matrix}
 }
 \description{
 \code{spingarn_one_step} updates theta and eta in place

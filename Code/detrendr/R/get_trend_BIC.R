@@ -11,10 +11,20 @@
 #' @param plot_lambda TRUE/FALSE for plotting lambda by model criteria
 #' @param solver LP solver, can be "gurobi", "Rglpk", or "lpSolve"
 #' @param criteria criteria to use for lambda selection, must be "eBIC", "SIC", or 
-#' "valid"  
+#' "valid"
+#' @examples 
+#' require(Matrix)
+#' n <- 100
+#' x <- seq(1, n, 1)
+#' y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
+#' lambdaSeq <- exp(seq(-2, 5, 1))
+#' k <- 3
+#' tau <- c(0.05, .2)
+#' trend <- get_trend_BIC(y, tau, k, lambdaSeq, plot_lambda = TRUE)
+#' plot(trend$theta[,1]~x, type="l")  
 #' @export
 get_trend_BIC <- function(y, tau, k,
-                       lambdaSeq = length(y)^seq(0, 1.5, length.out=20), 
+                       lambdaSeq = exp(seq(0, 1.5, length.out=20)), 
                        df_tol = 1e-9, 
                        gamma = 1,
                        plot_lambda = FALSE, 

@@ -12,13 +12,13 @@ using namespace arma;
 //' \code{spingarn_one_step} updates theta and eta in place
 //' @param theta input 1
 //' @param eta input 2
-//' @param Vdiff vector 
 //' @param y response
 //' @param D differencing matrix
 //' @param cholM upper cholesky of  (I + DtD)
 //' @param lambda regularization parameter
 //' @param tau quantile parameter
 //' @param step step-size
+//' @param k order of differencing matrix
 //' @export
 // [[Rcpp::export]]
 void spingarn_one_step(arma::vec& theta,

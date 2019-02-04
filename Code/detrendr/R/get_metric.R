@@ -6,7 +6,7 @@
 #' @param y vector of observations
 #' @param signal vector of true signal classification
 #' @param threshold value for threshold defining signal
-#' @param metric choise of "missclass", "recall", "CAA", "precision" or "F1"
+#' @param metric choice of "missclass", "recall", "CAA", "precision" or "F1"
 #' @export
 get_metric <- function(trend, y, signal, threshold, metric){
   y_adj <- y - trend

@@ -111,6 +111,7 @@ prox <- function(theta, eta, y, lambda, tau = 0.05, step = 1.0) {
 #' @param eta second input
 #' @param D differencing matrix
 #' @param cholM upper triangular cholesky decomposition of  I + DtD
+#' @param k order of differencing matrix
 #' @export
 project_V <- function(theta, eta, D, cholM, k) {
     invisible(.Call('_detrendr_project_V', PACKAGE = 'detrendr', theta, eta, D, cholM, k))
@@ -122,13 +123,13 @@ project_V <- function(theta, eta, D, cholM, k) {
 #' \code{spingarn_one_step} updates theta and eta in place
 #' @param theta input 1
 #' @param eta input 2
-#' @param Vdiff vector 
 #' @param y response
 #' @param D differencing matrix
 #' @param cholM upper cholesky of  (I + DtD)
 #' @param lambda regularization parameter
 #' @param tau quantile parameter
 #' @param step step-size
+#' @param k order of differencing matrix
 #' @export
 spingarn_one_step <- function(theta, eta, y, D, cholM, lambda, tau = 0.05, step = 1, k = 3L) {
     invisible(.Call('_detrendr_spingarn_one_step', PACKAGE = 'detrendr', theta, eta, y, D, cholM, lambda, tau, step, k))

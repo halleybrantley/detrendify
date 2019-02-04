@@ -14,6 +14,8 @@ project_V(theta, eta, D, cholM, k)
 \item{D}{differencing matrix}
 
 \item{cholM}{upper triangular cholesky decomposition of  I + DtD}
+
+\item{k}{order of differencing matrix}
 }
 \description{
 \code{project_V} projects (theta, eta) onto the subspace eta = D*theta.

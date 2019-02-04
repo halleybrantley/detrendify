@@ -13,19 +13,14 @@ solve_model <- function(model, solver, y=NULL, trend = TRUE){
   }
   
   if (solver == "gurobi"){
-    require(gurobi)
     x <- solve_gurobi(model)
   } else if (solver == "Rglpk") {
-    require(Rglpk)
     x <- solve_glpk(model)
   } else if (solver == "lpSolve"){
-    require(lpSolve)
     x <- solve_lp(model)
   } else if (solver == "ipop"){
-    require(kernlab)
     x <- solve_ipop(model)
   } else if (solver == "quadprog"){
-    require(quadprog)
     x <- solve_quadprog(model)
   } else {
     stop("Solver must be one of 'gurobi', 'Rglpk', 'lpSolve', 'ipop', 'quadprog'")

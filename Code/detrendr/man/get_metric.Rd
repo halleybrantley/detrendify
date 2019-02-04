@@ -15,7 +15,7 @@ get_metric(trend, y, signal, threshold, metric)
 
 \item{threshold}{value for threshold defining signal}
 
-\item{metric}{choise of "missclass", "recall", "CAA", "precision" or "F1"}
+\item{metric}{choice of "missclass", "recall", "CAA", "precision" or "F1"}
 }
 \description{
 \code{get_metric} Returns classification metric requested

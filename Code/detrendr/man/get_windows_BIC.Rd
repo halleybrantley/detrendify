@@ -7,7 +7,7 @@
 get_windows_BIC(y, tau, k, window_size, overlap,
   lambdaSeq = length(y)^seq(0, 1.5, length.out = 20), df_tol = 1e-09,
   gamma = 1, plot_lambda = FALSE, solver = NULL, criteria = "eBIC",
-  max_iter = 10, eps_abs = 0.01, eps_rel = 0.001, update = 10,
+  max_iter = 10, eps_abs = 0.05, eps_rel = 0.001, update = 10,
   rho = 5)
 }
 \arguments{

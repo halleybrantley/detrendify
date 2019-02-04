@@ -18,3 +18,14 @@ get_trend(y, tau, lambda, k)
 \description{
 \code{get_trend} Returns the quantile trend matrix
 }
+\examples{
+require(Matrix)
+n <- 100
+x <- seq(1, n, 1)
+y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
+lambda <- 10
+k <- 3
+tau <- c(0.05, .2)
+trend <- get_trend(y, tau, lambda, k)
+plot(trend[,1]~x, type="l")
+}

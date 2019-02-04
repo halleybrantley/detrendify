@@ -159,6 +159,7 @@ void prox(arma::vec& theta,
 //' @param eta second input
 //' @param D differencing matrix
 //' @param cholM upper triangular cholesky decomposition of  I + DtD
+//' @param k order of differencing matrix
 //' @export
 // [[Rcpp::export]]
 void project_V(arma::vec& theta,

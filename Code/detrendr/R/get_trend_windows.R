@@ -15,7 +15,7 @@
 #' @param eps_abs absolute threshold for stopping criteria
 #' @param eps_rel relative threshold for stopping criteria
 #' @examples
-#' library(Matrix)
+#' require(Matrix)
 #' n <- 100
 #' x <- seq(1, n, 1)
 #' y <- sin(x*2*pi/n) + rnorm(n, 0, .4)
@@ -35,7 +35,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
                            eps_abs = .05, 
                            eps_rel = 1e-3){
   mean_y <- mean(y, na.rm=T)
-  sd_y <- sd(y, na.rm=T)
+  sd_y <- stats::sd(y, na.rm=T)
   y <- as.numeric(scale(y))*200
   if (use_gurobi){
     solver <- "gurobi"
