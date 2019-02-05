@@ -1,4 +1,5 @@
 library(devtools)
+load_all("detrendr")
 install_github("hadley/l1tf")
 install_github("glmgen/genlasso")
 library(l1tf)

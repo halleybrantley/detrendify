@@ -35,7 +35,7 @@
 		\author{Halley Brantley\thanks{
 				Department of Statistics, North Carolina State University, Raleigh, NC 27695 (E-mail: hlbrantl@ncsu.edu)} \,
 			Joseph Guinness\thanks{
-				Department of Biological Statistics and Computational Biology, Cornell University, Ithaca, NY 14853 (E-mail: guinness@cornell.edu )} \,
+				Department of Statistics and Data Science, Cornell University, Ithaca, NY 14853 (E-mail: guinness@cornell.edu )} \,
 			and
 			%    and
 			Eric C. Chi\thanks{Department of Statistics, North Carolina State University, Raleigh, NC 27695 (E-mail: eric$\_$chi@ncsu.edu).}    \\}
@@ -56,7 +56,7 @@
 	
 	\bigskip
 	\begin{abstract}
-		We address the problem of estimating smoothly varying baseline trends in time series data using quantile trend filtering. We extend the basic framework to ensure non-crossing while estimating multiple trends simultaneously and implement an alternating direction method of moments (ADMM) algorithm for series that cannot be processed simultaneously. Timing experiments demonstrate the usefulness of our ADMM algorithm even in cases where the series can be processed simultaneously. We also address smoothing parameter selection and propose a modified criteria based on the extended Bayesian Information Criteria. We demonstrate both through simulation studies and an application to low cost air quality sensor data that our model provides better or comparable estimates than existing methods of non-parametric quantile trends and improves signal classification of low-cost air quality sensor output. 
+		We address the problem of estimating smoothly varying baseline trends in time series data using quantile trend filtering. We first extend the basic framework to ensure non-crossing while estimating multiple quantile trends simultaneously. We also implement a parallelizable alternating direction method of moments (ADMM) algorithm for estimating trends in longer series. The ADMM algorthim enables the estimation of trends in a piecewise manner, both reducing the computation time and extending the limits of the method to larger data sizes. We also address smoothing parameter selection and propose a modified criterion based on the extended Bayesian Information Criterion. Through simulation studies and an application to low cost air quality sensor data, we demonstrate that our model provides better quantile trend estimates than existing methods and improves signal classification of low-cost air quality sensor output. 
 	\end{abstract}
 	
 	\noindent%
@@ -68,11 +68,11 @@
 	\section{Introduction}
 	\label{sec:intro}
 	
-	In applications spanning the fields of chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar time series are observed and assumed to consist of a slowly varying trend and other more rapidly varying components. \cite{Kim2009} addressed the case when the series consisted of just a trend and a random noise component and proposed the use of \textit{$\ell_1$ trend filtering} to estimate trends that piecewise linear or piecewise polynomial. \cite{Tib2014} later demonstrated that empirically the trend filtering estimates adapt to the local level of smoothness better than the more common smoothing splines. In the trend filtering problem, given observations $y(t)$ with $t=1,...,N$, the trend, $\theta(t)$, is estimated by solving the following convex problem.
+	In applications spanning chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar time series are observed and assumed to consist of a slowly varying trend and other more rapidly varying components. \cite{Kim2009} proposed \textit{$\ell_1$ trend filtering} to estimate trends that are piece-wise linear or polynomial, assuming that the series consists of a trend plus uncorrelated noise. \cite{Tib2014} later demonstrated empirically that the trend filtering estimates adapt to the local level of smoothness better than smoothing splines. In the trend filtering problem, given observations $y(t)$ with $t=1,...,N$, the trend, $\theta \in \mathbb{R}^n$, is estimated by solving the following convex problem:
 	\begin{eqnarray}
 	\underset{\theta}{\arg\min}\; \frac{1}{2} \lVert y - \theta \rVert_2^2 + \lambda \lVert \mathbf{D}^{(k+1)}\theta \rVert_1,
 	\end{eqnarray}
-	where $\lambda \geq 0$ is a regularization parameter and the matrix $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\mathbf{D}^{(k+1)}$ consider the difference operator when $k = 0$.
+	where $y \in \mathbb{R}^n$ is the vector of observations, $\lambda \geq 0$ is a regularization parameter, and the matrix $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\mathbf{D}^{(k+1)}$ consider the difference operator when $k = 0$.
 	\begin{eqnarray}
 	\mathbf{D}^{(1)} = \begin{pmatrix}
 	-1 & 1 & 0 & \cdots & 0 & 0 \\
@@ -81,76 +81,67 @@
 	0 & 0 & 0 & \cdots & -1 & 1 \\
 	\end{pmatrix}
 	\end{eqnarray}
-	Thus, $\lVert \mathbf{D}^{(1)}\theta \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_i - \theta_{i+1} \rvert$ which is just total variation denoising in one dimension. The penalty incentivizes solutions which are piece-wise constant. For $k \geq 1$, the difference operator $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n-k-1) \times n}$ is defined recursively as follows
+	Thus, $\lVert \mathbf{D}^{(1)}\theta \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_{i+1} - \theta_{i} \rvert$ which is just total variation in one dimension. The penalty incentivizes solutions that are piece-wise constant. For $k \geq 1$, the difference operator $\mathbf{D}^{(k+1)} \in \mathbb{R}^{(n-k-1) \times n}$ is defined recursively as follows
 	\begin{eqnarray}
 	\mathbf{D}^{(k+1)} & = & \mathbf{D}^{(1)}\mathbf{D}^{(k)}.
 	\end{eqnarray}
-	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$. 
+	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piece-wise polynomials of order $k$. 
 	
-	Trend filtering provides excellent estimates of trends when the only components of the time series are the trend and random noise (Fig. \ref{fig:trendfilter}). In some applications, however, time series may also include a rapidly varying signal component in addition to the trend and noise, in these cases the trend filtering estimate over-estimates the trend in the places where signal is present (Fig. \ref{fig:trendfilter}).  
-	   	
+	\cite{Tib2014} showed that trend filtering is both fast and locally adaptive when the time series consists of only the trend and random noise. However, in some applications, such as the air quality monitoring problem considered in this paper, the data contain a rapidly varying signal in addition to the slowly varying trend and noise. Standard trend filtering struggles to distinguish between the slowly varying trend and the rapidly-varying signal. We propose quantile trend filtering as a more robust method for detrending in these situations (Fig. \ref{fig:trendfilter}). To estimate the trend in the $\tau$\textsuperscript{th} quantile, we minimize the criterion	
+	\begin{eqnarray}
+		\label{eq:quantile_trend}
+		\underset{\theta}{\min}\; \rho_\tau(y - \theta) + \lambda \lVert \mathbf{D}^{(k+1)} \theta \rVert_1,
+	\end{eqnarray}	
+	where $\rho_\tau(z)$ is the check-loss function: 
+	\begin{equation}
+		\label{eq:checkloss}
+		\rho_{\tau}(z) = \sum_{i=1}^n z_i(\tau-\mathbf{I}(z_i<0)),
+	\end{equation}
+	 and $\mathbf{I}(\cdot) $ is the indicator function. This formulation was proposed by \cite{Kim2009} as a possible extension of $\ell_1$-trend filtering but not studied. Here, we extend the basic framework to model multiple quantiles simultaneously. We also implement non-crossing constraints to ensure valid trend estimates. To reduce computation time and extend the method to larger series, we develop and a parallelizable ADMM algorithm. Finally, we propose a modified criterion for choosing the smoothing parameter. 
+		   	
 	\begin{figure}
 		\centering
-		\caption{Examples of trend filtering solutions. The true trend is shown in black, while the estimated trend is shown in red.}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg1.png}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg2.png}
+		\caption{Examples of trend filtering solutions (red) and 15\textsuperscript{th} quantile trending filtering solution (blue).}
 		\label{fig:trendfilter}
 	\end{figure}
 	 
 	
-	One application in which the observed time series consists of a slowly varying baseline, non-negative signal, and rapidly varying noise is the output of low cost air quality sensors. The use of low-cost, portable, air quality sensors has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Fig. \ref{fig:raw_spod} provides an example of 3 co-located SPod sensor outputs from near an industrial facility. While all of the sensors response to the pollutant signal, the amount of baseline drift varies from one node to another.
-	 
-	\begin{figure}[b!]
+	Our research is motivated by the analysis of low cost and portable air quality sensors, whose use has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensor nodes co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, but the amount of baseline drift varies from one node to another.
+	\begin{figure}[t!]
+		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}		
 		\caption{Example of 3 co-located SPod PID sensor readings.}
-		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
 		\label{fig:raw_spod}
-	\end{figure}
-   	
-	
-	In this application, as well as those described in \cite{Ning2014}, \cite{marandi2015qualitative}, and \cite{pettersson2013algorithm}, it is not the mean trend that is desired but rather the baseline trend, which can be thought of as a trend in a low quantile of the data.  \cite{Koenker1978} were the first to propose substituting the squared loss typically used in regression with the check loss function  (Eq. \ref{eq:checkloss}) to estimate a conditional quantile instead of the conditional mean. 
-	
-	\begin{equation}
-	\label{eq:checkloss}
-	 \rho_{\tau}(z) = \sum_{i=1}^n z_i(1-\mathbf{I}(z_i<0)).
-	\end{equation}
-	
-	Later, \cite{KoenkerNgPortnoy1994} addressed the issue of estimated quantile curves by combining the check loss penalty with trend filtering penalty with $k = 2$ which produces quantile trends that are piecewise linear. Other approaches to estimating quantile trends have also been proposed. Rather than using the trend filtering $\ell_1$-norm to penalize the discrete differences, \cite{nychka1995nonparametric} used the smoothing spline penalty based on the $\ell_2$-norm solving the optimization problem in Eq. \ref{eq:smoothingspline}. 
+	\end{figure}	
+
+	In this application, as well as those described in \cite{Ning2014}, \cite{marandi2015qualitative}, and \cite{pettersson2013algorithm}, the goal is to estimate the trend in the baseline not the mean. We can define the trend in the baseline as the trend in a low quantile of the data. A variety of methods for estimating quantile trends have already been proposed. \cite{Koenker1978} were the first to propose substituting the squared-loss penalty with the check-loss penalty (Eq. \ref{eq:checkloss}) to estimate a conditional quantile instead of the conditional mean. Later, \cite{KoenkerNgPortnoy1994} proposed quantile trend filtering with $k = 2$ producing quantile trends that are piecewise linear, but did not extent it to higher orders. Rather than using the $\ell_1$-norm to penalize the discrete differences, \cite{nychka1995nonparametric} used the smoothing spline penalty based on the $\ell_2$-norm: 
 	
 	\begin{equation*}
 	\label{eq:smoothingspline}
 	\rho_{\tau}(y - f) + \lambda\int (f''(t))^2 dt, 
- 	\end{equation*}
-	
-	where $f(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degrees of smoothing. \cite{Oh2011} proposed an algorithm for solving this problem based on approximating the checkloss function with a similar differentiable function. 
-	
-	\cite{Racine2017} take an entirely different approach to estimating quantile trends. They constrain the response to follow a smooth location scale model of the form $y(t) = a(t) + b(t)\epsilon_i$ and estimate the $\tau$\textsubscript{th} conditional quantile given $t = t_0$ using a kernel estimator and local linear approach. 
+ 	\end{equation*}	
+	where $f(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degree of smoothing. \cite{Oh2011} proposed an algorithm for solving the quantile smoothing spline problem by approximating the check-loss function with a similar differentiable function. \cite{Racine2017} take a different approach and constrain the response to follow a smooth location scale model of the form $y(t) = a(t) + b(t)\epsilon_i$ and estimate the $\tau$\textsuperscript{th} conditional quantile using a kernel estimator and local linear approach. 
 
-	We propose to use the trend filtering penalty combined with the check loss function to produce quantile trends that are piecewise quadratic. The formulation was proposed by \cite{Kim2009} as a possible extension of $\ell_1$-trend filtering but not studied. Moreover we extend the basic framework to ensure non-crossing while modeling multiple quantiles. We also implement a parallel ADMM algorithm for series that are too large to be computed simultaneously and propose a modified criteria for choosing the smoothing parameter. We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods and is a more effective method of drift removal for low-cost air quality sensors. 
-	
+	In the following sections we describe in detail our quantile trend filtering algorithms and regularization parameter criterion (Section \ref{sec:methods}). We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods (Section \ref{sec:simluation}). We further show that quantile trend filtering is a more effective method of drift removal for low-cost air quality sensors and results in improved signal classification compared to quantile smoothing splines (Section \ref{sec:application}). Finally, we discuss potential extensions of quantile trend filtering (Section \ref{sec:discussion}). 
 
 	\section{Methods}
-	
+	\label{sec:methods}
 	\subsection{Quantile Trend Filtering}
-	
-	We combine the ideas of quantile regression and trend filtering. For a single quantile level $\tau$ the estimation of the quantile trend filtering model can be posed as the following optimization problem.
-	\begin{eqnarray}
-	\label{eq:quantile_trend}
-	\underset{\theta}{\min}\; \rho_\tau(y - \theta) + \lambda \lVert \mathbf{D}^{(k+1)} \theta \rVert_1,
-	\end{eqnarray}
-	where $\lambda$ is a non-negative regularization parameter. We address the problem of choosing $\lambda$ in Section \ref{sec:lambda_choice}. As with classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of free or commercial solvers. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$. Given quantiles $\{\tau_1, ..., \tau_J\}$ such that $\tau_1 < \tau_2 < ... < \tau_J$, the optimization problem becomes 
+
+	We combine the ideas of quantile regression and trend filtering. For a single quantile level $\tau$, the quantile trend filtering problem is given in Eq. \ref{eq:quantile_trend}. As with classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of methods. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$. Given quantiles $\{\tau_1, ..., \tau_J\}$ such that $\tau_1 < \tau_2 < ... < \tau_J$, the optimization problem becomes 
 	
 	\begin{eqnarray}
 	\label{eq:noncross_trend}
 	\underset{\theta_1, ..., \theta_J}{\min}\; \sum_{j=1}^J \left [\rho_{\tau_j}(y - \theta_{j}) + 
 	\lambda_j \lVert \mathbf{D}^{(k+1)} \theta_j \rVert_1 \right ] \\
 	 \text{subject to: }\; \theta_{1}(t) \le \theta_{2}(t) \le ... \le \theta_{J}(t) \text{ for all } t,
-	\end{eqnarray}
-	
-	where $\theta_j \in \mathcal{R}^n$. The additional constraints are linear in the parameters so the non-crossing quantile trends can still be estimated by a number of available solvers. In the rest of this paper we rely on the commercial solver Gurobi \citep{gurobi} and its R package implementation, but it can easily be substituted for a free solver such as the Rglpk package by \cite{rglpk}. The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break. 
+	\end{eqnarray}	
+	where $\theta_j \in \mathcal{R}^n$. The additional constraints are linear in the parameters, so the non-crossing quantile trends can still be estimated by a number of available solvers. In the rest of this paper we rely on the commercial solver Gurobi \citep{gurobi} and its R package implementation. However, we could easily substitute a free solver such as the Rglpk package by \cite{rglpk}. 
 	
 	\subsection{ADMM for Big Data}
 	
-	To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an alternating direction method of multipliers (ADMM) algorithm for solving large problems in a piecewise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is fully described by \cite{boyd2011distributed}. We apply the consensus ADMM algorithm to the the quantile regression trend filtering problem given in Eq. \ref{eq:quantile_trend}, by dividing our observed series $y(t)$ with $t = \{1, ..., n\}$ into overlapping windows 
+	The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an ADMM algorithm for solving large problems in a piece-wise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is fully described by \cite{boyd2011distributed}. We apply the consensus ADMM algorithm to the quantile regression trend filtering problem given in Eq. (\ref{eq:quantile_trend}), by dividing our observed series $y(t)$ with $t = \{1, ..., n\}$ into overlapping windows 
 	
 	\begin{align*}
 	y_1(t) = y(t) & \mbox{~~if~~} 1 \le t \le u_{1}\\
@@ -158,12 +149,11 @@
 	\cdots & \\
 	y_M(t) = y(t) & \mbox{~~if~~} l_{M} \le t \le  n\\
 	\end{align*}
-
-	 with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< n$. An illustration is given in Fig. \ref{fig:windows}. Given quantiles $\tau_1 < ... < \tau_J$ to be estimated we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $M$ at time point $t$. In order to write out the constraint that the overlapping sections must be equal we define a consensus variable
+	 with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< n$. An illustration is given in Fig. \ref{fig:windows}. Given quantiles $\tau_1 < ... < \tau_J$, we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $m$ at time $t$. In order to constrain the overlapping sections to be equal we define a consensus variable
 	 
 	 \begin{align*}
-		 \bar{\theta}_{j,m} =&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
-		 =& \begin{cases} 
+	\bar{\theta}_{j, m}	=&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
+	\bar{\theta}_{j, m}(t)	 =& \begin{cases} 
 			 \frac{\theta_{j,m-1}(t)+\theta_{j,m}(t)}{2} & \mbox{if~~} l_{m} \le t \le u_{m-1}  \\
 			 \theta_{j,m}(t) & \mbox{if~~} u_{m-1} \le t \le l_{m+1}  \\
 			 \frac{\theta_{j,m}(t)+\theta_{j,m+1}(t)}{2} & \mbox{if~~} l_{m+1} \le t \le u_{m}  
@@ -172,23 +162,23 @@
 	defining $\theta_{j,M+1} = \theta_{j,M}$ and $\theta_{j,0} = \theta_{j,1}$. Our windowed quantile trend optimization problem can then be written as 
 	 \begin{align*}
 		 \label{eq:quantile_windows}
-		 &\sum_{m=1}^M\underset{\theta_{1,m}, ..., \theta_{J,m}}{\min}\; \sum_{j=1}^J \left [\rho_{\tau_j}(y_m - \theta_{j,m}) + 
+		 &\underset{\theta_{1,m}, ..., \theta_{J,m}}{\min}\; \sum_{m=1}^M\sum_{j=1}^J \left [\rho_{\tau_j}(y_m - \theta_{j,m}) + 
 		 \lambda_j \lVert \mathbf{D}^{(k+1)} \theta_{j,m} \rVert_1 \right ] \\
 		 &\text{subject to: }\; \\
 		 &\qquad \theta_{1,m}(t) \le \theta_{2,m}(t) \le ... \le \theta_{J,m}(t) \text{ for all } m,t \\
 		 &\qquad \theta_{j,m}(t) = \bar{\theta}_{j,m}(t) \text{ for all } j, m, t
 	 \end{align*}
-	 Defining Lagrange multipliers $\omega_{j,m}$, and penalty parameter $\gamma > 0$ we can write the augmented Lagrangian for finding the trends in window $m$:
+	 Defining Lagrange multipliers $\omega_{j,m}$, and penalty parameter $\gamma > 0$, the augmented Lagrangian for finding the trends in window $m$ is
 	 \begin{equation*}
 	 \mathcal{L}(\theta_{j,m}, \bar{\theta}_{j,m}, \omega_{j,m}) = \sum_{j=1}^J\rho_{\tau_j}(y_m - \theta_{j,m})+\lambda \lVert \mathbf{D}^{(k+1)}\theta_{j,m}\rVert_1 +  \omega_{j,m}^T(\theta_{j,m} - \bar{\theta}_{j,m}) + 
-	 \frac{\gamma}{2}||\theta_{j,m} - \bar{\theta}_{j,m}||_2^2
+	 \frac{\gamma}{2}||\theta_{j,m} - \bar{\theta}_{j,m}||_2^2.
 	 \end{equation*}
-	 We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in algorithm 1. 
+	 We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in Algorithm 1. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}. 
 	 
 	\begin{figure}[!h] 
 		\centering
-		\caption{Window boundaries and trends fit separately in each window.}
 		\includegraphics[width = 0.8\linewidth]{Figures/overlapping_windows.png}
+		\caption{Window boundaries and trends fit separately in each window.}
 		\label{fig:windows}
 	\end{figure}
 
@@ -213,11 +203,11 @@
 		\end{algorithmic}
 	\end{algorithm}
 
-	We measure convergence use the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals which represent the residuals for the primal and dual feasibility, respectively. The primal residual, 
+	We measure convergence using the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals, which represent the residuals for primal and dual feasibility, respectively. The primal residual, 
 	\begin{equation}
 	r_p^{(q)} = \sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert\theta_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q)}\rVert_2^2},
 	\end{equation}
-	represents the difference between the trend values in the windows and the consensus trend value while the dual residual,
+	represents the difference between the trend values in the windows and the consensus trend value. The dual residual,
 	\begin{equation*}
 	r_d^{(q)} = \gamma\sqrt{\sum_{m=1}^M \sum_{j=1}^J\lVert\bar{\theta}_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q-1)}\rVert_2^2},
 	\end{equation*}
@@ -232,56 +222,56 @@
 	
 	\begin{figure}
 		\centering
-		\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.}
 		\includegraphics[width = 0.8\linewidth]{Figures/admm_windows.png}
+		\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.}
 	\end{figure}
 
-	Timing experiments illustrate the advantages of using our ADMM algorithm even on datasets where solving the problem simultaneously is possible. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below and trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using a $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. As is shown in Fig. \ref{fig:timing}, using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on   
+	Timing experiments illustrate the advantages of using our ADMM algorithm when the trend can be estimated with a single window. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below. Trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. As is shown in Fig. \ref{fig:timing}, using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.   
 	
 	\begin{figure}[!h] 
 		\centering
-		\caption{Timing experiments comparing quantile trend filtering with varying numbers of windows by data size.}
 		\includegraphics[width = 0.7\linewidth]{Figures/Fig_timing_experiment.png}
+		\caption{Timing experiments comparing quantile trend filtering with varying numbers of windows by data size.}
 		\label{fig:timing}
 	\end{figure}
 
 	\subsection{Regularization Parameter Choice}
 	\label{sec:lambda_choice}
-	An important problem in trend estimation is the choice of regularization parameter or degree of smoothness. Our method can easily handle missing data by defining the check loss function to output 0 for missing values. This allows us to leave out validation observations that can be used to select the tuning parameter $\lambda$. However, the use of an information criteria metric can result in a better choice of regularization parameter than the validation method.  \cite{KoenkerNgPortnoy1994} addressed the choice of regularization parameter by proposing the Schwarz criterion for the selection of $\lambda$
+	An important problem in trend estimation is the choice of regularization parameter, or degree of smoothness. Our method can easily handle missing data by defining the check loss function to output 0 for missing values, allowing us to implement cross-validation. We also explore three information criteria.  \cite{KoenkerNgPortnoy1994} addressed the choice of regularization parameter by proposing the Schwarz criterion for the selection of $\lambda$
 	\begin{equation}
 	\label{eq:SIC}
 	\mbox{SIC}(p_{\lambda}) = \log\left[\frac{1}{n}\rho_{\tau}(y - \theta)\right] + \frac{1}{2n}p_{\lambda}\log n.
 	\end{equation}
-	where $p_{\lambda} = \sum_t I(y(t) = \widehat{\theta}(t))$ is the number of interpolated points, which can be thought of as active knots. The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by 
+	where $p_{\lambda} = \sum_t I(y(t) = \widehat{\theta}(t))$ is the number of interpolated points, which can be thought of as active knots. The SIC is based on the traditional Bayesian Information Criterion,
 	\begin{equation}
-	\mbox{BIC}(s) = -2\log(L\{\hat{\theta}\}) + \nu\log n 
+	\mbox{BIC}(\nu) = -2\log(L\{\hat{\theta}\}) + \nu\log n 
 	\end{equation}	
-	where $L$ is the likelihood function and $\nu$ is the number of non-zero components in $\hat{\theta}$. If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and assume that minimizing the checkloss function corresponds to maximizing the asymmetric Laplace likelihood, \begin{equation}
+	where $L$ is the likelihood function and $\nu$ is the number of non-zero components in $\hat{\theta}$. If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and view minimizing the checkloss function as maximizing the asymmetric Laplace likelihood, \begin{equation}
 	L(y|\theta) = \left(\frac{\tau^n(1-\tau)}{\sigma}\right)^n\exp\left\{-\sum_t\rho_\tau\left(\frac{y(t) - \theta(t)}{\sigma}\right)\right\},
 	\end{equation} 
 	we can compute the BIC as 
 	\begin{equation}
-	\mbox{BIC}(df) = 2\frac{1}{\sigma}\rho_{\tau}(y-\hat{\theta}) + \mbox{df}\log n
+	\mbox{BIC}(\nu) = 2\frac{1}{\sigma}\rho_{\tau}(y-\hat{\theta}) + \nu\log n
 	\end{equation} 
-	where $df$ is the number of non-zero elements of $D^{(k+1)}\hat{\theta}$. We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates. 
+	where $\nu$ is the number of non-zero elements of $\mathbf{D}^{(k+1)}\hat{\theta}$. We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates. 
 	
 	Another criteria, the extended Bayesian Information Criteria (eBIC), specifically designed for large parameter spaces was proposed by \cite{chen2008}. 
 	\begin{equation}
 	\label{eq:eBIC}
 	\mbox{eBIC}_{\gamma}(s) = -2\log(L\{\hat{\theta}\}) + \nu\log n  + 2\gamma\log{P \choose \nu},~~\gamma \in [0,1]
 	\end{equation}
-	where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given model. We used this criteria with $\gamma = 1$, and $P=n-k-1$. We use a single dataset from our simulation study to illustrate the difference between the scaled, unscaled ($\sigma = 1$) and scaled extended BIC criteria in Fig. \ref{fig:BIC}. 
+	where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given model. We used this criteria with $\gamma = 1$, and $P=n-k-1$. We use a single dataset from our simulation study to illustrate the difference between the scaled, unscaled ($\sigma = 1$) and scaled extended BIC criteria in Fig. \ref{fig:BIC}. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
 	
 	\begin{figure}[h!]
-		\caption{(Left) Degrees of freedom (number of non-zero elements of $D\theta$) by $\log(\lambda)$. (Middle) Estimated 10th quantile trend with regularization parameter chosen using various criterion. (Right) Criterion values by $\log(\lambda)$ vertical lines indicate locations of minima.} 
 		\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
 		\includegraphics[width = 0.25\linewidth]{Figures/BIC_data.png}
 		\includegraphics[width = 0.5\linewidth]{Figures/BIC_by_lambda.png} 
+		\caption{(Left) Degrees of freedom (number of non-zero elements of $D\theta$) by $\log(\lambda)$. (Middle) Estimated 10th quantile trend with regularization parameter chosen using various criterion. (Right) Criterion values by $\log(\lambda)$ vertical lines indicate locations of minima.} 
 		\label{fig:BIC}
 	\end{figure}
 
 	\section{Simulation Studies}
-	
+	\label{sec:simluation}
 	We conduct two simulation studies to compare the performance of our quantile trend filtering method and regularization parameter selection criteria with previously published methods. The first study compares the method's ability to estimate quantiles when the only components of the observed series are a smooth trend and a random component. The second study is based on our application and compares the method's ability to estimate baseline trends and enable peak detection when the time series contains a non-negative signal component in addition to the trend and random component. 
 	
 	We compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011, nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The regularization parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation based on the quantile criterion \cite{Oh2011}. 
@@ -291,10 +281,10 @@
 	 
 	\subsection{Estimating Quantiles}
 	\begin{figure}
-		\caption{Simulated data with true quantile trends.}	
 		\includegraphics[width=.28\linewidth]{Figures/gaus.png}
 		\includegraphics[width=.3\linewidth]{Figures/shapebeta.png}
 		\includegraphics[width=.45\linewidth]{Figures/mixednorm.png}
+		\caption{Simulated data with true quantile trends.}	
 	\end{figure}
 
 	To compare performance in estimating quantile trends, three simulation designs from \cite{Racine2017} were considered. For all designs $t = 1, ..., n$,  $x(t) = t/n$, and the response $y$ was generated as 
@@ -309,10 +299,10 @@
 	One hundred datasets were generated of sizes 300, 500 and 1000. For each method quantile trends were estimated for $\tau = \{0.05, 0.25, 0.5, 0.75, 0.95\}$. Only our detrend methods guarantee non-crossing quantiles. For each quantile trend and method the root mean squared error was calculated as $\mbox{RMSE} = \sqrt{\frac{1}{n}\sum_t (\hat{q}_{\tau}(t) - q_\tau(t))^2}$. The mean RMSE $\pm$ twice the standard error for each method, quantile level and sample size is shown in Figure \ref{fig:quantile_mse}. 	In all three designs the proposed detrend methods are either better than or comparable to existing methods. Overall the \texttt{detrend\_eBIC} performs best, and especially in the mixed normal design our methods have lower RMSEs for the 5\textsuperscript{th} and 95\textsubscript{th} quantiles. The \texttt{npqw} method performs particularly poorly in the mixed normal design due to the fact that it assumes the data comes from a scale-location model which is violated in this case. 
 	
 	\begin{figure}
-		\caption{RMSE by design, method, quantile and data size. Points and error bars represent mean RMSE $\pm$ twice the standard error.}
 		\includegraphics[width=\linewidth]{Figures/gaus_mse.png}	
 		\includegraphics[width=\linewidth]{Figures/shapebeta_mse.png}
 		\includegraphics[width=\linewidth]{Figures/mixednorm_mse.png}
+		\caption{RMSE by design, method, quantile and data size. Points and error bars represent mean RMSE $\pm$ twice the standard error.}
 		\label{fig:quantile_mse}
 	\end{figure}
 
@@ -328,8 +318,8 @@
 	with $t = 1, ..., n$, where $s(t)$ is the true signal at time $t$, $b(t)$ is the drift component that varies smoothly over time and $\epsilon(t) \sim N(0, 0.25^2)$ is an error component. We generate $b(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The simulated peaks were multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. One hundred datasets were generated for each $n=\{500, 1000, 2000, 4000\}$. We compare the ability of the methods to estimate the true quantiles of $Y(t)-s(t)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (Fig. \ref{fig:peaks_rmse}). In this simulation study our \texttt{detrend\_eBIC} method outperforms the others substantially. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the smaller datasets but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design. 
 	
 	\begin{figure}
-		\caption{RMSE by method, quantile and data size for peaks design.}
 		\includegraphics[width = \linewidth]{Figures/peaks_mse.png}	
+		\caption{RMSE by method, quantile and data size for peaks design.}
 		\label{fig:peaks_rmse}
 	\end{figure}
 	
@@ -342,27 +332,27 @@
 	Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles. 
 	
 	\begin{figure}[h!]
-		\caption{Example signal classification using threshold. Red indicates true signal $>0.5$, blue indicates observations classified as signal after baseline removal using \texttt{detrend\_eBIC} and a threshold of 1.2.}
 		\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
+		\caption{Example signal classification using threshold. Red indicates true signal $>0.5$, blue indicates observations classified as signal after baseline removal using \texttt{detrend\_eBIC} and a threshold of 1.2.}
 		\label{fig:peaks_class_eg}
 	\end{figure}
 	
 
 	\begin{figure}[h!]
-		\caption{Class averaged accuracy by threshold, data size, and method (1 is best 0.5 is worst).}
 		\includegraphics[width = \linewidth]{Figures/peaks_CAA.png}
+		\caption{Class averaged accuracy by threshold, data size, and method (1 is best 0.5 is worst).}
 	\end{figure}
 
 
 	\FloatBarrier
 	
 	\section{Application}
-	
+	\label{sec:application}
 	The low-cost ``SPod" air quality sensors output a time series that includes a slowly varying baseline, high frequency random noise, and the sensor response to pollutants. A potential use for these sensors is to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in Fig. \ref{fig:raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. 
 	
 	\begin{figure}
-		\caption{Estimated 15\textsuperscript{th} quantile trends on subset of the data using \texttt{qsreg} and \texttt{detrend\_eBIC}.} 
 		\includegraphics[width = \linewidth]{Figures/short_trends.png}
+		\caption{Estimated 15\textsuperscript{th} quantile trends on subset of the data using \texttt{qsreg} and \texttt{detrend\_eBIC}.} 
 		\label{fig:short-trends}
 	\end{figure}
 
@@ -374,8 +364,8 @@
 	where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensor nodes and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. An example of the estimated baseline fit for each method is shown in Fig. \ref{fig:short-trends}, while Fig. \ref{fig:rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 3. 
 	 
  	\begin{figure}
-	 	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 15th quantile. Horizontal dashed lines represent the thresholds.}
 	 	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
+	 	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 15th quantile. Horizontal dashed lines represent the thresholds.}
 	 	\label{fig:rugplot}
 	 \end{figure}
 	 
@@ -389,22 +379,23 @@
 		
 	\begin{figure}
 		\centering
-		\caption{Variation of Information between sensor nodes after trend removal by quantile and method and thresholding by factor of MAD.}
 		\includegraphics[width = .9\linewidth]{Figures/VI_app_short.png}
+		\caption{Variation of Information between sensor nodes after trend removal by quantile and method and thresholding by factor of MAD.}
 		\label{fig:vi}
 	\end{figure}
 	
 	Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 86,401 observations per node. The VI scores for the full dataset were 0.36, 0.24, and 0.41 for nodes c and d, c and e, and d and e, respectively. The complete confusion matrices for the nodes using a MAD multiple of 5 for the threshold is given in Table 1. 
 		
 	\begin{figure}
-		\caption{Low cost sensor data after drift removal using windowed detrend with eBIC.}
 		\includegraphics[width = \linewidth]{Figures/corrected_data.png}
+		\caption{Low cost sensor data after drift removal using windowed detrend with eBIC.}
 	\end{figure}
 
 	\input{full_confusion_detrend.tex}	
 	
 
 	\section{Conclusion and Discussion}
+	\label{sec:discussion}
 	We have expanded the quantile trend filtering method by implementing a non-crossing constraint and a new algorithm for processing large series, and proposing a modified criteria for smoothing parameter selection. Furthermore we have demonstrated the utility of quantile trend filtering in both simulations and applied settings. Our ADMM algorithm for large series both reduces the computing time and allows trends to be estimated on series that cannot be estimated simultaneously while our scaled extended BIC criteria was shown to provided better estimated of quantile trends in series with and without a signal component. We have also shown that the baseline drift in low cost air quality sensors can be removed through estimating quantile trends.
 	 
 	In the future, quantile trend filtering could be extended to observations measured at non-uniform spacing by incorporating the distance in covariate spacing into the differencing matrix. It could also be extended to estimate smooth spatial trends by a similar adjustment to the differencing matrix based on spatial distances between observations. 
