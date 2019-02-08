@@ -273,7 +273,7 @@ where $f(t)$ is a smooth function of time and $\lambda$ is a tuning parameter th
 	\vdots & \\
 	y_M(t) = y(t) & \mbox{~~if~~} l_{M} \le t \le  n,
 	\end{align*}
-with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots< n$. An illustration is given in \Fig{windows}. Given quantiles $\tau_1 < \ldots < \tau_J$ to be estimated we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $M$ at time point $t$. In order to write out the constraint that the overlapping sections must be equal, we define a consensus variable
+with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots< n$. \Fig{windows} illustrates how we break the samples into overlapping windows. Given quantiles $\tau_1 < \ldots < \tau_J$ to be estimated we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $M$ at time point $t$. In order to write out the constraint that the overlapping sections must be equal, we define a consensus variable
 	 \begin{align*}
 		 \bar{\theta}_{j,m} =&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
 		 =& \begin{cases} 
@@ -285,7 +285,7 @@ with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots< n$.
 	defining $\theta_{j,M+1} = \theta_{j,M}$ and $\theta_{j,0} = \theta_{j,1}$. Our windowed quantile trend optimization problem can then be written as 
 	 \begin{align*}
 		 \label{eq:quantile_windows}
-		 &\underset{\theta_{1,m}, \ldots, \theta_{J,m}}{\min}\; \sum_{m=1}^M\sum_{j=1}^J \left [\rho_{\tau_j}(y_m - \theta_{j,m}) + 
+		 &\underset{\theta_{1,m}, \ldots, \theta_{J,m}}{\text{minimize}}\; \sum_{m=1}^M\sum_{j=1}^J \left [\rho_{\tau_j}(y_m - \theta_{j,m}) + 
 		 \lambda_j \lVert \Mn{D}{k+1} \theta_{j,m} \rVert_1 \right ] \\
 		 &\text{subject to: }\; \\
 		 &\qquad \theta_{1,m}(t) \le \theta_{2,m}(t) \le \ldots \le \theta_{J,m}(t) \text{ for all } m,t \\
@@ -300,8 +300,8 @@ with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots< n$.
 	 
 	\begin{figure}[!h] 
 		\centering
-		\caption{Window boundaries and trends fit separately in each window.}
 		\includegraphics[width = 0.8\linewidth]{Figures/overlapping_windows.png}
+		\caption{Window boundaries and trends fit separately in each window.}		
 		\label{fig:windows}
 	\end{figure}
 
@@ -369,7 +369,7 @@ with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots< n$.
 	\begin{eqnarray*}
 	\mbox{BIC}(s) & = & -2\log(L\{\hat{\theta}\}) + \nu\log n 
 	\end{eqnarray*}	
-	where $L$ is the likelihood function and $\nu$ is the number of non-zero components in $\hat{\theta}$. If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and assume that minimizing the check-loss function corresponds to maximizing the asymmetric Laplace likelihood, 
+	where $L$ is the likelihood function and $\nu$ is the number of non-zero components in $\hat{\theta}$. \Halley{Eric}{What is $s$?} If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and assume that minimizing the check-loss function corresponds to maximizing the asymmetric Laplace likelihood, 
 	\begin{eqnarray*}
 	L(y \mid \theta) & = & \left(\frac{\tau^n(1-\tau)}{\sigma}\right)^n\exp\left\{-\sum_t\rho_\tau\left(\frac{y(t) - \theta(t)}{\sigma}\right)\right\},
 	\end{eqnarray*} 
@@ -377,7 +377,7 @@ with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots< n$.
 	\begin{eqnarray*}
 	\mbox{BIC}(\mbox{df}) & = & 2\frac{1}{\sigma}\rho_{\tau}(y-\hat{\theta}) + \mbox{df}\log n
 	\end{eqnarray*} 
-	where $df$ is the number of non-zero elements of $\Mn{D}{k+1}\Vhat{\theta}$. We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-\lvert 1-2\tau\rvert}{2}$ produces stable estimates. 
+	where $df$ is the number of non-zero elements of $\Mn{D}{k+1}\Vhat{\theta}$.  \Halley{Eric}{What is $\hat{\theta}$? This is the first time you used this notation.} We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-\lvert 1-2\tau\rvert}{2}$ produces stable estimates. 
 	
 	Another criteria, the extended Bayesian Information Criteria (eBIC), specifically designed for large parameter spaces was proposed by \cite{chen2008}. 
 	\begin{eqnarray*}
