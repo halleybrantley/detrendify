@@ -108,7 +108,7 @@
 	\end{figure}
 	 
 	
-	Our research is motivated by the analysis of low cost and portable air quality sensors, whose use has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensor nodes co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, but the amount of baseline drift varies from one node to another.
+	Our research is motivated by the analysis of low cost and portable air quality sensors, whose use has increased dramatically in the last decade. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, but the amount of baseline drift varies from one to another.
 	\begin{figure}[t!]
 		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}		
 		\caption{Example of 3 co-located SPod PID sensor readings.}
@@ -274,9 +274,11 @@
 	\label{sec:simluation}
 	We conduct two simulation studies to compare the performance of our quantile trend filtering method and regularization parameter selection criteria with previously published methods. The first study compares the method's ability to estimate quantiles when the only components of the observed series are a smooth trend and a random component. The second study is based on our application and compares the method's ability to estimate baseline trends and enable peak detection when the time series contains a non-negative signal component in addition to the trend and random component. 
 	
-	We compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011, nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The regularization parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation based on the quantile criterion \cite{Oh2011}. 
+	We compare three criteria for choosing the smoothing parameter with our quantile trend filtering method with a single window: \texttt{detrendr\_SIC} $\lambda$ chosen using SIC (Eq. \ref{eq:SIC}) \citep{KoenkerNgPortnoy1994}; \texttt{detrendr\_valid}: $\lambda$ is chosen by leaving out every 5th observation as a validation data set and minimizing the check loss function evaluated at the validation data; \texttt{detrendr\_eBIC}:  the proposed scaled eBIC criteria (Eq. \ref{eq:eBIC}). 
 	
-	We also compare three criteria for choosing the smoothing parameter with our quantile trend filtering method with a single window: \texttt{detrendr\_SIC} $\lambda$ chosen using SIC (Eq. \ref{eq:SIC}) \citep{KoenkerNgPortnoy1994}; \texttt{detrendr\_valid}: $\lambda$ is chosen by leaving out every 5th observation as a validation data set and minimizing the check loss function evaluated at the validation data; \texttt{detrendr\_eBIC}:  the proposed scaled eBIC criteria (Eq. \ref{eq:eBIC}). 
+	We also compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011, nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The regularization parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation based on the quantile criterion \cite{Oh2011}. 
+	
+
 	
 	 
 	\subsection{Estimating Quantiles}
@@ -296,12 +298,10 @@
 		\item Mixed normal: $\epsilon(x(t))$ is simulated from a mixture of $N(-1,1)$ and  $N(1,1)$ with mixing probability $x(t)$.
 	\end{itemize}
 	
-	One hundred datasets were generated of sizes 300, 500 and 1000. For each method quantile trends were estimated for $\tau = \{0.05, 0.25, 0.5, 0.75, 0.95\}$. Only our detrend methods guarantee non-crossing quantiles. For each quantile trend and method the root mean squared error was calculated as $\mbox{RMSE} = \sqrt{\frac{1}{n}\sum_t (\hat{q}_{\tau}(t) - q_\tau(t))^2}$. The mean RMSE $\pm$ twice the standard error for each method, quantile level and sample size is shown in Figure \ref{fig:quantile_mse}. 	In all three designs the proposed detrend methods are either better than or comparable to existing methods. Overall the \texttt{detrend\_eBIC} performs best, and especially in the mixed normal design our methods have lower RMSEs for the 5\textsuperscript{th} and 95\textsubscript{th} quantiles. The \texttt{npqw} method performs particularly poorly in the mixed normal design due to the fact that it assumes the data comes from a scale-location model which is violated in this case. 
+	One hundred datasets were generated of sizes 300, 500 and 1000. For each method quantile trends were estimated for $\tau = \{0.05, 0.25, 0.5, 0.75, 0.95\}$. Only our detrend methods guarantee non-crossing quantiles. For each quantile trend and method the root mean squared error was calculated as $\mbox{RMSE} = \sqrt{\frac{1}{n}\sum_t (\hat{q}_{\tau}(t) - q_\tau(t))^2}$. The mean RMSE $\pm$ twice the standard error for each method, quantile level and sample size is shown in Figure \ref{fig:quantile_mse}. 	In all three designs the proposed detrend methods are either better than or comparable to existing methods. Overall the \texttt{detrend\_eBIC} performs best, and especially in the mixed normal design our methods have lower RMSEs for the 5\textsuperscript{th} and 95\textsuperscript{th} quantiles. The \texttt{npqw} method performs particularly poorly in the mixed normal design due to the fact that it assumes the data come from a scale-location model, which is violated in this case. 
 	
 	\begin{figure}
-		\includegraphics[width=\linewidth]{Figures/gaus_mse.png}	
-		\includegraphics[width=\linewidth]{Figures/shapebeta_mse.png}
-		\includegraphics[width=\linewidth]{Figures/mixednorm_mse.png}
+		\includegraphics[width=\linewidth]{Figures/sim_metrics.png}	
 		\caption{RMSE by design, method, quantile and data size. Points and error bars represent mean RMSE $\pm$ twice the standard error.}
 		\label{fig:quantile_mse}
 	\end{figure}
@@ -311,7 +311,7 @@
 %		\caption{Example of simulated peaks, baseline, and observed measurements.}
 %		\includegraphics[width = \linewidth]{Figures/ex_peaks.png}
 %	\end{figure}
-	We use another simulation design based on the applied problem we aim to solve. We assume that the measured data can be represented by 
+	We use another simulation design based on our motivating application. We assume that the measured data can be represented by 
 	\begin{equation}
 	Y(t) = s(t) + b(t) + \epsilon(t)
 	\end{equation} 
@@ -327,7 +327,7 @@
 	\begin{equation}
 	\mbox{CAA} = \frac{1}{2}\left(\frac{\sum_{t=1}^n \mathbf{I}[s(t) = 1 \cap \hat{s}(t)=1]}{\sum_{t=1}^n \mathbf{I}[s(t) = 1]} + \frac{\sum_{t=1}^n \mathbf{I}[s(t) = 0 \cap \hat{s}(t)=0]}{\sum_{t=1}^n \mathbf{I}[s(t) = 0]}\right).
 	\end{equation}  
-	We use this metric because our classes tend to be very un-balanced with many more $0$s than $1$s. The CAA metric will always give a score of 0.5 for random guessing and also for trivial classifiers such as $\hat{s}(t) = 0$ for all $t$. 
+	We use this metric because our classes tend to be very un-balanced with many more $0$s than $1$s. The CAA metric will give a score of 0.5 for random guessing and also for trivial classifiers such as $\hat{s}(t) = 0$ for all $t$. 
 
 	Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles. 
 	
@@ -359,9 +359,9 @@
 	We compare our \texttt{detrend\_eBIC} method with the \texttt{qsreg} method on a subset of the SPod data (n=6000) since the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using the 10\textsuperscript{th} and 15\textsuperscript{th} quantiles and compare three thresholds for classifying signal. The thresholds are calculated using the median plus a multiple of the median absolute deviation (Eq. \ref{eq:MAD}) of the detrended series. 
 	\begin{equation}
 	\label{eq:MAD}
-	\mbox{MAD} = \mbox{median}(y-\tilde{y}),
+	\mbox{MAD} = \mbox{median}\lVert y-\tilde{y}\rVert,
 	\end{equation}
-	where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensor nodes and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. An example of the estimated baseline fit for each method is shown in Fig. \ref{fig:short-trends}, while Fig. \ref{fig:rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 3. 
+	where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensors and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. An example of the estimated baseline fit for each method is shown in Fig. \ref{fig:short-trends}, while Fig. \ref{fig:rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 3. 
 	 
  	\begin{figure}
 	 	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
@@ -369,22 +369,22 @@
 	 	\label{fig:rugplot}
 	 \end{figure}
 	 
-	Given the signal classifications for node 1, $s_1(t) \in \{0,1\}$ and node 2, $s_2(t)\in\{0,1\}$ we want to compare the similarity between the two classifications. One metric for evaluating the distance between two classifications is the variation of information (VI): 
+	Given the signal classifications for SPod a, $s_a(t) \in \{0,1\}$ and SPod b, $s_b(t)\in\{0,1\}$ we want to compare the similarity between the two classifications. One metric for evaluating the distance between two classifications is the variation of information (VI): 
 	\begin{align*}
-		r_{ij} =& \frac{1}{n}\sum_t \mathbf{I}(s_1(t) = i  \cap s_2(t) = j)\\
-		VI(s_1, s_2) =& -\sum_{i,j} r_{ij} \left[ \log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_1(t) = i)}\right) + 
-		\log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_2(t) = j)}\right) \right]
+		r_{ij} =& \frac{1}{n}\sum_t \mathbf{I}(s_a(t) = i  \cap s_b(t) = j)\\
+		VI(s_a, s_b) =& -\sum_{i,j} r_{ij} \left[ \log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_a(t) = i)}\right) + 
+		\log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \mathbf{I}(s_b(t) = j)}\right) \right]
 	\end{align*}	
 	The VI is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different. The VIs by method, quantile and trend are shown in Fig. \ref{fig:vi}. In all cases our \texttt{detrend} method results in classifications that are more similar than those from the \texttt{qsreg} method. As is illustrated in Fig. \ref{fig:short-trends} and Fig. \ref{fig:rugplot}, our method results in a smoother baseline estimate which improves signal classification. 
 		
 	\begin{figure}
 		\centering
 		\includegraphics[width = .9\linewidth]{Figures/VI_app_short.png}
-		\caption{Variation of Information between sensor nodes after trend removal by quantile and method and thresholding by factor of MAD.}
+		\caption{Variation of Information between sensors by method (color), quantile (columns) and threshold MAD multiple (rows).}
 		\label{fig:vi}
 	\end{figure}
 	
-	Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 86,401 observations per node. The VI scores for the full dataset were 0.36, 0.24, and 0.41 for nodes c and d, c and e, and d and e, respectively. The complete confusion matrices for the nodes using a MAD multiple of 5 for the threshold is given in Table 1. 
+	Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 86,401 observations per node. The VI scores for the full dataset were 0.36, 0.24, and 0.41 for sensors a and b, a and c, and b and c, respectively. The complete confusion matrices for the nodes using a MAD multiple of 5 for the threshold is given in Table 1. 
 		
 	\begin{figure}
 		\includegraphics[width = \linewidth]{Figures/corrected_data.png}

@@ -1,6 +1,7 @@
 library(tidyverse)
 library(devtools)
 library(jcolors)
+library(Cairo)
 rm(list=ls())
 source("sim_generating_functions.R")
 load_all("detrendr")
@@ -55,7 +56,7 @@ summary_stats <-
 
 summary_stats <- summary_stats %>% filter( tau > 0.01 & tau < 0.99) 
 
-summary_stats %>% 
+p1 <- summary_stats %>% 
   filter(Design == "gaus") %>%
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
@@ -70,10 +71,10 @@ summary_stats %>%
         plot.title = element_text(size = text_size))+
   scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Gaussian")+
+  guides(col="none")+
   ylim(c(0,.153))
-ggsave("../Manuscript/Figures/gaus_mse.png", width = 7, height = 2.5)
 
-summary_stats %>% 
+p2 <- summary_stats %>% 
   filter(Design == "shapebeta") %>%
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
@@ -86,10 +87,10 @@ summary_stats %>%
         plot.title = element_text(size = text_size)) +
   scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Beta") +
+  guides(col="none")+
   ylim(c(0,.091))
-ggsave("../Manuscript/Figures/shapebeta_mse.png", width = 7, height = 2.5)
 
-summary_stats %>% 
+p3 <- summary_stats %>% 
   filter(Design == "mixednorm") %>%
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
   geom_point(position = position_dodge(width = 0.5)) +
@@ -101,10 +102,26 @@ summary_stats %>%
         axis.text.x = element_text(size=(text_size-5)),
         axis.title.y = element_text(margin = 
                                       margin(t = 0, r = 5, b = 0, l = 10)),
-        plot.title = element_text(size = text_size))+
+        plot.title = element_text(size = text_size), 
+        legend.position = "bottom")+
+  guides(col=guide_legend(nrow=2, byrow=TRUE)) + 
   scale_color_manual(values=colPal, breaks = methods) +
   labs(x = "n", y="RMSE", title = "Mixed Normal") + 
   ylim(c(0, .4))
-ggsave("../Manuscript/Figures/mixednorm_mse.png", width = 7, height = 2.5)
 
+fig.layout<-grid.layout(nrow=3,ncol=1, 
+                        heights=c(2.8,2.8,4),  
+                        widths=c(7,7,7), default.units="null", 
+                        just=c("left","bottom"))
 
+Cairo(file="../Manuscript/Figures/sim_metrics.png", 
+      type="png",
+      dpi = 400, 
+      unit = "in",
+      width=7, height=8)
+
+pushViewport(viewport(layout=fig.layout))
+print(p1, vp=viewport(layout.pos.row=1, layout.pos.col=1))
+print(p2, vp=viewport(layout.pos.row=2,layout.pos.col=1))
+print(p3, vp=viewport(layout.pos.row=3, layout.pos.col=1))
+dev.off()

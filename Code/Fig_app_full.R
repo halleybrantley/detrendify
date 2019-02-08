@@ -18,7 +18,8 @@ ggplot(spodRaw, aes(x=time, y=PID, col=node)) +
   geom_line(alpha=0.5) +
   theme_bw() +
   #facet_grid(node~., scales = "free")+
-  scale_color_brewer(palette = "Set1", labels = nodes)+
+  scale_color_brewer(palette = "Set1", labels = c("a", "b", "c"))+
+  labs(col="SPod")
   # xlim(c(as.POSIXct("2017-04-13 12:30:01 EST"), 
   #        as.POSIXct("2017-04-13 13:30:01 EST")))
 ggsave("../Manuscript/Figures/uncorrected_data.png", width = 7, height = 2.5)
@@ -30,8 +31,9 @@ spodLong <- spodPeaks %>% gather("node","PID", -time)
 
 ggplot(spodLong, aes(x=time, y=PID, col=node)) +
   geom_line(alpha=0.5) +
-  theme_bw() +
-  scale_color_brewer(palette = "Set1", labels = nodes)
+  theme_bw() +  
+  scale_color_brewer(palette = "Set1", labels = c("a", "b", "c"))+
+  labs(col="SPod")
 ggsave("../Manuscript/Figures/corrected_data.png", width = 7, height = 2.5)
 
 # ################################################################################
@@ -86,11 +88,11 @@ metric_df %>% filter(tau == 0.15, crit == 5, metric_type == "VI") %>% unnest()
 latex(conf,
       file = "../Manuscript/full_confusion_detrend.tex",
       rowlabel = "",
-      rowname = c("d = 0", "d = 1", "d=0", "d=1"),
-      cgroup = c("c = 0", "c = 1"),
-      colheads = rep(c("e = 0", "e = 1"),2),
+      rowname = c("b = 0", "b = 1", "b=0", "b=1"),
+      cgroup = c("a = 0", "a = 1"),
+      colheads = rep(c("c = 0", "c = 1"),2),
       n.cgroup = c(2,2),
-      caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal using 15th quantil and threshold of 3*MAD (n=52322).")
+      caption = "Confusion matrices for 3 SPods after baseline 
+      removal using 15th quantile and threshold of 5*MAD (n=86,401).")
 
 ################################################################################

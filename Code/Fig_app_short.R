@@ -77,6 +77,7 @@ ggplot(NMI, aes(x=nodes, y = value, col = method)) +
   geom_point(position = position_dodge(width = .5), size = 2) +
   theme_bw() +
   scale_color_manual(values=colPal, breaks = methods) +
+  scale_x_discrete(labels = c("ab", "ac", "bc"))+
   facet_grid(crit~factor(tau)) +
   labs(y="Normalized Mutual Information", x = "Sensor Nodes", col = "")
 ggsave("../Manuscript/Figures/NMI_app_short.png", width = 7, height = 3.5)
@@ -87,7 +88,7 @@ ggplot(VI, aes(x=nodes, y = value, col = method)) +
   geom_point(position = position_dodge(width = .5), size = 2) +
   theme_bw() +
   scale_color_manual(values=colPal, breaks = methods) +
-  scale_x_discrete(labels = c("cd", "ce", "ed"))+
+  scale_x_discrete(labels = c("ab", "ac", "bc"))+
   facet_grid(crit~factor(tau), scales = "free") +
   labs(y="Variation of Information", x = "Sensor Nodes", col = "")
 ggsave("../Manuscript/Figures/VI_app_short.png", width = 7, height = 3.5)
@@ -108,7 +109,7 @@ latex(confusion %>% filter(crit == 3) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
+      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
       set as the median + 3*MAD.")
 
 latex(confusion %>% filter(crit == 4) %>% select(-crit),
@@ -119,7 +120,7 @@ latex(confusion %>% filter(crit == 4) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
+      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
       set as the median + 4*MAD.")
 
 latex(confusion %>% filter(crit == 5) %>% select(-crit),
@@ -130,7 +131,7 @@ latex(confusion %>% filter(crit == 5) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=6000). Node order is c, d, e. The threshold for the signal was 
+      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
       set as the median + 5*MAD.")
 
 ################################################################################
@@ -170,12 +171,13 @@ thresholds <- data.frame(node = nodes,
                          thresh = apply(spodPeaks, 2, 
                     function(x) median(x, na.rm=T) + 
                       crit*median(abs(x-median(x, na.rm=T)), na.rm=T)))
+thresholds$node <- c("a", "b", "c")
 spodPeaks$time <- spodPIDs$time
 spodLong <- spodPeaks %>% 
   gather("node","PID", -time) %>% 
   filter(!is.na(node))
 
-spodLong$node <- factor(spodLong$node)
+spodLong$node <- factor(spodLong$node, labels = c("a", "b", "c"))
 spodLong_signal <- spodLong[which(spod_signal$PID==1), ]
 
 ggplot(spodLong, aes(x=time, y=PID)) +
