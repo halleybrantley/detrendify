@@ -51,7 +51,12 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   } else {
     use_gurobi <- FALSE
   }
-
+  
+  min_y <- min(y, na.rm=T)
+  max_y <- max(y, na.rm=T)
+  y <- 10*(y-min_y)/(max_y-min_y)
+  n <- length(y)
+  
   n <- length(y)
   m <- n-k
   missInd <- which(is.na(y))  
@@ -101,7 +106,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
                                eps_abs = eps_abs, eps_rel = eps_rel, 
                                rho = rho)
   
-  return(list(trend = f_trend,
+  return(list(trend = f_trend/10*(max_y-min_y) + min_y,
               lambda = lambda, 
               BIC = BIC, 
               df = df))

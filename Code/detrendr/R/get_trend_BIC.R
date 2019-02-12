@@ -30,6 +30,10 @@ get_trend_BIC <- function(y, tau, k,
                        plot_lambda = FALSE, 
                        solver = NULL, 
                        criteria = "eBIC"){
+  min_y <- min(y, na.rm=T)
+  max_y <- max(y, na.rm=T)
+  y <- 10*(y-min_y)/(max_y-min_y)
+  n <- length(y)
   
   if(!(criteria %in% c("eBIC", "valid", "SIC"))){
     stop("criteria must be one of 'eBIC', 'valid', 'SIC'")
@@ -62,7 +66,6 @@ get_trend_BIC <- function(y, tau, k,
   BIC <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
 
   model <- get_model(y, tau, lambdaSeq[1], k)
-  n <- length(y)
   m <- n-k
   missInd <- which(is.na(y))
   
@@ -91,7 +94,7 @@ get_trend_BIC <- function(y, tau, k,
   model$obj <- get_objective(tau, lambda, n, m, missInd)
   theta <- solve_model(model, solver=solver, y=y)
 
-  return(list(theta = theta,
+  return(list(theta = theta/10*(max_y-min_y) + min_y,
               lambda = lambda, 
               BIC = BIC, 
               df = df))
