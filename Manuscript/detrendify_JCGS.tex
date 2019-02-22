@@ -312,8 +312,10 @@ To tackle this demixing problem, we introduce a scalable baseline estimation fra
 %% ----------------------------------------------------------------------
 	\subsection{ADMM for Big Data}
 	
-	The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break \Halley{Eric}{Can we be more specific about what we mean when we say ``break?"}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an ADMM algorithm for solving large problems in a piecewise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is fully described by \cite{boyd2011distributed}. Let $\mathcal{I}$ denote a subset of the indices $\{1, \ldots, n\}$ and $\V{y}_\mathcal{I} \in \Real^{\lvert I \rvert}$ denote the subvector obtained by stacking on top of each other the elements $\VE{y}{i}$ for $i \in \mathcal{I}$ in their canonical ordering.	
-	We apply the consensus ADMM algorithm to the quantile regression trend filtering problem given in \Eqn{quantile_trend}, by dividing our observed series $\VE{y}{i}$ with $i = 1, \ldots, n$ into overlapping $M$ windows of observations $\Vn{y}{m} = \V{y}_{\mathcal{I}_m}$ where $\mathcal{I}_m$ is the set of integers from $l_m$ to $u_m$ inclusive, namely $\mathcal{I}_m = \{l_m, l_m + 1, \ldots, u_m -1, u_m\}$ and $1 = l_{1} < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots < u_{M} = n$. \Fig{windows} shows an example of 1200 observations being mapped into three equally sized overlapping windows of observations. 
+	The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break \Halley{Eric}{Can we be more specific about what we mean when we say ``break?"}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose an ADMM algorithm for solving large problems in a piecewise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is fully described by \cite{boyd2011distributed}. 
+	
+	Let $\mathcal{I}$ denote a subset of the indices $\{1, \ldots, n\}$ and $\V{y}_\mathcal{I} \in \Real^{\lvert I \rvert}$ denote the subvector obtained by stacking on top of each other the elements $\VE{y}{i}$ for $i \in \mathcal{I}$ in their canonical ordering.	
+	We apply the consensus ADMM algorithm to the quantile regression trend filtering problem given in \Eqn{quantile_trend}, by dividing our observed series $\VE{y}{i}$ with $i = 1, \ldots, n$ into overlapping $M$ windows of observations $\Vn{y}{m} = \V{y}_{\mathcal{I}_m}$ where $\mathcal{I}_m$ is the set of integers from $l_m$ to $u_m$ inclusive, namely $\mathcal{I}_m = \{l_m, l_m + 1, \ldots, u_m -1, u_m\}$ where $1 = l_{1} < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots < u_{M} = n$. \Fig{windows} shows an example of 1200 observations being mapped into three equally sized overlapping windows of observations. 
 		
 %	\begin{align*}
 %	y_1(t) = y(t) & \mbox{~~if~~} 1 \le t \le u_{1}\\
@@ -323,16 +325,39 @@ To tackle this demixing problem, we introduce a scalable baseline estimation fra
 %	\end{align*}
 %
 %	 with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< n$. 
-	 Given quantiles $\tau_1 < \cdots < \tau_J$, we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $m$ at time $t$. In order to constrain the overlapping sections to be equal, we define a consensus variable
+%	 Given quantiles $\tau_1 < \cdots < \tau_J$, we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $m$ at time $t$. In order to constrain the overlapping sections to be equal, we define a consensus variable	 
+	 Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{m}_{j} \in \Real^{\lvert \mathcal{I}_m \rvert}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $m$. We then ``stitch" together the $M$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{m}{ij} = \VE{\theta}{i + l_m - 1,j}$ for $i = 1, \ldots, u_m - l_m + 1$ and for all $j$. Let $\Mn{\Theta}{m}$ be the matrix whose $j$th column is $\Vn{\theta}{m}$. We can write these constraints more compactly as $\Mn{\Theta}{m} = \Mn{U}{m}\M{\Theta}$, where $\Mn{U}{m} \in \{0, 1\}^{\lvert \mathcal{I}_m \rvert \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $m$th window. Furthermore, let $\iota_{\mathcal{C}}$ denote the indicator function of the non-crossing quantile constraint, namely $\iota_{\mathcal{C}}(\M{\Theta})$ is zero if $\M{\Theta} \in \mathcal{C}$ and infinity otherwise.
 	 
+	Our windowed quantile trend optimization problem can then be written as 
+	 \begin{align*}
+		 \label{eq:quantile_windows}
+		 &\text{minimize}\; \sum_{m=1}^M \left \{\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{m} - \Vn{\theta}{m}_{j}) + 
+		 \lambda_j \lVert \Mn{D}{k+1} \Vn{\theta}{m}_{j} \rVert_1 \right ] + \iota_\mathcal{C}(\Mn{\Theta}{m}) \right\}\\
+		 &\text{subject to} \qquad \Mn{\Theta}{m} = \Mn{U}{m}\M{\Theta} \;\; \text{ for } m = 1, \ldots, M.
+	 \end{align*}	 
+	 
+	 	 Let $\Mn{\Omega}{m}$ denote the Lagrange multiplier matrix for the $m$th consensus constraint, namely $\Mn{\theta}{m} = \Mn{U}{m}\M{\theta}$, and let $\Vn{\omega}{m}_{j}$ denote its $j$th column.
+%		 
+%		  $\Vn{\omega}{m}_{j}$ denote Lagrange multipliers for the constraint $\Vn{\theta}{m}_j = \Mn{U}{m}\V{\theta}_j$, $\Mn{\Omega}{m}$ denote the matrix whose $j$th column is $\Vn{\omega}{m}_j$, and penalty parameter $\gamma > 0$, 
+		  
+		  The augmented Lagrangian is given by
 	 \begin{eqnarray*}
-	\bar{\theta}_{j, m}	&=&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
-	\bar{\theta}_{j, m}(t)	 &=& \begin{cases} 
-			 \frac{\theta_{j,m-1}(t)+\theta_{j,m}(t)}{2} & \mbox{if~~} l_{m} \le t \le u_{m-1}  \\
-			 \theta_{j,m}(t) & \mbox{if~~} u_{m-1} \le t \le l_{m+1}  \\
-			 \frac{\theta_{j,m}(t)+\theta_{j,m+1}(t)}{2} & \mbox{if~~} l_{m+1} \le t \le u_{m}  
-			 \end{cases},
-	\end{eqnarray*}
+	 \mathcal{L}(\M{\Theta}, \{\Mn{\Theta}{m}\}, \{\Mn{\Omega}{m}\}) & = & \sum_{m=1}^M \biggl \{\sum_{j=1}^J \biggl [\rho_{\tau_j}(\Vn{y}{m} - \Vn{\theta}{m}_j)+\lambda \lVert \Mn{D}{k+1}\Vn{\theta}{m}_j\rVert_1 \\
+	 && + \; (\Vn{\theta}{m}_j - \Mn{U}{m}\V{\theta}_{j})\Tra\Vn{\omega}{m}_{j} + 
+	 \frac{\gamma}{2}\lVert \Vn{\theta}{m}_j - \Mn{U}{m}\V{\theta}_{j}\rVert_2^2 \biggr ] + \iota_\mathcal{C}(\Mn{\Theta}{m}) \biggr\},
+	 \end{eqnarray*}
+	 where $\gamma$ is a positive penalty parameter. 
+	 We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in Algorithm 1. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}. 
+	 
+	 
+%	 \begin{eqnarray*}
+%	\bar{\theta}_{j, m}	&=&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
+%	\bar{\theta}_{j, m}(t)	 &=& \begin{cases} 
+%			 \frac{\theta_{j,m-1}(t)+\theta_{j,m}(t)}{2} & \mbox{if~~} l_{m} \le t \le u_{m-1}  \\
+%			 \theta_{j,m}(t) & \mbox{if~~} u_{m-1} \le t \le l_{m+1}  \\
+%			 \frac{\theta_{j,m}(t)+\theta_{j,m+1}(t)}{2} & \mbox{if~~} l_{m+1} \le t \le u_{m}  
+%			 \end{cases},
+%	\end{eqnarray*}
 %	 
 %	 \begin{align*}
 %	\bar{\theta}_{j, m}	=&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
@@ -342,22 +367,22 @@ To tackle this demixing problem, we introduce a scalable baseline estimation fra
 %			 \frac{\theta_{j,m}(t)+\theta_{j,m+1}(t)}{2} & \mbox{if~~} l_{m+1} \le t \le u_{m}  
 %			 \end{cases},
 %	\end{align*}
-	defining $\theta_{j,M+1} = \theta_{j,M}$ and $\theta_{j,0} = \theta_{j,1}$. Our windowed quantile trend optimization problem can then be written as 
-	 \begin{align*}
-		 \label{eq:quantile_windows}
-		 &\underset{\theta_{1,m}, \ldots, \theta_{J,m}}{\text{minimize}}\; \sum_{m=1}^M\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{m} - \theta_{j,m}) + 
-		 \lambda_j \lVert \Mn{D}{k+1} \theta_{j,m} \rVert_1 \right ] \\
-		 &\text{subject to: }\; \\
-		 &\qquad \theta_{1,m}(t) \le \theta_{2,m}(t) \le \ldots \le \theta_{J,m}(t) \text{ for all } m,t \\
-		 &\qquad \theta_{j,m}(t) = \bar{\theta}_{j,m}(t) \text{ for all } j, m, t
-	 \end{align*}
-	 Defining Lagrange multipliers $\omega_{j,m}$, and penalty parameter $\gamma > 0$, the augmented Lagrangian for finding the trends in window $m$ is
-	 \begin{equation*}
-	 \mathcal{L}(\theta_{j,m}, \bar{\theta}_{j,m}, \omega_{j,m}) = \sum_{j=1}^J\rho_{\tau_j}(\Vn{y}{m} - \theta_{j,m})+\lambda \lVert \Mn{D}{k+1}\theta_{j,m}\rVert_1 +  \omega_{j,m}\Tra(\theta_{j,m} - \bar{\theta}_{j,m}) + 
-	 \frac{\gamma}{2}||\theta_{j,m} - \bar{\theta}_{j,m}||_2^2
-	 \end{equation*}
-	 We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in Algorithm 1. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}. 
-	 
+%	defining $\theta_{j,M+1} = \theta_{j,M}$ and $\theta_{j,0} = \theta_{j,1}$. Our windowed quantile trend optimization problem can then be written as 
+%	 \begin{align*}
+%		 \label{eq:quantile_windows}
+%		 &\underset{\theta_{1,m}, \ldots, \theta_{J,m}}{\text{minimize}}\; \sum_{m=1}^M\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{m} - \theta_{j,m}) + 
+%		 \lambda_j \lVert \Mn{D}{k+1} \theta_{j,m} \rVert_1 \right ] \\
+%		 &\text{subject to: }\; \\
+%		 &\qquad \theta_{1,m}(t) \le \theta_{2,m}(t) \le \ldots \le \theta_{J,m}(t) \text{ for all } m,t \\
+%		 &\qquad \theta_{j,m}(t) = \bar{\theta}_{j,m}(t) \text{ for all } j, m, t
+%	 \end{align*}
+%	 Defining Lagrange multipliers $\omega_{j,m}$, and penalty parameter $\gamma > 0$, the augmented Lagrangian for finding the trends in window $m$ is
+%	 \begin{equation*}
+%	 \mathcal{L}(\theta_{j,m}, \bar{\theta}_{j,m}, \omega_{j,m}) = \sum_{j=1}^J\rho_{\tau_j}(\Vn{y}{m} - \theta_{j,m})+\lambda \lVert \Mn{D}{k+1}\theta_{j,m}\rVert_1 +  \omega_{j,m}\Tra(\theta_{j,m} - \bar{\theta}_{j,m}) + 
+%	 \frac{\gamma}{2}||\theta_{j,m} - \bar{\theta}_{j,m}||_2^2
+%	 \end{equation*}
+%	 We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in Algorithm 1. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}. 
+%	 
 	\begin{figure}[!h] 
 		\centering
 		\includegraphics[width = 0.8\linewidth]{Figures/overlapping_windows.png}
@@ -387,20 +412,31 @@ To tackle this demixing problem, we introduce a scalable baseline estimation fra
 	\end{algorithm}
 
 	We measure convergence using the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals, which represent the residuals for primal and dual feasibility, respectively. The primal residual, 
+%	\begin{eqnarray*}
+%	r_p^{(q)} & = & \sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert\theta_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q)}\rVert_2^2},
+%	\end{eqnarray*}
 	\begin{eqnarray*}
-	r_p^{(q)} & = & \sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert\theta_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q)}\rVert_2^2},
+	r_{\text{primal}}^{k} & = & \sqrt{\sum_{m=1}^M\lVert\Mn{\Theta}{m}_{k} - \M{\Theta}_k\rVert_{\text{F}}^2},
 	\end{eqnarray*}
 	represents the difference between the trend values in the windows and the consensus trend value. The dual residual,
+%	\begin{eqnarray*}
+%	r_d^{(q)} & = & \gamma\sqrt{\sum_{m=1}^M \sum_{j=1}^J\lVert\bar{\theta}_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q-1)}\rVert_2^2},
+%	\end{eqnarray*}
 	\begin{eqnarray*}
-	r_d^{(q)} & = & \gamma\sqrt{\sum_{m=1}^M \sum_{j=1}^J\lVert\bar{\theta}_{j,m}^{(q)} - \bar{\theta}_{j,m}^{(q-1)}\rVert_2^2},
+	r_{\text{dual}}^{k} & = & \gamma\sqrt{\sum_{m=1}^M \lVert\M{\Theta}_k - \M{\Theta}_{k-1}\rVert_{\text{F}}^2},
 	\end{eqnarray*}
 	represents the change in the consensus variable from one iterate to the next. The algorithm is stopped when 
+%	\begin{eqnarray*}
+%		r_p^{(q)} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\underset{m}{\max}\left[\max 
+%		\left(\sqrt{\sum_{j=1}^J \lVert\theta_{j,m}^{(q)}\rVert_2^2}, \sqrt{\sum_{j=1}^J \lVert \bar{\theta}_{j,m}^{(q)} \rVert_2^2} \right )\right]\\
+%		r_d^{(q)} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert \omega_{j,m}^{(q)}\rVert_2^2}
+%	\end{eqnarray*}
 	\begin{eqnarray*}
-		r_p^{(q)} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\underset{m}{\max}\left[\max 
-		\left(\sqrt{\sum_{j=1}^J \lVert\theta_{j,m}^{(q)}\rVert_2^2}, \sqrt{\sum_{j=1}^J \lVert \bar{\theta}_{j,m}^{(q)} \rVert_2^2} \right )\right]\\
-		r_d^{(q)} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert \omega_{j,m}^{(q)}\rVert_2^2}
-	\end{eqnarray*}
-	
+		r_{\text{primal}}^{k} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\underset{m}{\max} \left[\max 
+		\left\{\lVert\Mn{\Theta}{m}_k \rVert_{\text{F}}, \lVert \M{\Theta}_{k} \rVert_{\text{F}} \right\}\right] \\%\lVert \M{\Theta}_{k} \rVert_{\text{F}}} \right )\right]\\
+		r_{\text{dual}}^{k} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\sqrt{\sum_{m=1}^M
+		\lVert \Mn{\Omega}{m}_k \rVert_{\text{F}}^2}.
+	\end{eqnarray*}	
 
 	
 	\begin{figure}
