@@ -69,7 +69,6 @@ solve_glpk <- function(model_list){
 }
 
 solve_lp <- function(model_list){
-  model_list$sense <- sub("=", "==", model_list$sense)
   result <- lpSolve::lp(objective.in = model_list$obj, 
                const.mat = as.matrix(model_list$A), 
                const.dir = model_list$sense, 
