@@ -194,7 +194,7 @@
 \section{Introduction}
 \label{sec:intro}
 	
-	In a wide range of applications that spans chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar functions of time $y(t)$ are observed and assumed to be a superposition of an underlying slowly varying baseline trend $\theta(t)$, other more rapidly varying components $s(t)$, and noise. In practice, $y(t)$ is observed at discrete time points $t_1, \ldots, t_n$, and we model the vector of signal samples $\VE{y}{i} = y(t_i)$ as	
+In a wide range of applications that spans chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar functions of time $y(t)$ are observed and assumed to be a superposition of an underlying slowly varying baseline trend $\theta(t)$, other more rapidly varying components $s(t)$, and noise. In practice, $y(t)$ is observed at discrete time points $t_1, \ldots, t_n$, and we model the vector of signal samples $\VE{y}{i} = y(t_i)$ as	
 \begin{eqnarray*}
 \V{y} & = & \V{\theta} + \V{s} + \V{\varepsilon},
 \end{eqnarray*}
@@ -204,7 +204,7 @@ In some applications, the slowly varying component $\V{\theta}$ is the signal of
 
 %	This work was motivated by the analysis of signals measured by low cost and portable air quality sensors, whose use has increased dramatically in the last decade. 
 In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, the three sharp transient spikes at \Halley{Eric}{can you put the times at which the spikes occur here?}, but the baseline drift varies from one sensor to another obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering 
- and  removing it from the observed signals, peaks can be reliably detected from concordant residual signals from a collection of SPods using a simple data-driven thresholding strategy. Thus, accurately demix a noisy observed vector $\V{y}$ into a slowly varying component $\V{\theta}$ and a transient component $\V{s}$ can lead to greatly improved and simplified downstream analysis. This is true for not just air quality applications, but universally across the many domains listed earlier.
+ and  removing it from the observed signals, peaks can be reliably detected from concordant residual signals from a collection of SPods using a simple data-driven thresholding strategy. Thus, accurately demixing a noisy observed vector $\V{y}$ into a slowly varying component $\V{\theta}$ and a transient component $\V{s}$ can lead to greatly improved and simplified downstream analysis. This is true for not just air quality applications, but universally across the many domains listed earlier.
 
 	\begin{figure}[t!]
 		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}		
@@ -343,7 +343,7 @@ To tackle demixing problems, we introduce a scalable baseline estimation framewo
 %% ----------------------------------------------------------------------
 \subsection{ADMM for Big Data}
 	
-	The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break \Halley{Eric}{Can we be more specific about what we mean when we say ``break?"}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is  described in greater detail by \cite{boyd2011distributed}, but we briefly review how it can be used to iteratively solve the following equality constrained optimization problem.
+The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, all solvers will eventually break \Halley{Eric}{Can we be more specific about what we mean when we say ``break?"}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is  described in greater detail by \cite{boyd2011distributed}, but we briefly review how it can be used to iteratively solve the following equality constrained optimization problem.
 \begin{equation}
 \label{eq:split_objective}
 \begin{split}
@@ -387,7 +387,7 @@ ADMM minimizes the augmented Lagrangian one block of variables at a time before 
 %
 %	 with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< n$. 
 %	 Given quantiles $\tau_1 < \cdots < \tau_J$, we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $m$ at time $t$. In order to constrain the overlapping sections to be equal, we define a consensus variable	 
-	 Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{w}_{j} \in \Real^{\lvert \mathcal{I}_w \rvert}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $w$. We then ``stitch" together the $W$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{w}{ij} = \VE{\theta}{i + l_w - 1,j}$ for $i = 1, \ldots, u_w - l_w + 1$ and for all $j$. Let $\Mn{\Theta}{w}$ be the matrix whose $j$th column is $\Vn{\theta}{w}$. Then we can write these constraints more compactly as $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, where $\Mn{U}{w} \in \{0, 1\}^{\lvert \mathcal{I}_w \rvert \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $m$th window, namely
+Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{w}_{j} \in \Real^{\lvert \mathcal{I}_w \rvert}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $w$. We then ``stitch" together the $W$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{w}{ij} = \VE{\theta}{i + l_w - 1,j}$ for $i = 1, \ldots, u_w - l_w + 1$ and for all $j$. Let $\Mn{\Theta}{w}$ be the matrix whose $j$th column is $\Vn{\theta}{w}$. Then we can write these constraints more compactly as $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, where $\Mn{U}{w} \in \{0, 1\}^{\lvert \mathcal{I}_w \rvert \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $w$th window, namely
 \begin{eqnarray*}
 \Mn{U}{w} & = & \begin{pmatrix}
 \V{e}_{l_w}\Tra \\
@@ -407,7 +407,7 @@ where $\V{e}_i \in \Real^{n}$ denotes the $i$th standard basis vector. Furthermo
 		 \end{split}
 	 \end{equation}	 
 	 
-	 	 Let $\Mn{\Omega}{w}$ denote the Lagrange multiplier matrix for the $m$th consensus constraint, namely $\Mn{\theta}{w} = \Mn{U}{w}\M{\theta}$, and let $\Vn{\omega}{w}_{j}$ denote its $j$th column.
+	 	 Let $\Mn{\Omega}{w}$ denote the Lagrange multiplier matrix for the $w$th consensus constraint, namely $\Mn{\theta}{w} = \Mn{U}{w}\M{\theta}$, and let $\Vn{\omega}{w}_{j}$ denote its $j$th column.
 %		 
 %		  $\V{\omega}_{m}_{j}$ denote Lagrange multipliers for the constraint $\Vn{\theta}{w}_j = \Mn{U}{m}\V{\theta}_j$, $\Mn{\Omega}{m}$ denote the matrix whose $j$th column is $\V{\omega}_{m}_j$, and penalty parameter $\gamma > 0$, 
 		  
@@ -596,7 +596,7 @@ The proof of \Prop{convergence} is a straightforward application of the converge
 	\section{Model Selection}
 	\label{sec:lambda_choice}
 
-	An important practical issue in baseline estimation is the choice of regularization parameter $\lambda$, which controls the degree of smoothness in $\V{\theta}$. In this section, we introduce four methods for choosing $\lambda$. The first is validation based approach; the latter three are based on information criteria.
+	An important practical issue in baseline estimation is the choice of regularization parameter $\lambda$, which controls the degree of smoothness in $\V{\theta}$. In this section, we introduce four methods for choosing $\lambda$. The first is a validation based approach; the latter three are based on information criteria.
 
 \subsection{Validation}	
 	Our method can easily handle missing data by defining the check loss function to output 0 for missing values. %We also explore three information criteria.  
