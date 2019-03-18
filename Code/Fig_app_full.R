@@ -36,6 +36,7 @@ ggplot(spodLong, aes(x=time, y=PID, col=node)) +
   labs(col="SPod")
 ggsave("../Manuscript/Figures/corrected_data.png", width = 7, height = 2.5)
 
+spodLong %>% filter(PID > 0.75)
 # ################################################################################
 detrendr_trends <- spod_trends
 methods <- c("detrendr")
