@@ -6,12 +6,13 @@ library(tidyverse)
 library(devtools)
 rm(list=ls())
 load_all("detrendr")
-colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
+colPal <- rev(c('#762a83','#9970ab','#c2a5cf', '#d9f0d3',
                 '#a6dba0','#5aae61','#1b7837'))
 
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "rqss", "npqw", "qsreg") 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "detrend_cross", 
+             "rqss", "npqw", "qsreg") 
 metrics <- data.frame(method = NA, n = NA, sim = NA, 
                       metric = NA, metric_type = NA, threshold = NA)
 
