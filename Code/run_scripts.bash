@@ -3,7 +3,7 @@
 
 N_FILES=100
 
-for FUN in detrendr rqss; do	 
+for FUN in cross ; do	 
 	OFILE="Sim_${FUN}.R"
 	for((i=1;i<=$N_FILES;i++)); do
 		FNAME="Sim_${FUN}_${i}.R"
