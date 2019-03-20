@@ -70,7 +70,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
   model_list <- lapply(y_list, get_model, tau=tau, lambda=lambda, k=k)
   phi_list <- mapply(solve_model, model_list, y_list, 
                      solver = solver, trend=FALSE, SIMPLIFY = FALSE)
-  eta_list <- mapply(get_eta, phi_list, y_list, k=3, SIMPLIFY = FALSE)
+  eta_list <- mapply(get_eta, phi_list, y_list, k=k, SIMPLIFY = FALSE)
   
   # Change to QP solver
   if (solver == "lpSolve"){

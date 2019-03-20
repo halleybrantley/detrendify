@@ -39,9 +39,9 @@ ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 4)
 simDesign <- "peaks"
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
-colPal <- rev(c('#762a83','#9970ab','#c2a5cf',
+colPal <- rev(c('#762a83','#9970ab','#c2a5cf', '#d9f0d3',
                 '#a6dba0','#5aae61','#1b7837'))
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", 
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "detrend_cross",
              "rqss", "npqw", "qsreg") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
                              ncol = length(tau)+3))
