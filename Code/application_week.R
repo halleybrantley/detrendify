@@ -7,10 +7,11 @@ library(devtools)
 library(Hmisc)
 library(fields)
 library(gurobi)
+library(zoo)
 load_all("detrendr")
 rm(list=ls())
 
-i = 2
+i = 6
 spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
                  header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
@@ -21,6 +22,8 @@ names(spodPIDs) <- nodes
 spodPIDs$c <- spodPIDs$c/1000
 spodPIDs$e <- spodPIDs$e/1000
 spodPIDs$time <- spod$time
+spodPIDs$c <- na.locf(spodPIDs$c)
+spodPIDs$d <- na.locf(spodPIDs$d)
 
 qsreg_trends <- data.frame(time = spodPIDs$time, c_0.1 = NA, 
                         c_0.15 = NA,  e_0.1 = NA, e_0.15 = NA)
