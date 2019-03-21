@@ -10,7 +10,7 @@ library(gurobi)
 load_all("detrendr")
 rm(list=ls())
 
-i = 2
+i = 0 
 spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
                  header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
@@ -54,7 +54,7 @@ for (j in 1:12){
 
 for (node in nodes){
   result <- get_windows_BIC(y=spodPIDs[,node], tau, k=3, window_size, overlap,
-                            lambdaSeq = seq(12,19,1)),
+                            lambdaSeq = seq(12,19,1),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = FALSE,
