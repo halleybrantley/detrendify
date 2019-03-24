@@ -19,6 +19,7 @@ get_confusion <- function(spod_signal, nodes){
   for (i in 1:ncol(spod_signal)){
     spod_signal[,i] <- factor(spod_signal[,i])
   }
+  if (length(nodes) == 3){
   mat_0 <- confusionMatrix(spod_signal[spod_signal[, nodes[1]]==0, nodes[2]],
                             spod_signal[spod_signal[, nodes[1]]==0, nodes[3]])
   
@@ -30,6 +31,11 @@ get_confusion <- function(spod_signal, nodes){
                        "nodes001", "nodes011", 
                        "nodes100", "nodes110", 
                        "nodes101", "nodes111")
+  } else {
+   mat <- confusionMatrix(spod_signal[, nodes[1]],
+                    spod_signal[, nodes[2]])
+   conf_out <- data.frame(mat$table)
+  }
 
   return(conf_out)
 }
@@ -41,7 +47,12 @@ get_NMI <- function(signal, nodes){
 }
 
 get_VI <- function(signal, nodes){
+  if (length(nodes)==3){
   data.frame(nodes12 = round(vi.dist(signal[, nodes[1]], signal[,nodes[2]]),2),
              nodes13 = round(vi.dist(signal[, nodes[1]], signal[,nodes[3]]),2), 
              nodes23 = round(vi.dist(signal[, nodes[2]], signal[,nodes[3]]),2))
+  } else {
+    data.frame(nodes12 = round(vi.dist(signal[, nodes[1]], signal[,nodes[2]]),2))
+  }
 }
+  
