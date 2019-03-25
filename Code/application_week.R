@@ -7,6 +7,7 @@ library(devtools)
 library(Hmisc)
 library(fields)
 library(gurobi)
+library(zoo)
 load_all("detrendr")
 rm(list=ls())
 
@@ -21,6 +22,8 @@ names(spodPIDs) <- nodes
 spodPIDs$c <- spodPIDs$c/1000
 spodPIDs$e <- spodPIDs$e/1000
 spodPIDs$time <- spod$time
+spodPIDs$c <- na.locf(spodPIDs$c)
+spodPIDs$e <- na.locf(spodPIDs$e)
 
 qsreg_trends <- data.frame(time = spodPIDs$time, c_0.1 = NA, 
                         c_0.15 = NA,  e_0.1 = NA, e_0.15 = NA)
@@ -39,11 +42,11 @@ for (j in 1:12){
   trends <- data.frame(time = spodPIDs$time[ind_start:ind_end])
   for (node in nodes){
     trend <- matrix(NA, n, length(tau))
-    for (i in 1:length(tau)){
+    for (m in 1:length(tau)){
       fit_qsreg <- qsreg(x, spodPIDs[ind_start:ind_end,node], 
                          maxit.cv = 50, 
-                       alpha=tau[i], hmin = -6, hmax = NA)
-      trend[,i] <- predict(fit_qsreg)   
+                       alpha=tau[m], hmin = -10, hmax = NA)
+      trend[,m] <- predict(fit_qsreg)   
     }
     trends <- cbind(trends, as.data.frame(trend))
     names(trends)[(ncol(trends)-(length(tau)-1)):ncol(trends)] <-
@@ -54,7 +57,7 @@ for (j in 1:12){
 
 for (node in nodes){
   result <- get_windows_BIC(y=spodPIDs[,node], tau, k=3, window_size, overlap,
-                            lambdaSeq = seq(12,19,1),
+                            lambdaSeq = exp(seq(12,19,1)),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = FALSE,
@@ -68,5 +71,5 @@ for (node in nodes){
     paste(node, tau, sep = "_")
 }
 
-save(spod_trends, qsreg_trends, spodPIDs, 
-     file = sprintf("../Data/SPod/SPod_week/trends_2017-03-0%d.RData",i))
+save(spod_trends, qsreg_trends, spodPIDs, result,
+     file = sprintf("../SPod/SPod_week/trends_2017-03-0%d.RData",i))
