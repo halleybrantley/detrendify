@@ -304,7 +304,43 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
 %% ----------------------------------------------------------------------
 \subsection{ADMM for Big Data}
 
-The number of parameters to be estimated in this problem is equal to the number of observations multiplied by the number of quantiles of interest. As the size of the data and the number of quantiles grows, eventually the matrix of constraints will no longer fit into memory. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is  described in greater detail by \cite{boyd2011distributed}, but we briefly review how it can be used to iteratively solve the following equality constrained optimization problem.
+ As the size of the data increases, all methods require additional computation time and for our method eventually the matrix of constraints no longer fits into memory. In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
+ 
+ \begin{figure}[!t]
+ 	\centering
+ 	\includegraphics[width = 0.8\linewidth]{Figures/overlapping_windows.png}
+ 	\caption{Window boundaries and trends fit separately in each window.}
+ 	\label{fig:windows}
+ \end{figure}
+ 
+ Let $\mathcal{I}$ denote a subset of the indices $\{1, \ldots, n\}$ and $\V{y}_\mathcal{I} \in \Real^{\lvert I \rvert}$ denote the subvector obtained by stacking on top of each other the elements $\VE{y}{i}$ for $i \in \mathcal{I}$ in their canonical ordering.
+ To decrease computation and extend our method to larger problems, we divide our observed series $\VE{y}{i}$ with $i = 1, \ldots, n$ into $W$ overlapping windows of observations $\Vn{y}{w} = \V{y}_{\mathcal{I}_w}$ where $\mathcal{I}_w$ is the set of integers from $l_w$ to $u_w$ inclusive, namely $\mathcal{I}_w = \{l_w, l_w + 1, \ldots, u_w -1, u_w\}$ and
+ \begin{eqnarray*}
+ 	1 = l_{1} < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots < u_{W} = n.
+ \end{eqnarray*}
+ \Fig{windows} shows an example of 1200 observations being mapped into three equally sized overlapping windows of observations. While the overlapping trend estimates between $l_2$ and $u_2$ don't vary dramatically, the difference is more pronounced in the trend in the 5\textsuperscript{th} quantile between $l_3$ and $u_2$. 
+ 
+ Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{w}_{j} \in \Real^{\lvert \mathcal{I}_w \rvert}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $w$. We then ``stitch" together the $W$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{w}{ij} = \VE{\theta}{i + l_w - 1,j}$ for $i = 1, \ldots, u_w - l_w + 1$ and for all $j$. Let $\Mn{\Theta}{w}$ be the matrix whose $j$th column is $\Vn{\theta}{w}_{j}$. Then we can write these constraints more compactly as $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, where $\Mn{U}{w} \in \{0, 1\}^{\lvert \mathcal{I}_w \rvert \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $w$th window, namely
+ \begin{eqnarray*}
+ 	\Mn{U}{w} & = & \begin{pmatrix}
+ 		\V{e}_{l_w}\Tra \\
+ 		\vdots \\
+ 		\V{e}_{u_w}\Tra
+ 	\end{pmatrix},
+ \end{eqnarray*}
+ where $\V{e}_i \in \Real^{n}$ denotes the $i$th standard basis vector. Furthermore, let $\iota_{\mathcal{C}}$ denote the indicator function of the non-crossing quantile constraint, namely $\iota_{\mathcal{C}}(\M{\Theta})$ is zero if $\M{\Theta} \in \mathcal{C}$ and infinity otherwise.
+ 
+ Our windowed quantile trend optimization problem can then be written as
+ \begin{equation}
+ \label{eq:quantile_windows}
+ \begin{split}
+ &\text{minimize}\; \sum_{w=1}^W \left \{\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_{j}) +
+ \lambda_j \lVert \Mn{D}{k+1} \Vn{\theta}{w}_{j} \rVert_1 \right ] + \iota_\mathcal{C}(\Mn{\Theta}{w}) \right\}\\
+ &\text{subject to} \qquad \Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta} \;\; \text{ for } w = 1, \ldots, W.
+ \end{split}
+ \end{equation}
+  
+ The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is  described in greater detail by \cite{boyd2011distributed}, but we briefly review how it can be used to iteratively solve the following equality constrained optimization problem which is a more general form of \Eqn{quantile_windows}.
 
 \begin{equation}
 \label{eq:split_objective}
@@ -313,7 +349,7 @@ The number of parameters to be estimated in this problem is equal to the number 
 &\text{subject to} \; \M{A}\V{\theta} + \M{B}\Vtilde{\theta} = \V{c}.
 \end{split}
 \end{equation}
-\Eric{Joe}{I'm already lost here. Can we give some context to what $\theta$ and $\widetilde{\theta}$ are in the context of our windowing algorithm? Maybe we should say something about the windowing first before we dive head first into Lagrangians? What are $A$ and $B$? Do these simplify to something in our specific application? The stuff below might seem obvious to you, but I'm totally lost. It might be better to talk about the notation for the windows first, and how different windows will give different thetas for the overlapping parts, and then talk about equality constrained optimization as a solution for the overlapping parts.} Recall that finding the minimizer to an equality constrained optimization problem is equivalent to the identifying the saddle point of the Lagrangian function associated with the problem \Eqn{split_objective}. ADMM seeks the saddle point of a related function called the augmented Lagrangian,
+Recall that finding the minimizer to an equality constrained optimization problem is equivalent to the identifying the saddle point of the Lagrangian function associated with the problem \Eqn{split_objective}. ADMM seeks the saddle point of a related function called the augmented Lagrangian,
 %The Lagrangian for the ALM problem
 \begin{eqnarray*}
 	\mathcal{L}_{\gamma}(\V{\theta},\Vtilde{\theta},\V{\omega}) & = & f(\V{\theta}) + g(\Vtilde{\theta}) + \langle \V{\omega}, \V{c} - \M{A}\V{\theta} - \M{B}\Vtilde{\theta} \rangle
@@ -332,46 +368,7 @@ ADMM minimizes the augmented Lagrangian one block of variables at a time before 
 \end{equation}
 
 
-
-Let $\mathcal{I}$ denote a subset of the indices $\{1, \ldots, n\}$ and $\V{y}_\mathcal{I} \in \Real^{\lvert I \rvert}$ denote the subvector obtained by stacking on top of each other the elements $\VE{y}{i}$ for $i \in \mathcal{I}$ in their canonical ordering.
-We apply the consensus ADMM algorithm to the quantile regression trend filtering problem given in \Eqn{quantile_trend}, by dividing our observed series $\VE{y}{i}$ with $i = 1, \ldots, n$ into overlapping $W$ windows of observations $\Vn{y}{w} = \V{y}_{\mathcal{I}_w}$ where $\mathcal{I}_w$ is the set of integers from $l_w$ to $u_w$ inclusive, namely $\mathcal{I}_w = \{l_w, l_w + 1, \ldots, u_w -1, u_w\}$ where
-\begin{eqnarray*}
-	1 = l_{1} < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots < u_{W} = n.
-\end{eqnarray*}
-\Fig{windows} shows an example of 1200 observations being mapped into three equally sized overlapping windows of observations.
-
-%	\begin{align*}
-%	y_1(t) = y(t) & \mbox{~~if~~} 1 \le t \le u_{1}\\
-%	y_2(t) = y(t) & \mbox{~~if~~} l_{2} \le t \le u_{2} \\
-%	\vdots & \\
-%	y_M(t) = y(t) & \mbox{~~if~~} l_{M} \le t \le  n,
-%	\end{align*}
-%
-%	 with boundaries $1 < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < ...< n$.
-%	 Given quantiles $\tau_1 < \cdots < \tau_J$, we define $\theta_{j,m}(t)$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $m$ at time $t$. In order to constrain the overlapping sections to be equal, we define a consensus variable
-Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{w}_{j} \in \Real^{\lvert \mathcal{I}_w \rvert}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $w$. We then ``stitch" together the $W$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{w}{ij} = \VE{\theta}{i + l_w - 1,j}$ for $i = 1, \ldots, u_w - l_w + 1$ and for all $j$. Let $\Mn{\Theta}{w}$ be the matrix whose $j$th column is $\Vn{\theta}{w}$. Then we can write these constraints more compactly as $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, where $\Mn{U}{w} \in \{0, 1\}^{\lvert \mathcal{I}_w \rvert \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $w$th window, namely
-\begin{eqnarray*}
-	\Mn{U}{w} & = & \begin{pmatrix}
-		\V{e}_{l_w}\Tra \\
-		\vdots \\
-		\V{e}_{u_w}\Tra
-	\end{pmatrix},
-\end{eqnarray*}
-where $\V{e}_i \in \Real^{n}$ denotes the $i$th standard basis vector. Furthermore, let $\iota_{\mathcal{C}}$ denote the indicator function of the non-crossing quantile constraint, namely $\iota_{\mathcal{C}}(\M{\Theta})$ is zero if $\M{\Theta} \in \mathcal{C}$ and infinity otherwise.
-
-Our windowed quantile trend optimization problem can then be written as
-\begin{equation}
-\label{eq:quantile_windows}
-\begin{split}
-&\text{minimize}\; \sum_{w=1}^W \left \{\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_{j}) +
-\lambda \lVert \Mn{D}{k+1} \Vn{\theta}{w}_{j} \rVert_1 \right ] + \iota_\mathcal{C}(\Mn{\Theta}{w}) \right\}\\
-&\text{subject to} \qquad \Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta} \;\; \text{ for } w = 1, \ldots, W.
-\end{split}
-\end{equation}
-
-Let $\Mn{\Omega}{w}$ denote the Lagrange multiplier matrix for the $w$th consensus constraint, namely $\Mn{\theta}{w} = \Mn{U}{w}\M{\theta}$, and let $\Vn{\omega}{w}_{j}$ denote its $j$th column.
-%
-%		  $\V{\omega}_{m}_{j}$ denote Lagrange multipliers for the constraint $\Vn{\theta}{w}_j = \Mn{U}{m}\V{\theta}_j$, $\Mn{\Omega}{m}$ denote the matrix whose $j$th column is $\V{\omega}_{m}_j$, and penalty parameter $\gamma > 0$,
+Returning to our constrained windows problem giving in \Eqn{quantile_windows}, let $\Mn{\Omega}{w}$ denote the Lagrange multiplier matrix for the $w$th consensus constraint, namely $\Mn{\theta}{w} = \Mn{U}{w}\M{\theta}$, and let $\Vn{\omega}{w}_{j}$ denote its $j$th column.
 
 The augmented Lagrangian is given by
 \begin{eqnarray*}
@@ -379,14 +376,14 @@ The augmented Lagrangian is given by
 \end{eqnarray*}
 where
 \begin{eqnarray*}
-	\mathcal{L}_w(\M{\Theta}, \Mn{\Theta}{w}, \Mn{\Omega}{w}) & = & \sum_{j=1}^J \biggl [\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_j)+\lambda \lVert \Mn{D}{k+1}\Vn{\theta}{w}_j\rVert_1 \\
+	\mathcal{L}_w(\M{\Theta}, \Mn{\Theta}{w}, \Mn{\Omega}{w}) & = & \sum_{j=1}^J \biggl [\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_j)+\lambda_j \lVert \Mn{D}{k+1}\Vn{\theta}{w}_j\rVert_1 \\
 	&& + \; (\Vn{\theta}{w}_j - \Mn{U}{w}\V{\theta}_{j})\Tra\Vn{\omega}{w}_{j} +
 	\frac{\gamma}{2}\lVert \Vn{\theta}{w}_j - \Mn{U}{w}\V{\theta}_{j}\rVert_2^2 \biggr ] + \iota_\mathcal{C}(\Mn{\Theta}{w}),
 \end{eqnarray*}
 where $\gamma$ is a positive penalty parameter.
 
 The ADMM algorithm alternates between updating the consensus variable $\M{\Theta}$, the window variables $\{\Mn{\Theta}{w}\}$, and the Lagrange multipliers $\{\Mn{\Omega}{w}\}$.
-At the $m+1$th iteration, we perform the following sequence of updates
+At the $(m+1)$\textsuperscript{th} iteration, we perform the following sequence of updates
 
 \begin{eqnarray*}
 	\M{\Theta}_{m+1} & = & \underset{\M{\Theta}}{\arg\min}\; \mathcal{L}(\M{\Theta}, \{\Mn{\Theta}{w}_m\}, \{\Mn{\Omega}{w}_m\}) \\
@@ -397,16 +394,16 @@ At the $m+1$th iteration, we perform the following sequence of updates
 
 \begin{eqnarray}
 \label{eq:update_consensus}
-\ME{\theta}{ij}	 &=& \begin{cases}
-\frac{1}{2}\left (\MnE{\theta}{w-1}{ij} - \gamma\Inv \MnE{\omega}{w-1}{ij} \right)
-+
-\frac{1}{2} \left (\MnE{\theta}{w}{ij} - \gamma\Inv \MnE{\omega}{w}{ij} \right)
-& \mbox{if~~} l_{w} \le i \le u_{w-1},  \\
-\MnE{\theta}{w}{ij} & \mbox{if~~} u_{w-1} < i \le l_{w+1}  \\
-\frac{1}{2} \left ( \MnE{\theta}{w}{ij} - \gamma\Inv \MnE{\omega}{w}{ij}\right )
-+
-\frac{1}{2}	\left ( \MnE{\theta}{w+1}{ij} - \gamma\Inv \MnE{\omega}{w+1}{ij} \right )
-& \mbox{if~~} l_{m+1} < i \le u_{m}
+~~~~\ME{\theta}{ij}	 &=& \begin{cases}
+\frac{1}{2}\left (\MnE{\theta}{w-1}{ij} + \MnE{\theta}{w}{ij} \right)
+-
+\frac{1}{2\gamma} \left (\MnE{\omega}{w-1}{ij} + \MnE{\omega}{w}{ij} \right)
+& \mbox{if~} l_{w} \le i \le u_{w-1},  \\
+\MnE{\theta}{w}{ij} & \mbox{if~} u_{w-1} < i \le l_{w+1}  \\
+\frac{1}{2} \left ( \MnE{\theta}{w}{ij} + \MnE{\theta}{w+1}{ij} \right )
+-
+\frac{1}{2\gamma}	\left (\MnE{\omega}{w}{ij} + \MnE{\omega}{w+1}{ij} \right )
+& \mbox{if~} l_{m+1} < i \le u_{m}
 \end{cases},
 \end{eqnarray}
 
@@ -416,45 +413,8 @@ For notational ease, we write the consensus update \Eqn{update_consensus} compac
 
 {\bf Updating $\{\Mn{\Theta}{w}\}$: } We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in \Alg{admm}. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}.
 
-%	 \begin{eqnarray*}
-%	\M{A}r{\theta}_{j, m}	&=&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
-%	\M{A}r{\theta}_{j, m}(t)	 &=& \begin{cases}
-%			 \frac{\theta_{j,m-1}(t)+\theta_{j,m}(t)}{2} & \mbox{if~~} l_{m} \le t \le u_{m-1}  \\
-%			 \theta_{j,m}(t) & \mbox{if~~} u_{m-1} \le t \le l_{m+1}  \\
-%			 \frac{\theta_{j,m}(t)+\theta_{j,m+1}(t)}{2} & \mbox{if~~} l_{m+1} \le t \le u_{m}
-%			 \end{cases},
-%	\end{eqnarray*}
-%
-%	 \begin{align*}
-%	\M{A}r{\theta}_{j, m}	=&  g(\theta_{j, m-1}, \theta_{j,m}, \theta_{j,m+1}) \\
-%	\M{A}r{\theta}_{j, m}(t)	 =& \begin{cases}
-%			 \frac{\theta_{j,m-1}(t)+\theta_{j,m}(t)}{2} & \mbox{if~~} l_{m} \le t \le u_{m-1}  \\
-%			 \theta_{j,m}(t) & \mbox{if~~} u_{m-1} \le t \le l_{m+1}  \\
-%			 \frac{\theta_{j,m}(t)+\theta_{j,m+1}(t)}{2} & \mbox{if~~} l_{m+1} \le t \le u_{m}
-%			 \end{cases},
-%	\end{align*}
-%	defining $\theta_{j,M+1} = \theta_{j,M}$ and $\theta_{j,0} = \theta_{j,1}$. Our windowed quantile trend optimization problem can then be written as
-%	 \begin{align*}
-%		 \label{eq:quantile_windows}
-%		 &\underset{\theta_{1,m}, \ldots, \theta_{J,m}}{\text{minimize}}\; \sum_{m=1}^M\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{m} - \theta_{j,m}) +
-%		 \lambda_j \lVert \Mn{D}{k+1} \theta_{j,m} \rVert_1 \right ] \\
-%		 &\text{subject to: }\; \\
-%		 &\qquad \theta_{1,m}(t) \le \theta_{2,m}(t) \le \ldots \le \theta_{J,m}(t) \text{ for all } m,t \\
-%		 &\qquad \theta_{j,m}(t) = \M{A}r{\theta}_{j,m}(t) \text{ for all } j, m, t
-%	 \end{align*}
-%	 Defining Lagrange multipliers $\omega_{j,m}$, and penalty parameter $\gamma > 0$, the augmented Lagrangian for finding the trends in window $m$ is
-%	 \begin{equation*}
-%	 \mathcal{L}(\theta_{j,m}, \M{A}r{\theta}_{j,m}, \omega_{j,m}) = \sum_{j=1}^J\rho_{\tau_j}(\Vn{y}{m} - \theta_{j,m})+\lambda \lVert \Mn{D}{k+1}\theta_{j,m}\rVert_1 +  \omega_{j,m}\Tra(\theta_{j,m} - \M{A}r{\theta}_{j,m}) +
-%	 \frac{\gamma}{2}||\theta_{j,m} - \M{A}r{\theta}_{j,m}||_2^2
-%	 \end{equation*}
-%	 We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in Algorithm 1. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}.
-%
-\begin{figure}[!t]
-	\centering
-	\includegraphics[width = 0.8\linewidth]{Figures/overlapping_windows.png}
-	\caption{Window boundaries and trends fit separately in each window.}
-	\label{fig:windows}
-\end{figure}
+
+
 
 \begin{algorithm}
 	\caption{ADMM algorithm for quantile trend filtering with windows}\label{alg:admm}
@@ -565,7 +525,7 @@ Our method can easily handle missing data by defining the check loss function to
 Specifically, we use the following modified function $\tilde{\rho}_\tau$ in place of the $\rho_\tau$ function given in \Eqn{check}
 \begin{eqnarray}
 \label{eq:modcheck}
-\tilde{\rho}_{\tau}(\V{r}) & = & \sum_{i \not\in \mathcal{V}} \VE{r}{i}(1-\One(\VE{r}{i}<0)),
+\tilde{\rho}_{\tau}(\V{r}) & = & \sum_{i \not\in \mathcal{V}} \VE{r}{i}(\tau-\One(\VE{r}{i}<0)),
 \end{eqnarray}
 where $\mathcal{V}$ is a held-out validation subset of $\{1, \ldots, n\}$ and solve the problem
 
@@ -574,9 +534,9 @@ where $\mathcal{V}$ is a held-out validation subset of $\{1, \ldots, n\}$ and so
 &&\underset{\M{\Theta} \in \mathcal{C}}{\text{minimize}}\; \sum_{j=1}^J \left [\tilde{\rho}_{\tau_j}(\V{y} - \V{\theta}_{j}) +
 \lambda \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ],
 \end{eqnarray}
-which can be solved via \Alg{admm} with trivial modification to the quadratic program subproblems. We then select the $\lambda$ that minimizes the hold-out prediction error quantified by $\breve{\rho}(\V{y} - \Vhat{\theta}(\lambda))$ where $\Vhat{\theta}(\lambda)$ is the solution to \Eqn{validate} and
+which can be solved via \Alg{admm} with trivial modification to the quadratic program sub-problems. We fit a sequence of values for $\lambda$ setting $\lambda_j = \lambda$ for all $j$.  Then for each quantile level $j$ we select the $\lambda_j$ that minimizes the hold-out prediction error quantified by $\breve{\rho}_{\tau_j}(\V{y} - \Vhat{\theta}_j(\lambda))$ where $\Vhat{\theta}_j(\lambda)$ is the solution to \Eqn{validate} and
 \begin{eqnarray*}
-	\breve{\rho}_{\tau}(\V{r}) & = & \sum_{i \in \mathcal{V}} \VE{r}{i}(1-\One(\VE{r}{i}<0)).
+	\breve{\rho}_{\tau}(\V{r}) & = & \sum_{i \in \mathcal{V}} \VE{r}{i}(\tau-\One(\VE{r}{i}<0)).
 \end{eqnarray*}
 
 \subsection{Information Criteria}
@@ -585,11 +545,11 @@ which can be solved via \Alg{admm} with trivial modification to the quadratic pr
 	\label{eq:SIC}
 	\mbox{SIC}(p_{\lambda}) & = & \log\left[\frac{1}{n}\rho_{\tau}(\V{y} - \V{\theta})\right] + \frac{1}{2n}p_{\lambda}\log n.
 \end{eqnarray*}
-where $p_{\lambda} = \sum_i \One(\VE{y}{i} = \widehat{\theta}_i)$ is the number of interpolated points, which can be thought of as active knots. The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by
+where $p_{\lambda} = \sum_i \One(\VE{y}{i} = \widehat{\theta}_i)$ is the number of interpolated points, which can be thought of as active knots. Equivalently, $p_{\lambda}$ can be substituted with the number of non-zero components in $\M{D}^{(k+1)}\V{\theta}$ which we denote $\nu$ and have found to be more numerically stable.  The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by
 \begin{equation}
 \mbox{BIC}(\nu) = -2\log(L\{\Vhat{\theta}\}) + \nu\log n
 \end{equation}
-where $L$ is the likelihood function and $\nu$ is the number of non-zero components in $\Vhat{\theta}$. If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and view minimizing the check function as maximizing the asymmetric Laplace likelihood,
+where $L$ is the likelihood function. If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and view minimizing the check function as maximizing the asymmetric Laplace likelihood,
 
 \begin{eqnarray*}
 	L(\V{y} \mid \V{\theta}) & = & \left[\frac{\tau^n(1-\tau)}{\sigma}\right]^n\exp\left\{-\sum_i\rho_\tau\left(\frac{\VE{y}{i} - \VE{\theta}{i}}{\sigma}\right)\right\},
@@ -606,16 +566,16 @@ where $\Vhat{\theta}$ is the estimated trend, and $\nu$ is the number of non-zer
 	\mbox{eBIC}_{\gamma}(\nu) & = & -2\log(L\{\Vhat{\theta}\}) + \nu\log n  + 2\gamma\log{P \choose \nu},~~\gamma \in [0,1]
 \end{eqnarray*}
 
-where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$. \Fig{BIC} illustrates the difference among the scaled, unscaled ($\sigma = 1$), and scaled extended BIC criteria
-when applied to a single dataset replicate from our simulation study. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
+where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$.  
+As in the validation method, to chose $\V{\lambda}$ using the information criteria we fit a sequence of values for $\lambda$ setting $\lambda_j = \lambda$ for all $j$.  For each quantile level $j$, we select the $\lambda_j$ that minimizes the SIC, BIC, or eBIC value evaluated using $\tau_j$ and $\V{\theta}_j$. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
 
-\begin{figure}[h!]
-	\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
-	\includegraphics[width = 0.25\linewidth]{Figures/BIC_data.png}
-	\includegraphics[width = 0.5\linewidth]{Figures/BIC_by_lambda.png}
-	\caption{(Left) Estimated degrees of freedom (number of non-zero elements of $\M{D}\V{\theta}$) as a function of $\log(\lambda)$. (Middle) Estimated 10th quantile trend with regularization parameter chosen using various criteria. (Right) Criteria values as a function of $\log(\lambda)$, vertical lines indicate locations of minima.}
-	\label{fig:BIC}
-\end{figure}
+%\begin{figure}[h!]
+%	\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
+%	\includegraphics[width = 0.25\linewidth]{Figures/BIC_data.png}
+%	\includegraphics[width = 0.5\linewidth]{Figures/BIC_by_lambda.png}
+%	\caption{(Left) Estimated degrees of freedom (number of non-zero elements of $\M{D}\V{\theta}$) as a function of $\log(\lambda)$. (Middle) Estimated 10th quantile trend with regularization parameter chosen using various criteria. (Right) Criteria values as a function of $\log(\lambda)$, vertical lines indicate locations of minima.}
+%	\label{fig:BIC}
+%\end{figure}
 
 %% ----------------------------------------------------------------------
 %% Simulation Studies
@@ -625,33 +585,35 @@ when applied to a single dataset replicate from our simulation study. In the sim
 
 We conduct two simulation studies to compare the performance of our quantile trend filtering method and regularization parameter selection criteria with previously published methods. The first study compares the method's ability to estimate quantiles when the only components of the observed series are a smooth trend and a random component. The second study is based on our application and compares the method's ability to estimate baseline trends and enable peak detection when the time series contains a non-negative signal component in addition to the trend and random component.
 
-We compare three criteria for choosing the smoothing parameter with our quantile trend filtering method with a single window: \texttt{detrendr\_SIC} $\lambda$ chosen using SIC \Eqn{SIC} \citep{KoenkerNgPortnoy1994}; \texttt{detrendr\_valid}: $\lambda$ is chosen by leaving out every 5th observation as a validation data set and minimizing the check loss function evaluated at the validation data; \texttt{detrendr\_eBIC}:  the proposed scaled eBIC criteria \Eqn{eBIC}.
+We compare three criteria for choosing the smoothing parameter with our quantile trend filtering method with a single window:  $\V{\lambda}$ chosen using SIC \Eqn{SIC} \citep{KoenkerNgPortnoy1994} (\texttt{detrendr\_SIC}); $\V{\lambda}$ chosen using the validation method with the validation set consisting of every 5th observation (\texttt{detrendr\_valid}); and $\V{\lambda}$ chosen using the proposed scaled eBIC criteria \Eqn{eBIC} \texttt{detrendr\_eBIC}. For the second study we also examine the effect of the non-crossing quantile constraint by estimating the quantile trends separately and choosing $\V{\lambda}$ using the proposed scaled eBIC criteria (\texttt{detrendr\_cross}). We do not include \texttt{detrendr\_cross} in the first study because the difference in quantiles is large enough that we would not expect the non-crossing constraint to make a difference. 
 
-We also compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011} and \cite{nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  The regularization parameter $\lambda$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation based on the quantile criterion \cite{Oh2011}.
+We also compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011} and \cite{nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  Only our detrend methods guarantee non-crossing quantiles. The regularization parameter $\V{\lambda}$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria separately for each quantile as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation separately for each quantile based on the quantile criterion \cite{Oh2011}.
 
 %% ----------------------------------------------------------------------
 %% Estimating Quantiles
 %% ----------------------------------------------------------------------
 \subsection{Estimating Quantiles}
 \begin{figure}
-	\includegraphics[width=.28\linewidth]{Figures/gaus.png}
-	\includegraphics[width=.3\linewidth]{Figures/shapebeta.png}
-	\includegraphics[width=.45\linewidth]{Figures/mixednorm.png}
+	\includegraphics[width=.27\linewidth]{Figures/gaus.png}
+	\includegraphics[width=.29\linewidth]{Figures/shapebeta.png}
+	\includegraphics[width=.44\linewidth]{Figures/mixednorm.png}
 	\caption{Simulated data with true quantile trends.}
+	\label{fig:sim1}
 \end{figure}
 
-To compare performance in estimating quantile trends, three simulation designs from \cite{Racine2017} were considered. For all designs $t = 1, \ldots, n$,  $x(t) = t/n$, and the response $\V{y}$ was generated as
+To compare performance in estimating quantile trends in the absence of a signal component, three simulation designs from \cite{Racine2017} were considered. For all designs $t = 1, \ldots, n$,  $x(t) = t/n$, and the response $\V{y}$ was generated as
 \begin{eqnarray*}
 	y(t) & = & \sin(2\pi x(t)) + \epsilon(x(t))
 \end{eqnarray*}
-The errors were independent and had distributions
+The errors were independent and had distributions:
 \begin{itemize}
 	\item Gaussian: $\epsilon(x(t)) \sim N\left(0, \left(\frac{1+x(t)^2}{4}\right)^2\right)$
 	\item Beta: $\epsilon(x(t)) \sim Beta(1, 11-10x(t))$
 	\item Mixed normal: $\epsilon(x(t))$ is simulated from a mixture of $N(-1,1)$ and  $N(1,1)$ with mixing probability $x(t)$.
 \end{itemize}
+The true quantile trends and an example simulated data set is show in \Fig{sim1}. One hundred datasets were generated of sizes 300, 500 and 1000. 
 
-One hundred datasets were generated of sizes 300, 500 and 1000. For each method quantile trends were estimated for $\tau = \{0.05, 0.25, 0.5, 0.75, 0.95\}$. Only our detrend methods guarantee non-crossing quantiles. For each quantile trend and method the root mean squared error was calculated as $\mbox{RMSE} = \sqrt{\frac{1}{n}\sum_i (\hat{q}_{\tau}(t_i) - q_\tau(t_i))^2}$. \Fig{quantile_mse} shows the mean RMSE $\pm$ twice the standard error for each method, quantile level, and sample size. 	In all three designs the proposed detrend methods are either better than or comparable to existing methods. Overall the \texttt{detrend\_eBIC} performs best, and especially in the mixed normal design our methods have lower RMSEs for the 5\textsuperscript{th} and 95\textsuperscript{th} quantiles. The \texttt{npqw} method performs particularly poorly in the mixed normal design due to the fact that it assumes the data come from a scale-location model, which is violated in this case.
+For each method quantile trends were estimated for $\tau = \{0.05, 0.25, 0.5, 0.75, 0.95\}$. For each quantile trend and method the root mean squared error was calculated as $\mbox{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^n (\hat{q}_{\tau}(t_i) - q_\tau(t_i))^2}$. \Fig{quantile_mse} shows the mean RMSE plus or minus twice the standard error for each method, quantile level, and sample size. In all three designs the proposed detrend methods are either better than or comparable to existing methods. Overall the \texttt{detrend\_eBIC} performs best, and especially in the mixed normal design our methods have lower RMSEs for the 5\textsuperscript{th} and 95\textsuperscript{th} quantiles. The \texttt{npqw} method performs particularly poorly in the mixed normal design due to the fact that it assumes the data come from a scale-location model, which is violated in this case.
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{Figures/sim_metrics.png}
@@ -671,7 +633,9 @@ The second simulation design is closely motivated by our air quality analysis pr
 \begin{eqnarray*}
 	y(t_i) & = & \theta(t_i) + s(t_i) + \VE{\varepsilon}{i},
 \end{eqnarray*}
-where $t_i = i$ for $i = 1, ..., n$, $\theta(t)$ is the drift component that varies smoothly over time, $s(t)$ is the true signal at time $t$, and $\VE{\varepsilon}{i}$ are i.i.d.\@ errors distributed as $N(0, 0.25^2)$. We generate $\theta(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function $s(t)$ is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The simulated peaks were multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. One hundred datasets were generated for each $n=\{500, 1000, 2000, 4000\}$. \Halley{Joe}{This is a lot to take in. Can you refer to a figure that shows a simulated dataset?} We compare the ability of the methods to estimate the true quantiles of $y(t_i)-s(t_i)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (\Fig{peaks_rmse}). In this simulation study, our proposed method \texttt{detrend\_eBIC} method substantially outperforms the others. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the smaller datasets, but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design.
+where $t_i = i$ for $i = 1, ..., n$, $\theta(t)$ is the drift component that varies smoothly over time, $s(t)$ is the true signal at time $t$, and $\VE{\varepsilon}{i}$ are i.i.d.\@ errors distributed as $N(0, 0.25^2)$. We generate $\theta(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function $s(t)$ is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The simulated peaks were multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. An example dataset with 4 signal peaks is shown in \Fig{peaks_class_eg}. One hundred datasets were generated for each $n=\{500, 1000, 2000, 4000\}$. 
+
+We compare the ability of the methods to estimate the true quantiles of $y(t_i)-s(t_i)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (\Fig{peaks_rmse}). In this simulation study, our proposed method \texttt{detrend\_eBIC} method substantially outperforms the others. The \texttt{detrend\_cross} method, which is the \texttt{detrend\_eBIC} method fit without the non-crossing constraints, performs similarly for larger quantiles and larger datasets. However, \texttt{detrend\_cross} produces significantly worse estimates for more extreme quantiles ($\tau = 0.01$) and smaller data sets ($\tau = 0.05$ and $n = 500$). These results indicate that even when a single quantile is of interest, simultaneously fitting nearby quantiles and utilizing the non-crossing constraint can improve estimates when data is sparse by using information from nearby quantiles. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the smaller datasets, but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design.
 
 \begin{figure}
 	\includegraphics[width = \linewidth]{Figures/peaks_mse.png}
@@ -686,7 +650,7 @@ To compare the resulting signal classifications, we calculate the class averaged
 \begin{eqnarray*}
 	\mbox{CAA} & = & \frac{1}{2}\left[\frac{\sum_{i=1}^n \One[\delta_i = 1 \cap \hat{\delta}_i = 1]}{\sum_{i=1}^n \One[\delta_i = 1]} + \frac{\sum_{i=1}^n \One[\delta_i = 0 \cap \hat{\delta}_i=0]}{\sum_{t=i=1}^n \One[\delta_i = 0]}\right].
 \end{eqnarray*}
-We use this metric because our classes tend to be very imbalanced with many more zeros than ones. The CAA metric will give a score of 0.5 for random guessing and also for trivial classifiers such as $\hat{\delta}_i = 0$ for all $i$.
+We use this metric because our classes tend to be very imbalanced with many more zeros than ones. The CAA metric should give a score close to 0.5 both for random guessing and also for trivial classifiers such as $\hat{\delta}_i = 0$ for all $i$.
 
 Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles.
 
