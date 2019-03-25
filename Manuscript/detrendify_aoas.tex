@@ -195,7 +195,7 @@ where $\VE{\theta}{i} = \theta(t_i)$, $\VE{s}{i} = s(t_i)$, and $\V{\varepsilon}
 In some applications, the slowly varying component $\V{\theta}$ is the signal of interest, and the transient component $\V{s}$ is a vector of nuisance parameters. In our air quality application, the roles of $\V{\theta}$ and $\V{s}$ are reversed; $\V{s}$ represents the signal of interest and $\V{\theta}$ represents a baseline drift that obscures the identification of the important transient events encoded in $\V{s}$. We describe this motivating problem further to illustrate the critical importance of being able to separate $\V{s}$ from $\V{\theta}$.
 
 
-In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, the three sharp transient spikes at 11:32, 14:10, and 16:03, but the baseline drift varies from one sensor to another, obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering
+In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) was not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, which is illustrated by the three sharp transient spikes at 11:32, 14:10, and 16:03. However, the baseline drift varies from one sensor to another, obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering
 and  removing it from the observed signals, peaks can be reliably detected from concordant residual signals from a collection of SPods using a simple data-driven thresholding strategy. Thus, accurately demixing a noisy observed vector $\V{y}$ into a slowly varying component $\V{\theta}$ and a transient component $\V{s}$ can lead to greatly improved and simplified downstream analysis. 
 
 \begin{figure}[t!]
@@ -206,7 +206,7 @@ and  removing it from the observed signals, peaks can be reliably detected from 
 
 To tackle demixing problems, we introduce a scalable baseline estimation framework by building on \textit{$\ell_1$-trend filtering}, a relatively new nonparametric estimation framework. Our contributions are three-fold.
 \begin{itemize}
-	\item \cite{Kim2009} proposed using the check function as a possible extension of $\ell_1$-trend filtering but did not investigate it further. Here, we develop the basic $\ell_1$-quantile-trend-filtering framework and extend it to model multiple quantiles simultaneously with non-crossing constraints to ensure valid trend estimates.
+	\item \cite{Kim2009} proposed using the check function as a possible extension of $\ell_1$-trend filtering but did not investigate it further. Here, we develop the basic $\ell_1$-quantile-trend-filtering framework and extend it to model multiple quantiles simultaneously with non-crossing constraints to ensure validity and improve trend estimates.
 	\item To reduce computation time and extend the method to long time series, we develop a parallelizable ADMM algorithm. The algorithm proceeds by splitting the time domain into overlapping windows, fitting the model separately for each of the windows and reconciling estimates from the overlapping intervals.
 	\item Finally, we propose a modified criterion for performing model selection.
 \end{itemize}
@@ -218,8 +218,6 @@ In the rest of the paper, we detail our quantile trend filtering algorithms as w
 %% ----------------------------------------------------------------------
 \section{Baseline Trend Estimation}
 \label{sec:methods}
-
-%We review \textit{$\ell_1$-trend filtering} for estimating a mean trend before discussing how to adapt it to estimate a baseline trend. We then describe a new scalable algorithm for simultaneously computing multiple quantile trends over large times windows.
 
 %% ----------------------------------------------------------------------
 %% Background
@@ -247,32 +245,7 @@ Thus, $\lVert \Mn{D}{1}\V{\theta} \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_i - 
 \end{eqnarray*}
 Penalizing the 1-norm of the vector $\Mn{D}{k+1}\V{\theta}$ produces estimates of $\V{\theta}$ that are piecewise polynomials of order $k$.
 
-%	$k+1$ fold composition of the discrete difference operator produces estimates that are piecewise polynomials of order $k$.
-
-%\cite{Tib2014} later demonstrated empirically that the trend filtering estimates adapt to the local level of smoothness better than smoothing splines and also proved that with a judicious choice of tuning parameter the trend filtering estimate converges to the true underlying function at the minimax rate for functions whose $k$th derivative is of bounded variation.
-%
-%	Given observations $y(t)$ with $t=1,...,N$ and defining $y \in \Real^n$ such that $y_i = y(t)$, in the trend filtering problem, the trend, $\V{\theta} \in \Real^n$, is estimated by solving the following convex problem:
-%	\begin{eqnarray}
-%	\underset{\V{\theta}}{\arg\min}\; \frac{1}{2} \lVert y - \V{\theta} \rVert_2^2 + \lambda \lVert \Mn{D}{k+1}\V{\theta} \rVert_1,
-%	\end{eqnarray}
-%	where $y \in \Real^n$ is the vector of observations, $\lambda \geq 0$ is a regularization parameter, and the matrix $\Mn{D}{k+1} \in \Real^{(n - k -1) \times n}$ is the discrete difference operator of order $k+1$. To understand the purpose of penalizing $\Mn{D}{k+1}$ consider the difference operator when $k = 0$.
-%	\begin{eqnarray*}
-%	\Mn{D}{1} & = & \begin{pmatrix}
-%
-%	-1 & 1 & 0 & \cdots & 0 & 0 \\
-%	0 & -1 & 1 & \cdots & 0 & 0 \\
-%	\vdots & & & & & \\
-%	0 & 0 & 0 & \cdots & -1 & 1 \\
-%
-%	\end{pmatrix}.
-%	\end{eqnarray*}
-%	Thus, $\lVert \Mn{D}{1}\V{\theta} \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_i - \theta_{i+1} \rvert$ which is just total variation denoising in one dimension. The penalty term incentivizes solutions which are piecewise constant. For $k \geq 1$, the difference operator $\Mn{D}{k+1} \in \Real^{(n-k-1) \times n}$ is defined recursively as follows
-%	\begin{eqnarray*}
-%	\Mn{D}{k+1} & = & \Mn{D}{1}\Mn{D}{k}.
-%	\end{eqnarray*}
-%	By penalizing the $k+1$ fold composition of the discrete difference operator, we obtain solutions which are piecewise polynomials of order $k$.
-
-\cite{Tib2014} proved that with a judicious choice of $\lambda$ the trend filtering estimate converges to the true underlying function at the minimax rate for functions whose $k$th derivative is of bounded variation and showed that trend filtering is both fast and locally adaptive when the time series consists of only the trend and random noise, which is illustrated in \Fig{tpn}. As noted earlier though in some applications, such as the air quality monitoring problem considered in this paper, the data contain a rapidly varying signal in addition to the slowly varying trend and noise. \Fig{tpspn} shows that standard trend filtering is not designed to distinguish between the slowly varying trend and the rapidly-varying signal, as the smooth component estimate $\V{\theta}$ is biased towards the peak of the transient component.
+\cite{Tib2014} proved that with a judicious choice of $\lambda$ the trend filtering estimate converges to the true underlying function at the minimax rate for functions whose $k$th derivative is of bounded variation and showed that trend filtering is both fast and locally adaptive when the time series consists of only the trend and random noise, which is illustrated in \Fig{tpn}. As noted earlier, in some applications, such as the air quality monitoring problem considered in this paper, the data contain a rapidly varying signal in addition to the slowly varying trend and noise. \Fig{tpspn} shows that standard trend filtering is not designed to distinguish between the slowly varying trend and the rapidly-varying signal, as the smooth component estimate $\V{\theta}$ is biased towards the peak of the transient component.
 
 To account for the presence of a transient component in the observed time series $\V{y}$, we propose quantile trend filtering \Fig{tpspn}. % as a more robust method for detrending in these situations \Fig{tpspn}.
 To estimate the trend in the $\tau$\textsuperscript{th} quantile, we solve the convex optimization problem
@@ -283,9 +256,9 @@ To estimate the trend in the $\tau$\textsuperscript{th} quantile, we solve the c
 where $\rho_\tau(\V{r})$ is the check function
 \begin{eqnarray}
 \label{eq:check}
-\rho_{\tau}(\V{r}) & = & \sum_{i=1}^n \VE{r}{i}(1-\One(\VE{r}{i}<0)),
+\rho_{\tau}(\V{r}) & = & \sum_{i=1}^n \VE{r}{i}(\tau-\One(\VE{r}{i}<0)),
 \end{eqnarray}
-and $\One(A)$ is 1 if its input $A$ is true and 0 otherwise.
+and $\One(A)$ is 1 if its input $A$ is true and 0 otherwise. Note that we do not explicitly model $\V{s}$. Rather, we focus on estimating $\V{\theta}$. We then estimate $\V{s} + \V{\varepsilon}$ as the difference $\V{y} - \V{\theta}$.
 
 \begin{figure}
 	\centering
@@ -293,11 +266,11 @@ and $\One(A)$ is 1 if its input $A$ is true and 0 otherwise.
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg1.png}}
 	\subfloat[Slow Trend + Spikes + Noise]{\label{fig:tpspn}
 		\includegraphics[width = 0.45\linewidth]{Figures/trend_filter_eg2.png}}
-	\caption{Examples of trend filtering solutions (red) and 15\textsuperscript{th} quantile trending filtering solution (blue). Standard trend filtering performs well in the no-signal case (right) but struggles to distinguish between the slowly varying trend and the rapidly-varying signal (left). The quantile trend is not affected by the signal and provides an estimate of the baseline.}
+	\caption{Examples of trend filtering solutions (red) and 15\textsuperscript{th} quantile trending filtering solution (blue). Standard trend filtering performs well in the no-signal case (a) but struggles to distinguish between the slowly varying trend and the rapidly-varying signal (b). The quantile trend is not affected by the signal and provides an estimate of the baseline.}
 \end{figure}
-Note that we do not explicitly model $\V{s}$. Rather, we focus on estimating $\V{\theta}$. We then estimate $\V{s} + \V{\varepsilon}$ as the difference $\V{y} - \V{\theta}$.
 
-Before elaborating on how we compute our proposed $\ell_1$-quantile trend filtering estimator, we discuss similarities and differences between our proposed estimator and existing baseline estimators.
+
+Before elaborating on how we compute our proposed $\ell_1$-quantile trend filtering estimator, we discuss similarities and differences between our proposed estimator and existing quantile trend estimators.
 
 %% ----------------------------------------------------------------------
 %% Relationship to Prior Work
@@ -310,7 +283,7 @@ In this application, as well as those described in \cite{Ning2014}, \cite{marand
 \label{eq:smoothingspline}
 \sum_{i=1}^n\rho_{\tau}(y(t_i) - \theta(t_i)) + \lambda\int \theta''(t)^2 dt,
 \end{equation*}
-where $\theta(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degree of smoothing. \cite{Oh2011} proposed an algorithm for solving the quantile smoothing spline problem by approximating the check function with a differentiable function. \cite{Racine2017} take a different approach and constrain the response to follow a location scale model and estimate the $\tau$\textsuperscript{th} conditional quantile using a kernel estimator and local linear approach. \Halley{Eric}{What are $a(t), b(t)$, and $\epsilon_i$?}
+where $\theta(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degree of smoothing. \cite{Oh2011} proposed an algorithm for solving the quantile smoothing spline problem by approximating the check function with a differentiable function. \cite{Racine2017} take a different approach and constrain the response to follow a location scale model and estimate the $\tau$\textsuperscript{th} conditional quantile by combining Gaussian quantile functions with a kernel smoother and solving a local-linear least squares problem. 
 
 
 %% ----------------------------------------------------------------------
@@ -318,17 +291,13 @@ where $\theta(t)$ is a smooth function of time and $\lambda$ is a tuning paramet
 %% ----------------------------------------------------------------------
 \subsection{Quantile Trend Filtering}
 
-We combine the ideas of quantile regression and trend filtering. For a single quantile level $\tau$, the quantile trend filtering problem is given in \Eqn{quantile_trend}. As with classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of methods. In many cases, including ours, we are interested in estimating multiple quantiles simultaneously. We also want to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$ where $Q$ is the quantile function of $\V{y}$. Given quantiles $\tau_1 < \tau_2 < \ldots < \tau_J$, the optimization problem becomes
+We combine the ideas of quantile regression and trend filtering. For a single quantile level $\tau$, the quantile trend filtering problem is given in \Eqn{quantile_trend}. As with classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of methods. We want to estimated multiple quantiles simultaneously and to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$ where $Q$ is the quantile function of $\V{y}$. Even if a single quantile is ultimately desired, ensuring non-crossing allows information from nearby quantiles to be used to improve the estimates. Given quantiles $\tau_1 < \tau_2 < \ldots < \tau_J$, the optimization problem becomes
 \begin{eqnarray*}
 	\label{eq:noncross_trend}
-	%	&&\underset{\V{\theta}_1, \ldots, \V{\theta}_J}{\text{minimize}}\; \sum_{j=1}^J \left [\rho_{\tau_j}(\V{y} - \V{\theta}_{j}) +
-	%	\lambda_j \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ] \\
 	&&\underset{\M{\Theta} \in \mathcal{C}}{\text{minimize}}\; \sum_{j=1}^J \left [\rho_{\tau_j}(\V{y} - \V{\theta}_{j}) +
-	\lambda \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ] \\
-	%	&&\text{subject to: }\; \V{\theta}_1 \leq \V{\theta}_2 \leq \ldots \leq \V{\theta}_J
-	%	\theta_{1}(t) \le \theta_{2}(t) \le \ldots \le \theta_{J}(t) \text{ for all } t, \nonumber
+	\lambda_j \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ] \\
 \end{eqnarray*}
-where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\theta}_J \end{pmatrix} \in \Real^{n \times J}$ is a matrix whose $j$th column corresponds to the $j$th quantile signal $\V{\theta}_j$ and the set $\mathcal{C} = \{\M{\Theta} \in \Real^{n \times J}: \ME{\theta}{ij} \leq \ME{\theta}{ij'} \;\text{for $j \leq j'$}\}$ encodes the non-crossing quantile constraints. The additional constraints are linear in the parameters, so the non-crossing quantile trends can still be estimated by a number of available solvers. In the rest of this paper, we report numerical results using the commercial solver Gurobi \citep{gurobi} and its R package implementation. However, we could easily substitute a free solver such as the Rglpk package by \cite{rglpk}.
+where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\theta}_J \end{pmatrix} \in \Real^{n \times J}$ is a matrix whose $j$th column corresponds to the $j$th quantile signal $\V{\theta}_j$ and the set $\mathcal{C} = \{\M{\Theta} \in \Real^{n \times J}: \ME{\theta}{ij} \leq \ME{\theta}{ij'} \;\text{for $j \leq j'$}\}$ encodes the non-crossing quantile constraints. The additional constraints are linear in the parameters, so the non-crossing quantile trends can still be estimated by a number of available solvers. We allow for the possibilty that the degree of smoothness in the trends varies by quantile and thus allow the smoothing parameter as well. In the rest of this paper, we report numerical results using the commercial solver Gurobi \citep{gurobi} and its R package implementation. However, we could easily substitute a free solver such as the Rglpk package by \cite{rglpk}.
 
 %% ----------------------------------------------------------------------
 %% ADMM for Big Data

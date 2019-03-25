@@ -14,26 +14,27 @@ colPal <- c('#1b7837', '#762a83')
 nodes <- c("c", "e")
 tau <- c(0.1, 0.15)
 metric_all <- {}
-for (i in 1:length(spod_files)){
+for (i in 2:8){
   print(i)
-load(spod_files[i])
+load(sprintf("../SPod/SPod_week/trends_2017-03-0%d.RData",i))
+load(sprintf("../SPod/SPod_week/qsreg_trends_2017-03-0%d.RData",i))
 # spodPeaks <- select(spodPIDs, -time) - select(spod_trends,
 #                                               contains(paste(0.15)))
 spodFig <- data.frame(time = spodPIDs$time,
-                      detrendr = spod_trends$e_0.1,
-                      qsreg = qsreg_trends$e_0.1) %>%
+                      detrendr = spod_trends$c_0.1,
+                      qsreg = qsreg_trends$c_0.1) %>%
   gather("type","value", -time)
 
 ggplot(spodFig, aes(x=time, y=value)) +
-  #geom_line(data=spodPIDs, aes(y=c), col="darkgrey")+
+  geom_line(data=spodPIDs, aes(y=c), col="darkgrey")+
   geom_line(aes(col=type, group=type)) +
   theme_bw() +
   scale_color_manual(breaks = c("detrendr", "qsreg"),
                      values = c(colPal)) +
   labs(col="", x="", y="PID") +
-  xlim(c(spodPIDs$time[78000], spodPIDs$time[86400])) +
-  ylim(c(1.2, 1.6))
-plot(result$BIC[,1])
+  xlim(c(spodPIDs$time[65000], spodPIDs$time[86400])) +
+  ylim(c(0.1, 0.9))
+# plot(result$BIC[,1])
 
 ################################################################################
 detrendr_trends <- spod_trends 
