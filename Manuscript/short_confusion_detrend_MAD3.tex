@@ -1,0 +1,17 @@
+%latex.default(confusion %>% filter(crit == 3) %>% select(-crit),     file = "../Manuscript/short_confusion_detrend_MAD3.tex",     rowlabel = "", rowname = "", colheads = c("Method", "Quantile",         "0,0,0", "1,0,0", "0,1,0", "1,1,0", "1,0,0", "1,1,0",         "1,0,1", "1,1,1"), caption = "Confusion matrices for 3 SPod nodes after baseline \n      removal (n=6000). Node order is a, b, c. The threshold for the signal was \n      set as the median + 3*MAD.")%
+\begin{table}[!tbp]
+\caption{Confusion matrices for 3 SPod nodes after baseline 
+      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
+      set as the median + 3*MAD.\label{confusion}} 
+\begin{center}
+\begin{tabular}{llrrrrrrrrr}
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{Quantile}&\multicolumn{1}{c}{0,0,0}&\multicolumn{1}{c}{1,0,0}&\multicolumn{1}{c}{0,1,0}&\multicolumn{1}{c}{1,1,0}&\multicolumn{1}{c}{1,0,0}&\multicolumn{1}{c}{1,1,0}&\multicolumn{1}{c}{1,0,1}&\multicolumn{1}{c}{1,1,1}\tabularnewline
+\hline
+&detrendr&$0.10$&$6024$&$271$&$124$&$224$&$59$&$22$&$105$&$371$\tabularnewline
+&qsreg&$0.10$&$5838$&$542$&$141$&$305$&$62$&$13$&$ 45$&$254$\tabularnewline
+&detrendr&$0.15$&$5901$&$380$&$103$&$233$&$81$&$18$&$ 86$&$398$\tabularnewline
+&qsreg&$0.15$&$5810$&$590$&$137$&$284$&$85$&$21$&$ 39$&$234$\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}

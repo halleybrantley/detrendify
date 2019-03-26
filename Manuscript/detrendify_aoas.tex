@@ -314,7 +314,7 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
  \end{figure}
  
  Let $\mathcal{I}$ denote a subset of the indices $\{1, \ldots, n\}$ and $\V{y}_\mathcal{I} \in \Real^{\lvert I \rvert}$ denote the subvector obtained by stacking on top of each other the elements $\VE{y}{i}$ for $i \in \mathcal{I}$ in their canonical ordering.
- To decrease computation and extend our method to larger problems, we divide our observed series $\VE{y}{i}$ with $i = 1, \ldots, n$ into $W$ overlapping windows of observations $\Vn{y}{w} = \V{y}_{\mathcal{I}_w}$ where $\mathcal{I}_w$ is the set of integers from $l_w$ to $u_w$ inclusive, namely $\mathcal{I}_w = \{l_w, l_w + 1, \ldots, u_w -1, u_w\}$ and
+ To decrease computation time and extend our method to larger problems, we divide our observed series $\VE{y}{i}$ with $i = 1, \ldots, n$ into $W$ overlapping windows of observations $\Vn{y}{w} = \V{y}_{\mathcal{I}_w}$ where $\mathcal{I}_w$ is the set of integers from $l_w$ to $u_w$ inclusive, namely $\mathcal{I}_w = \{l_w, l_w + 1, \ldots, u_w -1, u_w\}$ and
  \begin{eqnarray*}
  	1 = l_{1} < l_{2} < u_{1} < l_{3} < u_{2} < l_{4} < u_{3} < \cdots < u_{W} = n.
  \end{eqnarray*}
@@ -345,25 +345,25 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
 \begin{equation}
 \label{eq:split_objective}
 \begin{split}
-&\text{minimize} \; f(\V{\theta}) + g(\Vtilde{\theta}) \\
-&\text{subject to} \; \M{A}\V{\theta} + \M{B}\Vtilde{\theta} = \V{c}.
+&\text{minimize} \; f(\V{\phi}) + g(\Vtilde{\phi}) \\ 
+&\text{subject to} \; \M{A}\V{\phi} + \M{B}\Vtilde{\phi} = \V{c}.
 \end{split}
 \end{equation}
 Recall that finding the minimizer to an equality constrained optimization problem is equivalent to the identifying the saddle point of the Lagrangian function associated with the problem \Eqn{split_objective}. ADMM seeks the saddle point of a related function called the augmented Lagrangian,
 %The Lagrangian for the ALM problem
 \begin{eqnarray*}
-	\mathcal{L}_{\gamma}(\V{\theta},\Vtilde{\theta},\V{\omega}) & = & f(\V{\theta}) + g(\Vtilde{\theta}) + \langle \V{\omega}, \V{c} - \M{A}\V{\theta} - \M{B}\Vtilde{\theta} \rangle
-	+ \frac{\gamma}{2} \lVert \V{c} - \M{A}\V{\theta} - \M{B}\Vtilde{\theta} \rVert_2^2,
+	\mathcal{L}_{\gamma}(\V{\phi},\Vtilde{\phi},\V{\omega}) & = & f(\V{\phi}) + g(\Vtilde{\phi}) + \langle \V{\omega}, \V{c} - \M{A}\V{\phi} - \M{B}\Vtilde{\phi} \rangle
+	+ \frac{\gamma}{2} \lVert \V{c} - \M{A}\V{\phi} - \M{B}\Vtilde{\phi} \rVert_2^2,
 \end{eqnarray*}
 where the dual variable $\V{\omega}$ is a vector of Lagrange multipliers and $\gamma$ is a nonnegative tuning parameter. When $\gamma = 0$, the augmented Lagrangian coincides with the ordinary Lagrangian.
 
-ADMM minimizes the augmented Lagrangian one block of variables at a time before updating the dual variable $\V{\omega}$. This yields the following sequence of updates at the $m+1$th ADMM iteration
+ADMM minimizes the augmented Lagrangian one block of variables at a time before updating the dual variable $\V{\omega}$. This yields the following sequence of updates at the $(m+1)$\textsuperscript{th} ADMM iteration
 \begin{equation}
 \label{eq:admm_updates}
 \begin{split}
-\V{\theta}_{m+1} & \amp = \amp \underset{\V{\theta}}{\arg\min}\; \mathcal{L}_\gamma(\V{\theta},\Vtilde{\theta}_{m}, \V{\omega}_{m}) \\
-\Vtilde{\theta}_{m+1} & \amp = \amp \underset{\Vtilde{\theta}}{\arg\min}\; \mathcal{L}_\gamma(\V{\theta}_{m+1},\Vtilde{\theta}, \V{\omega}_{m}) \\
-\V{\omega}_{m+1} & \amp = \amp \V{\omega}_{m} + \gamma(\V{c} - \M{A}\V{\theta}_{m+1} - \M{B}\Vtilde{\theta}_{m+1}).
+\V{\phi}_{m+1} & \amp = \amp \underset{\V{\phi}}{\arg\min}\; \mathcal{L}_\gamma(\V{\phi},\Vtilde{\phi}_{m}, \V{\omega}_{m}) \\
+\Vtilde{\phi}_{m+1} & \amp = \amp \underset{\Vtilde{\phi}}{\arg\min}\; \mathcal{L}_\gamma(\V{\phi}_{m+1},\Vtilde{\phi}, \V{\omega}_{m}) \\
+\V{\omega}_{m+1} & \amp = \amp \V{\omega}_{m} + \gamma(\V{c} - \M{A}\V{\phi}_{m+1} - \M{B}\Vtilde{\phi}_{m+1}).
 \end{split}
 \end{equation}
 
@@ -676,25 +676,26 @@ Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE
 
 \label{sec:application}
 The low-cost ``SPod" air quality sensors output a time series that includes a slowly varying baseline,
-the sensor response to pollutants, and high frequency random noise. These sensors are used to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in \Fig{raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice.
+the sensor response to pollutants, and high frequency random noise. These sensors record measurements every second are used to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in \Fig{raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. We first illustrate the difference between our \texttt{detrend\_eBIC} and the \texttt{qsreg} using just 2 hours of measurements so that the methods can be easily visualized and the \texttt{qsreg} method can be fit to the entire dataset \Sec{short-app}. We then compare the methods on an entire week of measurements, fitting the \texttt{qsreg} method to non-overlapping windows of the data \Sec{long-app}. 
 
-
+\subsection{Short series of air quality measurements}
+\label{sec:short-app}
 \begin{figure}
 	\includegraphics[width = \linewidth]{Figures/short_trends.png}
 	\caption{Estimated 15\textsuperscript{th} quantile trends on subset of the data using \texttt{qsreg} and \texttt{detrend\_eBIC}.}
 	\label{fig:short-trends}
 \end{figure}
 
-We compare our \texttt{detrend\_eBIC} method with the \texttt{qsreg} method on a subset of the SPod data (n=6000) since the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using the 10\textsuperscript{th} and 15\textsuperscript{th} quantiles and compare three thresholds for classifying signal. The thresholds are calculated using the median plus a multiple of the median absolute deviation \Eqn{MAD} of the detrended series.
+We compare our \texttt{detrend\_eBIC} method with the \texttt{qsreg} method on a subset of the SPod data (n=7200) since the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using the 10\textsuperscript{th} and 15\textsuperscript{th} quantiles and compare three thresholds for classifying signal. The thresholds are calculated using the median plus a multiple of the median absolute deviation \Eqn{MAD} of the detrended series.
 \begin{eqnarray}
 \label{eq:MAD}
 \mbox{MAD} = \mbox{median}\lVert y-\tilde{y}\rVert,
 \end{eqnarray}
-where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensors and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. \Fig{short-trends} shows an example of the estimated baseline fit for each method, while \Fig{rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 3.
+where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensors and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. \Fig{short-trends} shows an example of the estimated baseline fit for each method. The \texttt{qsreg} method absorbs more of the peaks while the \texttt{detrendr} method results in a smoother baseline estimate.  \Fig{rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 5. The largest peaks at 14:10 are easily identified as signal, but good baseline estimates also enable proper classification of the smaller peaks like the one at 15:12. 
 
 \begin{figure}
 	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
-	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 15th quantile. Horizontal dashed lines represent the thresholds.}
+	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 15th quantile. Horizontal dashed lines represent the thresholds using a MAD multiple of 5.}
 	\label{fig:rugplot}
 \end{figure}
 
@@ -713,6 +714,8 @@ The $\VI$ is a distance metric for measuring similarity of classifications and w
 	\label{fig:vi}
 \end{figure}
 
+\subsection{Long series of air quality measurements}
+\label{sec:long-app}
 Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 86,401 observations per node. The VI scores for the full dataset were 0.36, 0.24, and 0.41 for sensors a and b, a and c, and b and c, respectively. The complete confusion matrices for the nodes using a MAD multiple of 5 for the threshold is given in Table 1.
 
 \begin{figure}
