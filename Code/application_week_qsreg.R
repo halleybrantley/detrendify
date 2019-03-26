@@ -40,7 +40,7 @@ for (j in 1:12){
     for (i in 1:length(tau)){
       fit_qsreg <- qsreg(x, spodPIDs[ind_start:ind_end,node], 
                          maxit.cv = 50, 
-                         alpha=tau[i], hmin = -10, hmax = NA)
+                         alpha=tau[i], hmin = -12, hmax = NA)
       trend[,i] <- predict(fit_qsreg)   
     }
     trends <- cbind(trends, as.data.frame(trend))

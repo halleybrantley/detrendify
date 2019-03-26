@@ -8,7 +8,7 @@ library(aricode)
 library(mcclust)
 load_all("detrendr")
 rm(list=ls())
-load("../SPod/trends_short.RData")
+load("../SPod/trends_short2.RData")
 source("application_functions.R")
 colPal <- c('#1b7837', '#762a83')
 nodes <- c("c", "d", "e")
@@ -136,7 +136,7 @@ latex(confusion %>% filter(crit == 5) %>% select(-crit),
 
 ################################################################################
 # Rug plot
-crit <- 3
+crit <- 5
 tau0 <- 0.15
 trends <- detrendr_trends
 
@@ -190,3 +190,4 @@ ggplot(spodLong, aes(x=time, y=PID)) +
   #        as.POSIXct("2017-11-30 12:00:01 EST"))) +
   #ylim(c(0, .2))
 ggsave("../Manuscript/Figures/corrected_rugplot.png", width = 7, height = 4)
+tail(spodLong[which(spodLong$PID > 0.2),])

@@ -11,7 +11,7 @@ library(zoo)
 load_all("detrendr")
 rm(list=ls())
 
-i = 0 
+i = 0
 spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
                  header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
@@ -29,15 +29,17 @@ spod_trends <- data.frame(time = spod$time)
 window_size <- 3600
 overlap <- 600
 max_iter <- 5
-tau <- c(0.1, 0.15)
+tau <- c(0.01, 0.05, 0.1)
 
 
 for (node in nodes){
-  result <- get_windows_BIC(y=spodPIDs[,node], tau, k=3, window_size, overlap,
-                            lambdaSeq = exp(seq(5,13,1)),
+  result0 <- get_windows_BIC(y=spodPIDs, tau, k=3, window_size, overlap,
+                            lambdaSeq = c(400, 800, 1000, 1600, 3200, 5000),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
+                            eps_abs = 0.02, 
+                            eps_rel = 1e-3,
                             solver = NULL,
                             criteria = "eBIC", 
                             max_iter = max_iter, 
@@ -46,8 +48,8 @@ for (node in nodes){
   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
-  save(spod_trends, spodPIDs, result, 
-       file = sprintf("../SPod/SPod_week/trends_2017-03-0%d.RData",i))
+  save(spod_trends,  spodPIDs, 
+       file = sprintf("../SPod/SPod_week/trends_%s_2017-03-0%d.RData",node,i))
 }
 
 
