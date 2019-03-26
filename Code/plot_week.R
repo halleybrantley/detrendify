@@ -6,7 +6,7 @@ library(zoo)
 load_all("detrendr")
 rm(list=ls())
 spodAll <- {}
-for (i in 3:9){
+for (i in 2:8){
   spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
                  header=TRUE,  na.strings = "N/A")
   spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
@@ -17,6 +17,7 @@ for (i in 3:9){
   spodAll <- bind_rows(spodAll, spodPIDs)
 }
 
+par(mfrow=c(2,1))
 plot(spodAll$c, type="l")
 plot(spodAll$e, type="l")
 

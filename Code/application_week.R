@@ -12,8 +12,13 @@ load_all("detrendr")
 rm(list=ls())
 
 i = 0
-spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
-                 header=TRUE,  na.strings = "N/A")
+if (i == 1){
+  spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
+                   header=TRUE,  na.strings = "N/A")
+} else{
+  spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
+                   header=TRUE,  na.strings = "N/A")
+}
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
 nodes <- c("c", "e")
@@ -48,8 +53,13 @@ for (node in nodes){
   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
-  save(spod_trends,  spodPIDs, 
+  if (i == 1){
+    save(spod_trends,  spodPIDs, result,
+         file = sprintf("../SPod/SPod_week/trends_%s_2017-04-13.RData",node))
+  } else {
+    save(spod_trends,  spodPIDs, result,
        file = sprintf("../SPod/SPod_week/trends_%s_2017-03-0%d.RData",node,i))
+  }
 }
 
 

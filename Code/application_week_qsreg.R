@@ -10,10 +10,17 @@ library(gurobi)
 library(zoo)
 load_all("detrendr")
 rm(list=ls())
+tau <- c(0.01, 0.05, 0.1)
 
-for (d in 2:8){
-spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",d), 
-                 header=TRUE,  na.strings = "N/A")
+for (d in 1:8){
+  if (d == 1){
+    spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
+                     header=TRUE,  na.strings = "N/A")
+  } else{
+    spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",d), 
+                     header=TRUE,  na.strings = "N/A")
+  }
+
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
 nodes <- c("c", "e")
@@ -25,9 +32,10 @@ spodPIDs$time <- spod$time
 spodPIDs$c <- na.locf(spodPIDs$c)
 spodPIDs$e <- na.locf(spodPIDs$e)
 
-qsreg_trends <- data.frame(time = spodPIDs$time, c_0.1 = NA, 
-                           c_0.15 = NA,  e_0.1 = NA, e_0.15 = NA)
-tau <- c(0.1, 0.15)
+qsreg_trends <- data.frame(time = spodPIDs$time, 
+                           c_0.01 = NA, c_0.05 = NA, c_0.1 = NA, 
+                           e_0.01 = NA, e_0.05 = NA, e_0.1 = NA)
+
 
 for (j in 1:12){
   ind_start <- (j-1)*7200 + 1
@@ -48,7 +56,12 @@ for (j in 1:12){
       paste(node, tau, sep = "_")
   }
   qsreg_trends[ind_start:ind_end, ] <- trends
- }
+}
+ if (d == 1){
+   save(qsreg_trends,
+        file = "../SPod/SPod_week/qsreg_trends_2017-04-13.RData")
+ } else {
  save(qsreg_trends,
      file = sprintf("../SPod/SPod_week/qsreg_trends_2017-03-0%d.RData",d))
+ }
 }
