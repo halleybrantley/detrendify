@@ -25,42 +25,19 @@ spodPIDs$time <- spod$time
 spodPIDs$c <- na.locf(spodPIDs$c)
 spodPIDs$e <- na.locf(spodPIDs$e)
 
-qsreg_trends <- data.frame(time = spodPIDs$time, c_0.1 = NA, 
-                        c_0.15 = NA,  e_0.1 = NA, e_0.15 = NA)
 spod_trends <- data.frame(time = spod$time)
-window_size <- 5000
-overlap <- 1000
-max_iter <- 30
+window_size <- 3600
+overlap <- 600
+max_iter <- 5
 tau <- c(0.1, 0.15)
 
-t1 <- Sys.time()
-for (j in 1:12){
-  ind_start <- (j-1)*7200 + 1
-  ind_end <- min(nrow(spodPIDs), j*7200)
-  x <- seq(ind_start, ind_end, 1)
-  n <- length(x)
-  trends <- data.frame(time = spodPIDs$time[ind_start:ind_end])
-  for (node in nodes){
-    trend <- matrix(NA, n, length(tau))
-    for (m in 1:length(tau)){
-      fit_qsreg <- qsreg(x, spodPIDs[ind_start:ind_end,node], 
-                         maxit.cv = 50, 
-                       alpha=tau[m], hmin = -10, hmax = NA)
-      trend[,m] <- predict(fit_qsreg)   
-    }
-    trends <- cbind(trends, as.data.frame(trend))
-    names(trends)[(ncol(trends)-(length(tau)-1)):ncol(trends)] <-
-      paste(node, tau, sep = "_")
-  }
-  qsreg_trends[ind_start:ind_end, ] <- trends
-}
 
 for (node in nodes){
   result <- get_windows_BIC(y=spodPIDs[,node], tau, k=3, window_size, overlap,
-                            lambdaSeq = exp(seq(12,19,1)),
+                            lambdaSeq = exp(seq(5,13,1)),
                             df_tol = 1e-9,
                             gamma = 1,
-                            plot_lambda = FALSE,
+                            plot_lambda = TRUE,
                             solver = NULL,
                             criteria = "eBIC", 
                             max_iter = max_iter, 
@@ -69,7 +46,8 @@ for (node in nodes){
   spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
+  save(spod_trends, spodPIDs, result, 
+       file = sprintf("../SPod/SPod_week/trends_2017-03-0%d.RData",i))
 }
 
-save(spod_trends, qsreg_trends, spodPIDs, result,
-     file = sprintf("../SPod/SPod_week/trends_2017-03-0%d.RData",i))
+

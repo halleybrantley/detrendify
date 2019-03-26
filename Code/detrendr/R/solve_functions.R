@@ -53,8 +53,7 @@ solve_gurobi <- function(model){
   params <- list(OutputFlag=0)
   result <- gurobi::gurobi(model, params)
   if (result$status == "NUMERIC"){
-    print("Increasing rho.")
-    model$Q <- model$Q*1.01
+    print("Optimization was terminated due to unrecoverable numerical difficulties.")
     result <- gurobi::gurobi(model, params)
   }
   return(result$x)

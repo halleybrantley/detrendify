@@ -154,7 +154,7 @@
 
 	\if0\blind
 	{
-		\title{\bf Baseline Drift Estimation for Time Series Data Using Quantile Trend Filtering}
+		\title{\bf Baseline Drift Estimation for Air Quality Data Using Quantile Trend Filtering}
 		\author{Halley Brantley\thanks{
 				Department of Statistics, North Carolina State University, Raleigh, NC 27695 (E-mail: hlbrantl@ncsu.edu)} \,
 			Joseph Guinness\thanks{
@@ -183,7 +183,7 @@
 	\end{abstract}
 
 	\noindent%
-	{\it Keywords:} quantile regression, non-parametric regression, trend estimation, smoothing splines
+	{\it Keywords:} air quality, quantile regression, non-parametric regression, trend estimation, smoothing splines
 	\vfill
 
 	\newpage
@@ -204,9 +204,8 @@ where $\VE{\theta}{i} = \theta(t_i)$, $\VE{s}{i} = s(t_i)$, and $\V{\varepsilon}
 In some applications, the slowly varying component $\V{\theta}$ is the signal of interest, and the transient component $\V{s}$ is a vector of nuisance parameters. In our air quality application, the roles of $\V{\theta}$ and $\V{s}$ are reversed; $\V{s}$ represents the signal of interest and $\V{\theta}$ represents a baseline drift that obscures the identification of the important transient events encoded in $\V{s}$. We describe this motivating problem further to illustrate the critical importance of being able to separate $\V{s}$ from $\V{\theta}$.
 
 
-%	This work was motivated by the analysis of signals measured by low cost and portable air quality sensors, whose use has increased dramatically in the last decade.
-In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, the three sharp transient spikes at \Halley{Eric}{can you put the times at which the spikes occur here?}, but the baseline drift varies from one sensor to another, obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering
- and  removing it from the observed signals, peaks can be reliably detected from concordant residual signals from a collection of SPods using a simple data-driven thresholding strategy. Thus, accurately demixing a noisy observed vector $\V{y}$ into a slowly varying component $\V{\theta}$ and a transient component $\V{s}$ can lead to greatly improved and simplified downstream analysis. \Halley{Joe}{I would cut the next sentence, as we haven't shown this for other applications.} This is true for not just air quality applications, but universally across the many domains listed earlier.
+In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) is not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, the three sharp transient spikes at 11:32, 14:10, and 16:03, but the baseline drift varies from one sensor to another, obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering
+ and  removing it from the observed signals, peaks can be reliably detected from concordant residual signals from a collection of SPods using a simple data-driven thresholding strategy. Thus, accurately demixing a noisy observed vector $\V{y}$ into a slowly varying component $\V{\theta}$ and a transient component $\V{s}$ can lead to greatly improved and simplified downstream analysis. 
 
 	\begin{figure}[t!]
 		\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
@@ -217,7 +216,7 @@ In the last decade, low cost and portable air quality sensors have enjoyed drama
 To tackle demixing problems, we introduce a scalable baseline estimation framework by building on \textit{$\ell_1$-trend filtering}, a relatively new nonparametric estimation framework. Our contributions are three-fold.
 \begin{itemize}
 \item \cite{Kim2009} proposed using the check function as a possible extension of $\ell_1$-trend filtering but did not investigate it further. Here, we develop the basic $\ell_1$-quantile-trend-filtering framework and extend it to model multiple quantiles simultaneously with non-crossing constraints to ensure valid trend estimates.
-\item To reduce computation time and extend the method to long time series, we develop a parallelizable ADMM algorithm. \Halley{Joe}{Let's say a bit more about what this does. something like ``... a parallelizable ADMM algorithm that splits the time domain into overlapping windows and reconciles estimates from the overlapped portions.''}
+\item To reduce computation time and extend the method to long time series, we develop a parallelizable ADMM algorithm. The algorithm proceeds by splitting the time domain into overlapping windows, fitting the model separately for each of the windows and reconciling estimates from the overlapping intervals.
 \item Finally, we propose a modified criterion for performing model selection.
 \end{itemize}
 
@@ -797,7 +796,7 @@ y(t) & = & \sin(2\pi x(t)) + \epsilon(x(t))
 		\caption{Low cost sensor data after drift removal using windowed detrend with eBIC.}
 	\end{figure}
 
-	\input{full_confusion_detrend.tex}
+	\input{Tables/full_confusion_detrend.tex}
 
 %% ----------------------------------------------------------------------
 %% Conclusion and Discussion
