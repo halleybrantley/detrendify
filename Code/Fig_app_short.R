@@ -8,16 +8,16 @@ library(aricode)
 library(mcclust)
 load_all("detrendr")
 rm(list=ls())
-load("../SPod/trends_short2.RData")
+load("../SPod/trends_short.RData")
 source("application_functions.R")
 colPal <- c('#1b7837', '#762a83')
 nodes <- c("c", "d", "e")
 
 spodPeaks <- select(spodPIDs, -time) - select(detrendr_trends,
-                                              contains(paste(0.15)))
+                                              contains(paste(0.05)))
 spodFig <- data.frame(time = spodPIDs$time, 
-                      detrendr = detrendr_trends$c_0.15, 
-                      qsreg = qsreg_trends$c_0.15) %>%
+                      detrendr = detrendr_trends$c_0.05, 
+                      qsreg = qsreg_trends$c_0.05) %>%
   gather("type","value", -time)
 
 ggplot(spodFig, aes(x=time, y=value)) + 
@@ -40,7 +40,7 @@ metrics <- c("confusion", "NMI", "VI")
 for (method in methods){
   trends <- get(paste(method, "trends", sep = "_"))
   for (j in 1:length(tau)){
-    for (crit in c(3, 4, 5)){
+    for (crit in c(5, 6)){
       signal <- get_spod_signal(tau[j], trends, spodPIDs, crit)
       for (metric in metrics){
         if (metric == "confusion"){
@@ -101,28 +101,6 @@ confusion <- metric_df %>%
   arrange(tau, crit)
   
 
-latex(confusion %>% filter(crit == 3) %>% select(-crit),
-      file = "../Manuscript/short_confusion_detrend_MAD3.tex",
-      rowlabel = "",
-      rowname = "",
-      colheads = c("Method", "Quantile", 
-                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
-                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
-      caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
-      set as the median + 3*MAD.")
-
-latex(confusion %>% filter(crit == 4) %>% select(-crit),
-      file = "../Manuscript/short_confusion_detrend_MAD4.tex",
-      rowlabel = "",
-      rowname = "",
-      colheads = c("Method", "Quantile", 
-                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
-                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
-      caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
-      set as the median + 4*MAD.")
-
 latex(confusion %>% filter(crit == 5) %>% select(-crit),
       file = "../Manuscript/short_confusion_detrend_MAD5.tex",
       rowlabel = "",
@@ -131,13 +109,24 @@ latex(confusion %>% filter(crit == 5) %>% select(-crit),
                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
       caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=6000). Node order is a, b, c. The threshold for the signal was 
+      removal (n=7200). Node order is a, b, c. The threshold for the signal was 
       set as the median + 5*MAD.")
+
+latex(confusion %>% filter(crit == 6) %>% select(-crit),
+      file = "../Manuscript/short_confusion_detrend_MAD6.tex",
+      rowlabel = "",
+      rowname = "",
+      colheads = c("Method", "Quantile", 
+                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
+                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
+      caption = "Confusion matrices for 3 SPod nodes after baseline 
+      removal (n=7200). Node order is a, b, c. The threshold for the signal was 
+      set as the median + 6*MAD.")
 
 ################################################################################
 # Rug plot
 crit <- 5
-tau0 <- 0.15
+tau0 <- 0.05
 trends <- detrendr_trends
 
 # par(mfrow=c(2,1), mar = c(2,2,0,0))
