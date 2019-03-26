@@ -11,6 +11,7 @@ for (n in c(500,1000,2000,4000)){
   for (simDesign in simDesigns){                
     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
     trend <- matrix(NA, n, length(tau))
+    trend_BIC <- list()
     for (j in 1:length(tau)){
       trend_BIC[[j]] <- get_trend_BIC(df$y, tau[j], 3, 
                             lambdaSeq = lambdaSeq, 

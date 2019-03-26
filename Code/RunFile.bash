@@ -5,5 +5,4 @@
 module load gurobi
 module load R/gcc_4.8.5_R-3.5.1
 R CMD BATCH --vanilla filename
-#BSUB -o out.%J
-#BSUB -e err.%J
+
