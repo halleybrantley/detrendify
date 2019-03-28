@@ -11,7 +11,7 @@ rm(list=ls())
 source("application_functions.R")
 colPal <- c('#1b7837', '#762a83')
 
-tau <- c(0.1, 0.15)
+tau <- c(0.01, 0.05, .1)
 metric_all <- {}
 for (d in 2:8){
   print(d)
@@ -50,14 +50,14 @@ ggplot(spodFig, aes(x=time, y=value)) +
   metric_df <- tibble(metric=NA, method=NA, tau=NA, crit=NA, metric_type=NA, 
                       h=NA, d=NA)
   i <- 1
-  metrics <- c("confusion",  "VI", "pos")
-for (h in 0:2){
-  start_ind <- h*28800+1
-  end_ind <- min((h+1)*28800, nrow(spodPIDs))
+  metrics <- c("VI", "pos")
+for (h in 0:1){
+  start_ind <- h*43200+1
+  end_ind <- min((h+1)*43200, nrow(spodPIDs))
   for (method in methods){
     trends <- get(paste(method, "trends", sep = "_"))[start_ind:end_ind, ]
     for (j in 1:length(tau)){
-      for (crit in c(3, 4, 5)){
+      for (crit in c(5, 6)){
         signal <- get_spod_signal(tau[j], trends, 
                                   spodPIDs[start_ind:end_ind, ], 
                                   crit)

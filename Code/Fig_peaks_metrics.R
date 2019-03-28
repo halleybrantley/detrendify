@@ -24,10 +24,10 @@ trend_detrend$qsreg2 <- trend_qsreg[,2]
 
 ggplot(df, aes(x=x, y=y)) + 
   geom_line(col="grey") +
-  geom_line(data=trend_detrend, aes(y=q, x=x, col = "true 0.1"), lwd = 1.5) +
+  #geom_line(data=trend_detrend, aes(y=q, x=x, col = "true 0.1"), lwd = 1.5) +
   geom_line(data=trend_detrend, aes(y=q2, x=x, col = "true 0.05"), lwd = 1.5) +
-  geom_line(data=trend_detrend, aes(y=V3, x=x, col = "detrendr 0.1")) +
-  geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg 0.1")) + 
+  #geom_line(data=trend_detrend, aes(y=V3, x=x, col = "detrendr 0.1")) +
+  #geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg 0.1")) + 
   geom_line(data=trend_detrend, aes(y=V2, x=x, col = "detrendr 0.05")) +
   geom_line(data=trend_detrend, aes(y=qsreg2, x=x, col = "qsreg 0.05")) +
   theme_bw() + 
@@ -41,7 +41,7 @@ tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
 colPal <- rev(c('#762a83','#9970ab','#c2a5cf', '#d9f0d3',
                 '#a6dba0','#5aae61','#1b7837'))
-methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "detrend_cross",
+methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "detrend_Xing",
              "rqss", "npqw", "qsreg") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
                              ncol = length(tau)+3))

@@ -36,7 +36,6 @@ overlap <- 600
 max_iter <- 5
 tau <- c(0.01, 0.05, 0.1)
 
-
 for (node in nodes){
   result0 <- get_windows_BIC(y=spodPIDs, tau, k=3, window_size, overlap,
                             lambdaSeq = c(400, 800, 1000, 1600, 3200, 5000),
