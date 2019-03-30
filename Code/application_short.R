@@ -30,7 +30,7 @@ for (node in nodes){
   missID <- which(is.na(spodPIDs[, node]))
   spodPIDs[,node] <- na.locf(spodPIDs[,node])
   spodPIDs[missID, node] <- spodPIDs[missID, node]  + rnorm(length(missID), 0, .001)
-  result <- get_trend_BIC(spodPIDs[, node], tau, k, 
+  result <- get_trend_BIC(spodPIDs[, node], tau, k,
                             lambdaSeq = c(800, 1000, 1600, 3200, 5000, 7200),
                             df_tol = 1e-9,
                             gamma = 1,
@@ -45,7 +45,7 @@ for (node in nodes){
   trend <- matrix(NA, n, length(tau))
   for (j in 1:length(tau)){
     fit_qsreg <- qsreg(x, spodPIDs[,node], maxit.cv = 50, 
-                       alpha=tau[j], hmin = -12, hmax = NA)
+                       alpha=tau[j], hmin = -16, hmax = NA)
     trend[,j] <- predict(fit_qsreg)    
   }
   qsreg_trends <- cbind(qsreg_trends, as.data.frame(trend))

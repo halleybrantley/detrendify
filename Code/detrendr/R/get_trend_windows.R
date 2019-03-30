@@ -34,9 +34,9 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
                            use_gurobi = TRUE, 
                            eps_abs = .05, 
                            eps_rel = 1e-3){
-  mean_y <- mean(y, na.rm=T)
-  sd_y <- stats::sd(y, na.rm=T)
-  y <- as.numeric(scale(y))*200
+  min_y <- min(y, na.rm=T)
+  max_y <- max(y, na.rm=T)
+  y <- 200*(y-min_y)/(max_y-min_y)
   if (use_gurobi){
     solver <- "gurobi"
   } else {
@@ -153,7 +153,7 @@ get_trend_windows <- function(y, tau, lambda, k, window_size,
     iter <- iter+1
   }
   y[is.na(y)] <- 0
-  theta <- ((y - get_phiBar(phiBar_list, windows))/200)*sd_y + mean_y
+  theta <- ((y - get_phiBar(phiBar_list, windows))/200)*(max_y-min_y) + min_y
   return(theta)
 }
 

@@ -12,27 +12,26 @@ load_all("detrendr")
 rm(list=ls())
 tau <- c(0.01, 0.05, 0.1)
 
-for (d in 1) #:8){
+for (d in 2){
   if (d == 1){
     nodes <- c("c", "d", "e")
     spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
                      header=TRUE,  na.strings = "N/A")
   } else{
-    nodes <- c("c", "e")
-    spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",d), 
+    nodes <- c("c", "g")
+    spod <- read.csv(sprintf("../SPod/SPod_week/S08_2018-06-%d.csv",d+13), 
                      header=TRUE,  na.strings = "N/A")
   }
 
   spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                    format= "%m/%d/%Y %H:%M:%S")) 
   
-  spodPIDs <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")])
+  spodPIDs <- as.data.frame(spod[, paste(nodes, "PID..counts.", sep=".")])
   names(spodPIDs) <- nodes
-  spodPIDs$c <- spodPIDs$c/1000
-  spodPIDs$e <- spodPIDs$e/1000
+  spodPIDs[,nodes] <- spodPIDs[,nodes]/1000
   spodPIDs$time <- spod$time
-  spodPIDs$c <- na.locf(spodPIDs$c)
-  spodPIDs$e <- na.locf(spodPIDs$e)
+  spodPIDs[, nodes[1]] <- na.locf(spodPIDs[,nodes[1]])
+  spodPIDs[, nodes[2]] <- na.locf(spodPIDs[,nodes[2]])
   
   qsreg_trends <- data.frame(time = spodPIDs$time)
 
@@ -58,12 +57,13 @@ for (d in 1) #:8){
       qsreg_trends[,names(trends)[2:ncol(trends)]] <- NA
     }
     qsreg_trends[ind_start:ind_end, ] <- trends
+    print(j)
   }
   if (d == 1){
     save(qsreg_trends, tau, nodes, spodPIDs,
         file = "../SPod/SPod_week/qsreg_trends_2017-04-13.RData")
   } else {
     save(qsreg_trends, tau, nodes, spodPIDs,
-      file = sprintf("../SPod/SPod_week/qsreg_trends_2017-03-0%d.RData",d))
+      file = sprintf("../SPod/SPod_week/qsreg_trends_2018-06-%d.RData",d+13))
   }
 }

@@ -54,7 +54,7 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   
   min_y <- min(y, na.rm=T)
   max_y <- max(y, na.rm=T)
-  y <- 10*(y-min_y)/(max_y-min_y)
+  y <- (y-min_y)/(max_y-min_y)
   n <- length(y)
   
   n <- length(y)
@@ -75,7 +75,6 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   df <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
   BIC <- matrix(NA, nrow=length(lambdaSeq), ncol=length(tau))
 
-  
   for (i in 1:length(lambdaSeq)){
     f_trend <- get_trend_windows(y, tau, lambdaSeq[i], k=k, window_size = window_size,
                                  overlap=overlap, max_iter=max_iter, update=update, 
@@ -102,11 +101,11 @@ get_windows_BIC <- function(y, tau, k, window_size, overlap,
   }
   
   f_trend <- get_trend_windows(y, tau, lambda, k, window_size,
-                               overlap, max_iter=max_iter, update=update, 
-                               eps_abs = eps_abs, eps_rel = eps_rel, 
+                               overlap, max_iter=max_iter, update=update,
+                               eps_abs = eps_abs, eps_rel = eps_rel,
                                rho = rho)
   
-  return(list(trend = f_trend/10*(max_y-min_y) + min_y,
+  return(list(trend = f_trend*(max_y-min_y) + min_y,
               lambda = lambda, 
               BIC = BIC, 
               df = df))

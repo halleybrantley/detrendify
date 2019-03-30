@@ -3,6 +3,7 @@ require(aricode)
 
 get_spod_signal <- function(tau, trends, spodPIDs, crit=4){
   spodPeaks <- select(spodPIDs, -time) - select(trends, ends_with(paste(tau)))
+  # spodPeaks <- scale(spodPeaks)
   spodPeaks[is.na(spodPeaks)] <- 0
   thresholds <- apply(spodPeaks, 2, 
                       function(x) median(x, na.rm=T) + 
