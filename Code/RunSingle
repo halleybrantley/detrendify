@@ -7,4 +7,4 @@
 #BSUB -e err.%J
 module load gurobi
 module load R/gcc_4.8.5_R-3.5.1
-R CMD BATCH --vanilla application_week.R
+R CMD BATCH --vanilla application_week_qsreg.R

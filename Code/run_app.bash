@@ -1,9 +1,9 @@
 
 #!/bin/bash
 
-N_FILES=8
+N_FILES=9
 OFILE=application_week.R
-for((i=2;i<=$N_FILES;i++)); do
+for((i=1;i<=$N_FILES;i++)); do
 	FNAME="week_${i}.R"
 	FNAME2="week_${i}"
 	echo $FNAME
