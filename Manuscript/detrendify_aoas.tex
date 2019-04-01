@@ -304,7 +304,7 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
 %% ----------------------------------------------------------------------
 \subsection{ADMM for Big Data}
 
- As the size of the data increases, all methods require additional computation time and for our method eventually the matrix of constraints no longer fits into memory. In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
+ As the size of the data increases, all methods require additional computation time and at some point the penalty matrices will no longer fit into memory. In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
  
  \begin{figure}[!t]
  	\centering
@@ -480,8 +480,6 @@ represents the change in the consensus variable from one iterate to the next. Th
 
 The proof of \Prop{convergence} is a straightforward application of the convergence result presented in Section 3.2 of \cite{boyd2011distributed}.
 
-\Eric{Eric}{Add computational complexity of quadratic program and discuss the savings compared with solving a single large LP}.
-
 
 \begin{figure}
 	\centering
@@ -489,7 +487,7 @@ The proof of \Prop{convergence} is a straightforward application of the converge
 	\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.}
 \end{figure}
 
-Timing experiments illustrate the advantages of using our ADMM algorithm when the trend can be estimated with a single window. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below. Trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. \Fig{timing} shows that using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.
+The quantile trend filtering problem for a single window is a linear program with $N\times J$ parameters (number of observations by number of quantiles), which can be solved in computational time proportional to $(NJ)^3$. By dividing the problem into four smaller problems we can theoretically solve each of the 4 sub-problems 4 times and still reduce the computation time required by a factor of 4. Consequently, solving a large problem using \Alg{admm} should require less computational time than simply using a linear program solver given small enough windows and convergence in few enough iterations. We demonstrate the advantages of \Alg{admm} empirically using timing experiments. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below. Trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. \Fig{timing} shows that using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.
 
 
 \begin{figure}[!t]

@@ -11,7 +11,7 @@ library(zoo)
 load_all("detrendr")
 rm(list=ls())
 
-i = 2
+i = 3
 if (i == 1){
   spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
                    header=TRUE,  na.strings = "N/A")
@@ -38,8 +38,8 @@ max_iter <- 5
 tau <- c(0.01, 0.05, 0.1)
 
 for (node in nodes){
-  result <- get_windows_BIC(y=spodPIDs[1:40000, node], tau, k=3, window_size, overlap,
-                            lambdaSeq = c(10000, 15000, 20000),
+  result <- get_windows_BIC(y=spodPIDs[, node], tau, k=3, window_size, overlap,
+                            lambdaSeq = c(50000, 60000, 70000, 80000),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
@@ -58,7 +58,7 @@ for (node in nodes){
          file = sprintf("../SPod/SPod_week/trends_%s_2017-04-13.RData",node))
   } else {
     save(spod_trends,  spodPIDs, result,
-       file = sprintf("../SPod/SPod_week/trends_%s_2018-06-%d.csv",node,i+13))
+       file = sprintf("../SPod/Results/trends_%s_2018-06-%d.RData",node,i+13))
   }
 }
 

@@ -57,3 +57,18 @@ get_VI <- function(signal, nodes){
   }
 }
   
+getThresh <- function(x){mean(x, na.rm=T)+4*sd(x, na.rm=T)}
+
+getCutoff <- function(peaks, node){
+  thresh0 <- getThresh(peaks[,node])
+  print(thresh0)
+  peaks[which(peaks[,node] > thresh0), node] <- NA
+  thresh <- getThresh(peaks[,node])
+  while(thresh0 - thresh > 0.001){
+    thresh0 <- thresh
+    print(thresh0)
+    peaks[which(peaks[,node] > thresh), node] <- NA
+    thresh <- getThresh(peaks[,node])
+  }
+  thresh
+}
