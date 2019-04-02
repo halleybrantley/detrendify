@@ -4,16 +4,23 @@
 ################################################################################
 library(tidyverse)
 library(devtools)
-library(Hmisc)
 rm(list=ls())
 source("application_functions.R")
 colPal <- c('#1b7837', '#762a83')
 tau <- c(0.01, 0.05, 0.1)
 nodes <- c("c", "d", "e")
 
-load(sprintf("../SPod/Results/trends_e_2017-04-13.RData"))
 load(sprintf("../SPod/Results/qsreg_trends_2017-04-13.RData"))
-
+spod_trends <- data.frame(time = spodPIDs$time)
+for (node in nodes){
+  load(file=sprintf("../SPod/node_%s_trend.RData", node))
+  plot(result$BIC[,3], type="l")
+  lines(result$BIC[,1], type="l")
+  lines(result$BIC[,2], type="l")
+  spod_trends <- cbind(spod_trends, as.data.frame(result$trend))
+  names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
+    paste(node, tau, sep = "_")
+}
 spodRaw <- spodPIDs %>%
   gather("node", "PID", -time)
 
@@ -48,6 +55,10 @@ ggplot(peaks_qsreg, aes(x=c, y=e)) +
   theme_bw() + 
   labs(x = "SPod a", y = "SPod c", title = "qsreg")
 ggsave("../Manuscript/Figures/scatter_day_qsreg.png", width = 3, height = 3)
+
+cor(peaks_detrend, method="spearman", use = "pairwise.complete.obs")
+cor(peaks_qsreg, method="spearman", use = "pairwise.complete.obs")
+
 ################################################################################  
 VI <- {}
 cor.df <- data.frame(tau = NA, 

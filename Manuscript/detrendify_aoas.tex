@@ -700,7 +700,7 @@ The $\VI$ is a distance metric for measuring similarity of classifications and w
 
 \subsection{Long series of air quality measurements}
 \label{sec:long-app}
-\Alg{admm} was used to removed the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,401 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally higher VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). 
+\Alg{admm} was used to removed the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,401 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally higher VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). The Spearman correlation coefficients for SPods a and b, SPods a and c, and SPods b and c after removing the 5\textsuperscript{th} quantile trend using \texttt{detrendr} were 0.33, 0.69, and 0.44, compared with 0.07, 0.24, and 0.16 using \texttt{qsreg}.
 
 \begin{figure}
 	\centering

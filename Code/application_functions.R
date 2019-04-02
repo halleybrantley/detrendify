@@ -1,6 +1,6 @@
 require(mcclust)
 require(aricode)
-
+require(caret)
 get_spod_signal <- function(tau, trends, spodPIDs, crit=0.9){
   spodPeaks <- select(spodPIDs, -time) - select(trends, ends_with(paste(tau)))
   thresholds <- apply(spodPeaks, 2, quantile, crit, na.rm=T)

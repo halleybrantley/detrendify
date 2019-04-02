@@ -12,9 +12,9 @@ load("../SPod/spodPIDs.RData")
 nodes <- c("c", "d", "e")
 for (node in nodes){
   missInd <- which(is.na(spodPIDs[,node]))
-  spodPIDs[,node] <- na.locf(spodPIDs[,node]) 
+  spodPIDs[,node] <- na.approx(spodPIDs[,node]) 
   spodPIDs[missInd, node] <- spodPIDs[missInd, node] + 
-    rnorm(length(missInd), 0, .001)
+    rnorm(length(missInd), 0, .002)
 }  
 qsreg_trends <- data.frame(time = spodPIDs$time)
 
@@ -29,7 +29,7 @@ for (j in 1:12){
     for (i in 1:length(tau)){
       fit_qsreg <- qsreg(x, spodPIDs[ind_start:ind_end,node], 
                          maxit.cv = 50, 
-                         alpha=tau[i], hmin = -12, hmax = NA)
+                         alpha=tau[i], hmin = -14, hmax = NA)
       trend[,i] <- predict(fit_qsreg)   
     }
     trends <- cbind(trends, as.data.frame(trend))

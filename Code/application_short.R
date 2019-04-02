@@ -28,9 +28,11 @@ x <- seq(1, nrow(spodPIDs), 1)
 for (node in nodes){
   missID <- which(is.na(spodPIDs[, node]))
   spodPIDs[,node] <- na.approx(spodPIDs[,node], na.rm=FALSE)
-  spodPIDs[missID, node] <- spodPIDs[missID, node]  + rnorm(length(missID), 0, .002)
+  spodPIDs[missID, node] <- spodPIDs[missID, node]  +
+    rnorm(length(missID), 0, .002)
   result <- get_trend_BIC(spodPIDs[, node], tau, k,
                             df_tol = 1e-9,
+                            lambdaSeq= exp(seq(5, 10, 1)),
                             gamma = 1,
                             plot_lambda = TRUE,
                             solver = "gurobi",
@@ -42,9 +44,9 @@ for (node in nodes){
 
   trend <- matrix(NA, n, length(tau))
   for (j in 1:length(tau)){
-    fit_qsreg <- qsreg(x, spodPIDs[,node], maxit.cv = 50, 
-                       alpha=tau[j], hmin = -12, hmax = NA)
-    trend[,j] <- predict(fit_qsreg)    
+    fit_qsreg <- qsreg(x, spodPIDs[,node], maxit.cv = 50,
+                       alpha=tau[j], hmin = -16, hmax = NA)
+    trend[,j] <- predict(fit_qsreg)
   }
   qsreg_trends <- cbind(qsreg_trends, as.data.frame(trend))
   names(qsreg_trends)[(ncol(qsreg_trends)-(length(tau)-1)):ncol(qsreg_trends)] <-
@@ -55,3 +57,4 @@ for (node in nodes){
 save(spodPIDs, detrendr_trends, qsreg_trends, tau,
      file = "../SPod/trends_short.RData")
 
+load("../SPod/trends_short.RData")

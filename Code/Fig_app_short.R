@@ -11,7 +11,7 @@ rm(list=ls())
 load("../SPod/trends_short.RData")
 source("application_functions.R")
 colPal <- c('#1b7837', '#762a83', "darkgrey")
-nodes <- c("d", "e")
+nodes <- c("c", "d", "e")
 missInd <- which(is.na(spodPIDs$d))
 tau <- c(0.01, 0.05, 0.1)
 detrendr_trends[missInd, paste("d", tau, sep="_")] <- NA
