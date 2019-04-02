@@ -12,7 +12,7 @@ load_all("detrendr")
 rm(list=ls())
 tau <- c(0.01, 0.05, 0.1)
 
-for (d in 3:5){
+for (d in 6:8){
   if (d == 1){
     nodes <- c("c", "d", "e")
     spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
@@ -61,16 +61,9 @@ for (d in 3:5){
   }
   if (d == 1){
     save(qsreg_trends, tau, nodes, spodPIDs,
-        file = "../SPod/SPod_week/qsreg_trends_2017-04-13.RData")
-<<<<<<< HEAD
- } else {
- save(qsreg_trends,
-     file = sprintf("../SPod/SPod_week/qsreg_trends_2017-03-0%d.RData",d))
- }
-=======
+        file = "../SPod/Results/qsreg_trends_2017-04-13.RData")
   } else {
     save(qsreg_trends, tau, nodes, spodPIDs,
       file = sprintf("../SPod/Results/qsreg_trends_2018-06-%d.RData",d+13))
   }
->>>>>>> 59d78ebcb28a9c80113dbcd7194eeb8c00589252
 }

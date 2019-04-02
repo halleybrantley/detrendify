@@ -24,8 +24,8 @@ ggplot(spodRaw, aes(x=time, y=PID, col=node)) +
   #        as.POSIXct("2017-04-13 13:30:01 EST")))
 ggsave("../Manuscript/Figures/uncorrected_data.png", width = 7, height = 2.5)
 
-load("../SPod/spod_trends.RData")
-spodPeaks <- select(spodPIDs, -time) - select(spod_trends, contains("0.15"))
+load("../SPod/Results/trends_e_2017-04-13.RData")
+spodPeaks <- select(spodPIDs, -time) - select(spod_trends, contains("0.05"))
 spodPeaks$time <- spod_trends$time
 spodLong <- spodPeaks %>% gather("node","PID", -time)
 
