@@ -11,25 +11,25 @@ library(zoo)
 load_all("detrendr")
 rm(list=ls())
 
-i = 0
+i = 0 
 if (i == 1){
   spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
                    header=TRUE,  na.strings = "N/A")
-  nodes <- c("c", "d", "e")
 } else{
-  spod <- read.csv(sprintf("../SPod/SPod_week/SENTINEL Data_2017-03-0%d.csv",i), 
+  nodes <- c("d", "j")
+  spod <- read.csv(sprintf("../SPod/SPod_week/S08_2018-06-%d.csv",i+13), 
                    header=TRUE,  na.strings = "N/A")
-   nodes <- c("c", "e")
 }
+
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
-spodPIDs <- as.data.frame(spod[, paste(nodes, "SPOD.PID..V.", sep=".")])
+
+spodPIDs <- as.data.frame(spod[, paste(nodes, "PID..counts.", sep=".")])
 names(spodPIDs) <- nodes
-spodPIDs$c <- spodPIDs$c/1000
-spodPIDs$e <- spodPIDs$e/1000
+spodPIDs[,nodes] <- spodPIDs[,nodes]/1000
 spodPIDs$time <- spod$time
-spodPIDs$c <- na.locf(spodPIDs$c)
-spodPIDs$e <- na.locf(spodPIDs$e)
+spodPIDs[, nodes[1]] <- na.locf(spodPIDs[,nodes[1]])
+spodPIDs[, nodes[2]] <- na.locf(spodPIDs[,nodes[2]])
 
 spod_trends <- data.frame(time = spod$time)
 window_size <- 3600
@@ -37,10 +37,9 @@ overlap <- 600
 max_iter <- 5
 tau <- c(0.01, 0.05, 0.1)
 
-
 for (node in nodes){
-  result <- get_windows_BIC(y=spodPIDs[,node], tau, k=3, window_size, overlap,
-                            lambdaSeq = c(30000, 40000, 50000, 60000, 70000),
+  result <- get_windows_BIC(y=spodPIDs[, node], tau, k=3, window_size, overlap,
+                            lambdaSeq = c(50000, 60000, 70000, 80000),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
@@ -59,7 +58,7 @@ for (node in nodes){
          file = sprintf("../SPod/SPod_week/trends_%s_2017-04-13.RData",node))
   } else {
     save(spod_trends,  spodPIDs, result,
-       file = sprintf("../SPod/SPod_week/trends_%s_2017-03-0%d.RData",node,i))
+       file = sprintf("../SPod/Results/trends_%s_2018-06-%d.RData",node,i+13))
   }
 }
 

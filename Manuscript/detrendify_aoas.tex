@@ -195,7 +195,7 @@ where $\VE{\theta}{i} = \theta(t_i)$, $\VE{s}{i} = s(t_i)$, and $\V{\varepsilon}
 In some applications, the slowly varying component $\V{\theta}$ is the signal of interest, and the transient component $\V{s}$ is a vector of nuisance parameters. In our air quality application, the roles of $\V{\theta}$ and $\V{s}$ are reversed; $\V{s}$ represents the signal of interest and $\V{\theta}$ represents a baseline drift that obscures the identification of the important transient events encoded in $\V{s}$. We describe this motivating problem further to illustrate the critical importance of being able to separate $\V{s}$ from $\V{\theta}$.
 
 
-In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. To reduce cost and power consumption of the SPod, the temperature and relative humidity of the air presented to the photoionization detectors (PIDs) was not controlled and as a result the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, which is illustrated by the three sharp transient spikes at 11:32, 14:10, and 16:03. However, the baseline drift varies from one sensor to another, obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering
+In the last decade, low cost and portable air quality sensors have enjoyed dramatically increased usage. These sensors can provide an un-calibrated measure of a variety of pollutants in near real time, but deriving meaningful information from sensor data remains a challenge \citep{snyder2013changing}. The ``SPod" is a low-cost sensor currently being investigated by researchers at the U.S. Environmental Protection Agency to detect volatile organic compound (VOC) emissions from industrial facilities \citep{thoma2016south}. Due to changes in temperature and relative humidity the output signal exhibits a slowly varying baseline drift on the order of minutes to hours. Figure \ref{fig:raw_spod} provides an example of measurements from three SPod sensors co-located at the border of an industrial facility. All of the sensors respond to the pollutant signal, which is illustrated by the three sharp transient spikes at 11:32, 14:10, and 16:03. However, the baseline drift varies from one sensor to another, obscuring the detection of the peaks that alert the intrusion of pollutants. We show later that by estimating the baseline drift in each sensor %using $\ell_1$-quantile-trend filtering
 and  removing it from the observed signals, peaks can be reliably detected from concordant residual signals from a collection of SPods using a simple data-driven thresholding strategy. Thus, accurately demixing a noisy observed vector $\V{y}$ into a slowly varying component $\V{\theta}$ and a transient component $\V{s}$ can lead to greatly improved and simplified downstream analysis. 
 
 \begin{figure}[t!]
@@ -304,7 +304,7 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
 %% ----------------------------------------------------------------------
 \subsection{ADMM for Big Data}
 
- As the size of the data increases, all methods require additional computation time and for our method eventually the matrix of constraints no longer fits into memory. In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
+ As the size of the data increases, all methods require additional computation time and at some point the penalty matrices will no longer fit into memory. In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
  
  \begin{figure}[!t]
  	\centering
@@ -451,55 +451,23 @@ For notational ease, we write the consensus update \Eqn{update_consensus} compac
 \end{algorithm}
 
 To terminate our algorithm, we use the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals, which represent the residuals for primal and dual feasibility, respectively. The primal residual at the $m$th iteration,
-%	\begin{eqnarray*}
-%	r_p^{(q)} & = & \sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert\theta_{j,m}^{(q)} - \M{A}r{\theta}_{j,m}^{(q)}\rVert_2^2},
-%	\end{eqnarray*}
+
 \begin{eqnarray*}
 	r_{\text{primal}}^{m} & = & \sqrt{\sum_{w=1}^W\lVert\Mn{\Theta}{w}_{m} - \M{\Theta}_m\rVert_{\text{F}}^2},
 \end{eqnarray*}
 represents the difference between the trend values in the windows and the consensus trend value. The dual residual at the $m$th iteration,
-%	\begin{eqnarray*}
-%	r_d^{(q)} & = & \gamma\sqrt{\sum_{m=1}^M \sum_{j=1}^J\lVert\M{A}r{\theta}_{j,m}^{(q)} - \M{A}r{\theta}_{j,m}^{(q-1)}\rVert_2^2},
-%	\end{eqnarray*}
+
 \begin{eqnarray*}
 	r_{\text{dual}}^{m} & = & \gamma\sqrt{\sum_{w=1}^W \lVert\M{\Theta}_m - \M{\Theta}_{m-1}\rVert_{\text{F}}^2},
 \end{eqnarray*}
 represents the change in the consensus variable from one iterate to the next. The algorithm is stopped when
-%	\begin{eqnarray*}
-%		r_p^{(q)} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\underset{w}{\max}\left[\max
-%		\left(\sqrt{\sum_{j=1}^J \lVert\theta_{j,m}^{(q)}\rVert_2^2}, \sqrt{\sum_{j=1}^J \lVert \M{A}r{\theta}_{j,m}^{(q)} \rVert_2^2} \right )\right]\\
-%		r_d^{(q)} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\sqrt{\sum_{m=1}^M\sum_{j=1}^J\lVert \omega_{j,m}^{(q)}\rVert_2^2}
-%	\end{eqnarray*}
+
 \begin{eqnarray*}
 	r_{\text{primal}}^{m} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\underset{w}{\max} \left[\max
 	\left\{\lVert\Mn{\Theta}{w}_m \rVert_{\text{F}}, \lVert \M{\Theta}_{m} \rVert_{\text{F}} \right\}\right] \\%\lVert \M{\Theta}_{k} \rVert_{\text{F}}} \right )\right]\\
 	r_{\text{dual}}^{m} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\sqrt{\sum_{w=1}^W
 		\lVert \Mn{\Omega}{w}_m \rVert_{\text{F}}^2}.
 \end{eqnarray*}
-
-
-\begin{figure}
-	\centering
-	\includegraphics[width = 0.8\linewidth]{Figures/admm_windows.png}
-	\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.}
-\end{figure}
-
-Timing experiments illustrate the advantages of using our ADMM algorithm when the trend can be estimated with a single window. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below. Trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. \Fig{timing} shows that using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.
-
-
-\begin{figure}[!t]
-	\centering
-	\includegraphics[width = 0.7\linewidth]{Figures/Fig_timing_experiment.png}
-	\caption{Timing experiments comparing quantile trend filtering with varying numbers of windows by data size.}
-	\label{fig:timing}
-\end{figure}
-
-%% ----------------------------------------------------------------------
-%% Computational Complexity and Convergence
-%% ----------------------------------------------------------------------
-\subsection{Computational Complexity and Convergence}
-
-\Eric{Eric}{Add computational complexity of quadratic program and discuss the savings compared with solving a single large LP}.
 
 \Alg{admm} has the following convergence guarantees.
 
@@ -512,13 +480,32 @@ Timing experiments illustrate the advantages of using our ADMM algorithm when th
 
 The proof of \Prop{convergence} is a straightforward application of the convergence result presented in Section 3.2 of \cite{boyd2011distributed}.
 
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.8\linewidth]{Figures/admm_windows.png}
+	\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.}
+\end{figure}
+
+The quantile trend filtering problem for a single window is a linear program with $N\times J$ parameters (number of observations by number of quantiles), which can be solved in computational time proportional to $(NJ)^3$. By dividing the problem into four smaller problems we can theoretically solve each of the 4 sub-problems 4 times and still reduce the computation time required by a factor of 4. Consequently, solving a large problem using \Alg{admm} should require less computational time than simply using a linear program solver given small enough windows and convergence in few enough iterations. We demonstrate the advantages of \Alg{admm} empirically using timing experiments. For each data size, $n$, 25 datasets were simulated using the peaks simulation design described below. Trends for three quantiles were fit simultaneously: 0.05, 0.1, and 0.15 using $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. \Fig{timing} shows that using 4 windows instead of one on data sizes of 55000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.
+
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width = 0.7\linewidth]{Figures/Fig_timing_experiment.png}
+	\caption{Timing experiments comparing quantile trend filtering with varying numbers of windows by data size.}
+	\label{fig:timing}
+\end{figure}
+
+
+
 %% ----------------------------------------------------------------------
 %% Model Selection
 %% ----------------------------------------------------------------------
 \section{Model Selection}
 \label{sec:lambda_choice}
 
-An important practical issue in baseline estimation is the choice of regularization parameter $\lambda$, which controls the degree of smoothness in $\V{\theta}$. In this section, we introduce four methods for choosing $\lambda$. The first is a validation based approach; the latter three are based on information criteria.
+An important practical issue in baseline estimation is the choice of the regularization parameter $\lambda$, which controls the degree of smoothness in $\V{\theta}$. In this section, we introduce four methods for choosing $\lambda$. The first is a validation based approach; the latter three are based on information criteria. Each of the criteria we compare is calculated for a single quantile ($\tau_j$). Rather than combine results over quantiles, we allow the value of $\lambda$ to vary by quantile resulting in $\V{\lambda} = \{\lambda_1, ..., \lambda_J\}$. To choose the best value for each $\lambda_j$, we first estimate all of the quantile trends using $\V{\lambda} = \lambda\mathbf{1}$ over a grid of values for $\lambda$. We then determine the $\lambda_j$ that maximizes the criteria chosen evaluated using $\tau_j$. Finally, we re-estimate the non-crossing trends with the optimal values for $\lambda_j$. A more thorough approach would involve fitting the model on a J dimensional grid of values for $\V{\lambda}$ but this is computationally infeasible.      
 
 \subsection{Validation}
 Our method can easily handle missing data by defining the check loss function to output 0 for missing values. %We also explore three information criteria.
@@ -532,9 +519,9 @@ where $\mathcal{V}$ is a held-out validation subset of $\{1, \ldots, n\}$ and so
 \begin{eqnarray}
 \label{eq:validate}
 &&\underset{\M{\Theta} \in \mathcal{C}}{\text{minimize}}\; \sum_{j=1}^J \left [\tilde{\rho}_{\tau_j}(\V{y} - \V{\theta}_{j}) +
-\lambda \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ],
+\lambda_j \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ],
 \end{eqnarray}
-which can be solved via \Alg{admm} with trivial modification to the quadratic program sub-problems. We fit a sequence of values for $\lambda$ setting $\lambda_j = \lambda$ for all $j$.  Then for each quantile level $j$ we select the $\lambda_j$ that minimizes the hold-out prediction error quantified by $\breve{\rho}_{\tau_j}(\V{y} - \Vhat{\theta}_j(\lambda))$ where $\Vhat{\theta}_j(\lambda)$ is the solution to \Eqn{validate} and
+which can be solved via \Alg{admm} with trivial modification to the quadratic program sub-problems. For each quantile level $j$, we select the $\lambda_j$ that minimizes the hold-out prediction error quantified by $\breve{\rho}_{\tau_j}(\V{y} - \Vhat{\theta}_j(\lambda_j))$ where $\Vhat{\theta}_j(\lambda_j)$ is the solution to \Eqn{validate} and
 \begin{eqnarray*}
 	\breve{\rho}_{\tau}(\V{r}) & = & \sum_{i \in \mathcal{V}} \VE{r}{i}(\tau-\One(\VE{r}{i}<0)).
 \end{eqnarray*}
@@ -543,9 +530,9 @@ which can be solved via \Alg{admm} with trivial modification to the quadratic pr
 \cite{KoenkerNgPortnoy1994} addressed the choice of regularization parameter by proposing the Schwarz criterion for the selection of $\lambda$
 \begin{eqnarray*}
 	\label{eq:SIC}
-	\mbox{SIC}(p_{\lambda}) & = & \log\left[\frac{1}{n}\rho_{\tau}(\V{y} - \V{\theta})\right] + \frac{1}{2n}p_{\lambda}\log n.
+	\mbox{SIC}(p_{\lambda}, \tau_j) & = & \log\left[\frac{1}{n}\rho_{\tau_j}(\V{y} - \V{\theta}_j)\right] + \frac{1}{2n}p_{\lambda}\log n.
 \end{eqnarray*}
-where $p_{\lambda} = \sum_i \One(\VE{y}{i} = \widehat{\theta}_i)$ is the number of interpolated points, which can be thought of as active knots. Equivalently, $p_{\lambda}$ can be substituted with the number of non-zero components in $\M{D}^{(k+1)}\V{\theta}$ which we denote $\nu$ and have found to be more numerically stable.  The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by
+where $p_{\lambda} = \sum_i \One(\VE{y}{i} = \widehat{\theta}_i)$ is the number of interpolated points, which can be thought of as active knots. Equivalently, $p_{\lambda}$ can be substituted with the number of non-zero components in $\M{D}^{(k+1)}\Vhat{\theta}_j$ which we denote $\nu$ and have found to be more numerically stable.  The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by
 \begin{equation}
 \mbox{BIC}(\nu) = -2\log(L\{\Vhat{\theta}\}) + \nu\log n
 \end{equation}
@@ -556,7 +543,7 @@ where $L$ is the likelihood function. If we take the approach used in Bayesian q
 \end{eqnarray*}
 we can compute the BIC as
 \begin{eqnarray*}
-	\mbox{BIC}(\nu) = 2\frac{1}{\sigma}\rho_{\tau}(\V{y}-\Vhat{\theta}) + \nu\log n
+	\mbox{BIC}(\nu, \tau_j) = 2\frac{1}{\sigma}\rho_{\tau_j}(\V{y}-\Vhat{\theta}_j) + \nu\log n
 \end{eqnarray*}
 where $\Vhat{\theta}$ is the estimated trend, and $\nu$ is the number of non-zero elements of $\Mn{D}{k+1}\Vhat{\theta}$. We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates.
 
@@ -566,8 +553,7 @@ where $\Vhat{\theta}$ is the estimated trend, and $\nu$ is the number of non-zer
 	\mbox{eBIC}_{\gamma}(\nu) & = & -2\log(L\{\Vhat{\theta}\}) + \nu\log n  + 2\gamma\log{P \choose \nu},~~\gamma \in [0,1]
 \end{eqnarray*}
 
-where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$.  
-As in the validation method, to chose $\V{\lambda}$ using the information criteria we fit a sequence of values for $\lambda$ setting $\lambda_j = \lambda$ for all $j$.  For each quantile level $j$, we select the $\lambda_j$ that minimizes the SIC, BIC, or eBIC value evaluated using $\tau_j$ and $\V{\theta}_j$. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
+where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
 
 %\begin{figure}[h!]
 %	\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
@@ -635,7 +621,7 @@ The second simulation design is closely motivated by our air quality analysis pr
 \end{eqnarray*}
 where $t_i = i$ for $i = 1, ..., n$, $\theta(t)$ is the drift component that varies smoothly over time, $s(t)$ is the true signal at time $t$, and $\VE{\varepsilon}{i}$ are i.i.d.\@ errors distributed as $N(0, 0.25^2)$. We generate $\theta(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function $s(t)$ is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The simulated peaks were multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. An example dataset with 4 signal peaks is shown in \Fig{peaks_class_eg}. One hundred datasets were generated for each $n=\{500, 1000, 2000, 4000\}$. 
 
-We compare the ability of the methods to estimate the true quantiles of $y(t_i)-s(t_i)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (\Fig{peaks_rmse}). In this simulation study, our proposed method \texttt{detrend\_eBIC} method substantially outperforms the others. The \texttt{detrend\_cross} method, which is the \texttt{detrend\_eBIC} method fit without the non-crossing constraints, performs similarly for larger quantiles and larger datasets. However, \texttt{detrend\_cross} produces significantly worse estimates for more extreme quantiles ($\tau = 0.01$) and smaller data sets ($\tau = 0.05$ and $n = 500$). These results indicate that even when a single quantile is of interest, simultaneously fitting nearby quantiles and utilizing the non-crossing constraint can improve estimates when data is sparse by using information from nearby quantiles. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the smaller datasets, but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design.
+We compare the ability of the methods to estimate the true quantiles of $y(t_i)-s(t_i)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (\Fig{peaks_rmse}). In this simulation study, our proposed method \texttt{detrend\_eBIC} method substantially outperforms the others. The \texttt{detrend\_Xing} method, which is the \texttt{detrend\_eBIC} method fit without the non-crossing constraints, performs similarly for larger quantiles and larger datasets. However, \texttt{detrend\_Xing} produces significantly worse estimates for more extreme quantiles ($\tau = 0.01$) and smaller data sets ($\tau = 0.05$ and $n = 500$). These results indicate that even when a single quantile is of interest, simultaneously fitting nearby quantiles and utilizing the non-crossing constraint can improve estimates when data is sparse by using information from nearby quantiles. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the smaller datasets, but its performance deteriorates as the data size grows. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design.
 
 \begin{figure}
 	\includegraphics[width = \linewidth]{Figures/peaks_mse.png}
@@ -676,7 +662,7 @@ Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE
 
 \label{sec:application}
 The low-cost ``SPod" air quality sensors output a time series that includes a slowly varying baseline,
-the sensor response to pollutants, and high frequency random noise. These sensors record measurements every second are used to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in \Fig{raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. We first illustrate the difference between our \texttt{detrend\_eBIC} and the \texttt{qsreg} using just 2 hours of measurements so that the methods can be easily visualized and the \texttt{qsreg} method can be fit to the entire dataset \Sec{short-app}. We then compare the methods on an entire week of measurements, fitting the \texttt{qsreg} method to non-overlapping windows of the data \Sec{long-app}. 
+the sensor response to pollutants, and high frequency random noise. These sensors record measurements every second are used to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in \Fig{raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. We first illustrate the difference between our \texttt{detrend\_eBIC} and the \texttt{qsreg} using just 2 hours of measurements so that the methods can be easily visualized and the \texttt{qsreg} method can be fit to the entire dataset \Sec{short-app}. We then compare the methods on the complete day shown in \Fig{raw_spod}, fitting the \texttt{qsreg} method to 2 hour non-overlapping windows of the data. We focus on this day because all three sensors were functioning properly. Finally, we examine an entire week of measurements for the two sensors for which data passed was available \Sec{long-app}. 
 
 \subsection{Short series of air quality measurements}
 \label{sec:short-app}

@@ -3,7 +3,7 @@
 
 N_FILES=9
 OFILE=application_week.R
-for((i=1;i<=$N_FILES;i++)); do
+for((i=4;i<=$N_FILES;i++)); do
 	FNAME="week_${i}.R"
 	FNAME2="week_${i}"
 	echo $FNAME
