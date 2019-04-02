@@ -61,6 +61,6 @@ for (node in c("c")){
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
 }
-#save(spod_trends, tau, file = "../SPod/Results/trends_e_2017-04-13.RData")
+save(spod_trends, tau, file = "../SPod/Results/trends_e_2017-04-13.RData")
 ################################################################################
 
