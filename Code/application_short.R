@@ -13,12 +13,11 @@ rm(list=ls())
 load("../SPod/spodPIDs.RData")
 nodes <- c("c", "d", "e")
 spodPID <- spodPIDs
-spodPID[, nodes] <- as.data.frame(scale(spodPID[, nodes]))
 spodPIDs <- spodPID %>% 
-  filter(time > as.POSIXct("2017-04-13 13:20:00"),
-         time <= as.POSIXct("2017-04-13 13:20:00")+7200)
+  filter(time > as.POSIXct("2017-04-13 13:10:00"),
+         time <= as.POSIXct("2017-04-13 13:10:00")+7200)
 
-plot(spodPIDs$c, type="l")
+plot(spodPIDs$d, type="l")
 tau <- c(0.01, 0.05, 0.1)
 k <- 3
 
@@ -28,10 +27,9 @@ n <- nrow(spodPIDs)
 x <- seq(1, nrow(spodPIDs), 1)
 for (node in nodes){
   missID <- which(is.na(spodPIDs[, node]))
-  spodPIDs[,node] <- na.locf(spodPIDs[,node])
-  spodPIDs[missID, node] <- spodPIDs[missID, node]  + rnorm(length(missID), 0, .001)
+  spodPIDs[,node] <- na.approx(spodPIDs[,node], na.rm=FALSE)
+  spodPIDs[missID, node] <- spodPIDs[missID, node]  + rnorm(length(missID), 0, .002)
   result <- get_trend_BIC(spodPIDs[, node], tau, k,
-                            lambdaSeq = c(800, 1000, 1600, 3200, 5000, 7200),
                             df_tol = 1e-9,
                             gamma = 1,
                             plot_lambda = TRUE,
@@ -41,16 +39,17 @@ for (node in nodes){
   names(detrendr_trends)[(ncol(detrendr_trends)-(length(tau)-1)):
                            ncol(detrendr_trends)] <-
     paste(node, tau, sep = "_")
-  
+
   trend <- matrix(NA, n, length(tau))
   for (j in 1:length(tau)){
     fit_qsreg <- qsreg(x, spodPIDs[,node], maxit.cv = 50, 
-                       alpha=tau[j], hmin = -16, hmax = NA)
+                       alpha=tau[j], hmin = -12, hmax = NA)
     trend[,j] <- predict(fit_qsreg)    
   }
   qsreg_trends <- cbind(qsreg_trends, as.data.frame(trend))
   names(qsreg_trends)[(ncol(qsreg_trends)-(length(tau)-1)):ncol(qsreg_trends)] <-
     paste(node, tau, sep = "_")
+  spodPIDs[missID, node] <- NA
 }
 
 save(spodPIDs, detrendr_trends, qsreg_trends, tau,

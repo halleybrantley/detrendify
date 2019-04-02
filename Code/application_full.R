@@ -5,6 +5,7 @@
 library(tidyverse)
 library(devtools)
 library(Hmisc)
+library(zoo)
 load_all("detrendr")
 rm(list=ls())
 spod <- read.csv("../SPod/SENTINEL Data_2017-04-13.csv", 
@@ -25,23 +26,25 @@ names(spodPIDs) <- nodes
 spodPIDs$time <- spod$time
 spodPIDs$d[surge] <- NA
 for (node in nodes){
-  spodPIDs[,node] <- (spodPIDs[,node] - min(spodPIDs[,node], na.rm=T))*5/
-    (max(spodPIDs[,node], na.rm=T)-min(spodPIDs[,node], na.rm=T))
+  spodPIDs[,node] <- spodPIDs[,node]/1000 
 }
 save(spodPIDs, file = "../SPod/spodPIDs.RData")
 
-window_size <- 5000
-overlap <- 1000
-max_iter <- 30
-tau <- c(0.1, 0.15)
+window_size <- 3600
+overlap <- 600
+max_iter <- 10
+tau <- c(0.01, 0.05, 0.1)
 k <- 3
 spod_trends <- data.frame(time = spod$time)
 
 for (node in c("c", "d", "e")){
+  missID <- which(is.na(spodPIDs[, node]))
+  spodPIDs[,node] <- na.approx(spodPIDs[,node], na.rm=FALSE)
+  spodPIDs[missID, node] <- spodPIDs[missID, node]  + rnorm(length(missID), 0, .002)
   spodNode <- spodPIDs[, c("time", node)]
   names(spodNode)[2] <- c("pid")
   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
-                          lambdaSeq = exp(seq(12,19,1)),
+                          lambdaSeq = exp(c(4, 5, 6, 7, 8, 9, 10, 11, 12, 13)),
                           df_tol = 1e-9,
                           gamma = 1,
                           plot_lambda = TRUE,
@@ -55,6 +58,6 @@ for (node in c("c", "d", "e")){
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
 }
-save(spod_trends, tau, file = "../SPod/spod_trends.RData")
+save(spod_trends, tau, file = "../SPod/Results/trends_e_2017-04-13.RData")
 ################################################################################
 

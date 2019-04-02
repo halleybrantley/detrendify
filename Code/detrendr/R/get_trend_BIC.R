@@ -24,7 +24,7 @@
 #' plot(trend$theta[,1]~x, type="l")  
 #' @export
 get_trend_BIC <- function(y, tau, k,
-                       lambdaSeq = exp(seq(0, 1.5, length.out=20)), 
+                       lambdaSeq = exp(seq(0, 14, 1)), 
                        df_tol = 1e-9, 
                        gamma = 1,
                        plot_lambda = FALSE, 

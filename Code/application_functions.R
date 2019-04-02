@@ -1,13 +1,9 @@
 require(mcclust)
 require(aricode)
 
-get_spod_signal <- function(tau, trends, spodPIDs, crit=4){
+get_spod_signal <- function(tau, trends, spodPIDs, crit=0.9){
   spodPeaks <- select(spodPIDs, -time) - select(trends, ends_with(paste(tau)))
-  # spodPeaks <- scale(spodPeaks)
-  spodPeaks[is.na(spodPeaks)] <- 0
-  thresholds <- apply(spodPeaks, 2, 
-                      function(x) median(x, na.rm=T) + 
-                        crit*median(abs(x-median(x, na.rm=T)), na.rm=T))
+  thresholds <- apply(spodPeaks, 2, quantile, crit, na.rm=T)
   spodSignal <- spodPeaks
   for (i in 1:length(thresholds)){
     spodSignal[,i] <- as.numeric(spodPeaks[,i]>thresholds[i])
@@ -53,11 +49,11 @@ get_VI <- function(signal, nodes){
              nodes13 = round(vi.dist(signal[, nodes[1]], signal[,nodes[3]]),2), 
              nodes23 = round(vi.dist(signal[, nodes[2]], signal[,nodes[3]]),2))
   } else {
-    data.frame(nodes12 = round(vi.dist(signal[, nodes[1]], signal[,nodes[2]]),2))
+   round(vi.dist(signal[, nodes[1]], signal[,nodes[2]]),2)
   }
 }
   
-getThresh <- function(x){mean(x, na.rm=T)+4*sd(x, na.rm=T)}
+getThresh <- function(x){mean(x, na.rm=T)+3*sd(x, na.rm=T)}
 
 getCutoff <- function(peaks, node){
   thresh0 <- getThresh(peaks[,node])

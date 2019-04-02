@@ -662,54 +662,71 @@ Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE
 
 \label{sec:application}
 The low-cost ``SPod" air quality sensors output a time series that includes a slowly varying baseline,
-the sensor response to pollutants, and high frequency random noise. These sensors record measurements every second are used to monitor pollutant concentrations at the fence lines of industrial facilities and detect time points when high concentrations are present. Ideally, three co-located and time aligned sensors (as shown in \Fig{raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. We first illustrate the difference between our \texttt{detrend\_eBIC} and the \texttt{qsreg} using just 2 hours of measurements so that the methods can be easily visualized and the \texttt{qsreg} method can be fit to the entire dataset \Sec{short-app}. We then compare the methods on the complete day shown in \Fig{raw_spod}, fitting the \texttt{qsreg} method to 2 hour non-overlapping windows of the data. We focus on this day because all three sensors were functioning properly. Finally, we examine an entire week of measurements for the two sensors for which data passed was available \Sec{long-app}. 
+the sensor response to pollutants, and high frequency random noise. These sensors record measurements every second and are used to monitor pollutant concentrations at the fence lines of industrial facilities. Time points with high concentrations are identified and compared with concurrent wind direction and speed. Ideally, three co-located and time aligned sensors (as shown in \Fig{raw_spod}) responding to a pollutant plume would result in the same signal classification after baseline trend removal and proper threshold choice. We first illustrate the difference between our \texttt{detrend\_eBIC} method,  hereafter referred to as \texttt{detrendr}, and \texttt{qsreg} using a small subset of measurements from \Fig{raw_spod} (\Sec{short-app}). We then compare the methods on the complete day shown in \Fig{raw_spod}, estimating trends by applying the \texttt{qsreg} method to 2 hour non-overlapping windows of the data and \Alg{admm} to the entire day. We focus on this day because data from three sensors was available. Finally, we examine an entire week of measurements from two co-located sensors (\Sec{long-app}). 
 
 \subsection{Short series of air quality measurements}
 \label{sec:short-app}
 \begin{figure}
 	\includegraphics[width = \linewidth]{Figures/short_trends.png}
-	\caption{Estimated 15\textsuperscript{th} quantile trends on subset of the data using \texttt{qsreg} and \texttt{detrend\_eBIC}.}
+	\caption{Estimated 5\textsuperscript{th} quantile trends for SPods a, b, and c, using \texttt{qsreg} and \texttt{detrendr}. SPod c contains some missing values that were interpolated before the trends were estimated. \texttt{qsreg} is more influenced by the signal component apparent on both nodes resulting in under-smoothing.}
 	\label{fig:short-trends}
 \end{figure}
 
-We compare our \texttt{detrend\_eBIC} method with the \texttt{qsreg} method on a subset of the SPod data (n=7200) since the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using the 10\textsuperscript{th} and 15\textsuperscript{th} quantiles and compare three thresholds for classifying signal. The thresholds are calculated using the median plus a multiple of the median absolute deviation \Eqn{MAD} of the detrended series.
-\begin{eqnarray}
-\label{eq:MAD}
-\mbox{MAD} = \mbox{median}\lVert y-\tilde{y}\rVert,
-\end{eqnarray}
-where $\tilde{y}$ is the median of $y$. Given a method, quantile level, and MAD multiple, we estimate the quantile trend for each of the sensors and subtract it from the observations. We then calculate the threshold using the median plus the MAD multiple of the corrected series and classify the corrected series based on the threshold. \Fig{short-trends} shows an example of the estimated baseline fit for each method. The \texttt{qsreg} method absorbs more of the peaks while the \texttt{detrendr} method results in a smoother baseline estimate.  \Fig{rugplot} shows the series after subtracting the \texttt{detrend\_eBIC} estimate of the 15\textsuperscript{th} quantile and classifying the signal using a MAD multiple of 5. The largest peaks at 14:10 are easily identified as signal, but good baseline estimates also enable proper classification of the smaller peaks like the one at 15:12. 
-
-\begin{figure}
-	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
-	\caption{Rugplot showing locations of signal after baseline removal using detrendr estimate of 15th quantile. Horizontal dashed lines represent the thresholds using a MAD multiple of 5.}
-	\label{fig:rugplot}
-\end{figure}
-
-Given the signal classifications for SPods a and b, $\delta^{(a)}_i \in \{0,1\}$ and $\delta^{(b)}_i\in\{0,1\}$, we want to compare the similarity between the two classifications. One metric for evaluating the distance between two classifications is the variation of information (VI):
+We compare our \texttt{detrendr} method with the \texttt{qsreg} method on a subset of the SPod data (n=7200) both to facilitate visualization and because the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using $\tau = \{0.01, 0.05, 0.1\}$ and compare three thresholds for classifying the signal. The thresholds are calculated as the 90\textsuperscript{th}, 95\textsuperscript{th}, and 99\textsuperscript{th} quantiles of the de-trended series for each SPod. If there is signal present in the dataset, values above these thresholds should occur simultaneously on all three SPods. We do not use class-averaged accuracy to compare the signal classifications because we do not have a reference value to define as the ``true" signal. Instead, we compute the variation of information (VI) which compares the similarity between the two classifications. Given the signal classifications for SPods a and b, $\delta^{(a)}_i \in \{0,1\}$ and $\delta^{(b)}_i\in\{0,1\}$, the VI is defined as:
 \begin{eqnarray*}
 	r_{ij} & = & \frac{1}{n}\sum_t \One\left(\delta^{(a)}_i = i  \cap \delta^{(b)}_i = j\right)\\
 	\VI(s_a, s_b) & = & -\sum_{i,j} r_{ij} \left[ \log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \One(\delta^{(a)}_i = i)}\right) +
 	\log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \One(\delta^{(b)}_i = j)}\right) \right]
 \end{eqnarray*}
-The $\VI$ is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different.  \Fig{vi} shows plots the VIs by method, quantile, and trend. In all cases, our \texttt{detrend} method results in classifications that are more similar than those from the \texttt{qsreg} method. \Fig{short-trends} and \Fig{rugplot} illustrate that our method results in a smoother baseline estimate which improves signal classification.
+The $\VI$ is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different.  
+
+
+\Fig{short-trends} shows the estimated 5\textsuperscript{th} quantile trends from each method for each SPod. The \texttt{detrendr} method results in a smoother baseline estimate while the \texttt{qsreg} method absorbs more of the peaks obscuring some of the signal.  \Fig{rugplot} shows the series after subtracting the \texttt{detrendr} estimate of the 5\textsuperscript{th} quantile and classifying the signal using the 95\textsuperscript{th} quantile of the detrended data. The 90\textsuperscript{th} and 99\textsuperscript{th} thresholds are also shown for comparison in blue and orange, respectively. The largest peaks at 14:10 are easily identified as signal, but good baseline estimates also enable proper classification of the smaller peaks like the one at 15:12. The under-smoothing of the \texttt{qsreg} method results in less similar signal classifications and higher VI values for the 90\textsuperscript{th} and 95\textsuperscript{th} quantile thresholds (\Fig{vi}). However, when the 99\textsuperscript{th} threshold is used only the highest observations are classified as signal and the baseline estimation method isn't as important (\Fig{vi}).  
+
+\begin{figure}
+	\includegraphics[width = \linewidth]{Figures/corrected_rugplot.png}
+	\caption{Rugplot showing locations of signal after baseline removal using the \texttt{detrendr} estimate of 5th quantile. Horizontal dashed lines represent the thresholds calculated using the 90\textsuperscript{th}, 95\textsuperscript{th}, and 99\textsuperscript{th} quantiles of the detrended data. The 95\textsuperscript{th} quantile (black) was used to classify the signal shown as vertical lines at the bottom of the plot.} 
+	\label{fig:rugplot}
+\end{figure}
+
+
 
 \begin{figure}
 	\centering
-	\includegraphics[width = .9\linewidth]{Figures/VI_app_short.png}
-	\caption{Variation of Information between sensors by method (color), quantile (columns) and threshold MAD multiple (rows).}
+	\includegraphics[width = 1\linewidth]{Figures/VI_app_short.png}
+	\caption{Variation of Information between sensors by method (color), quantile (columns) and threshold (shape) for two hour time period. }
 	\label{fig:vi}
 \end{figure}
 
 \subsection{Long series of air quality measurements}
 \label{sec:long-app}
-Our windowed \texttt{detrend\_eBIC} method was used to removed the baseline drift from the total dataset consisting of 86,401 observations per node. The VI scores for the full dataset were 0.36, 0.24, and 0.41 for sensors a and b, a and c, and b and c, respectively. The complete confusion matrices for the nodes using a MAD multiple of 5 for the threshold is given in Table 1.
+\Alg{admm} was used to removed the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,401 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally higher VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). 
 
 \begin{figure}
-	\includegraphics[width = \linewidth]{Figures/corrected_data.png}
-	\caption{Low cost sensor data after drift removal using windowed detrend with eBIC.}
+	\centering
+	\includegraphics[width = 1\linewidth]{Figures/VI_app_long.png}
+	\caption{Variation of Information between sensors by method (color), quantile (columns) and threshold (shape) for full day.}
+	\label{fig:vi_day}
 \end{figure}
 
-\input{Tables/full_confusion_detrend.tex}
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.3\linewidth]{Figures/scatter_day_raw.png}
+	\includegraphics[width = 0.3\linewidth]{Figures/scatter_day_qsreg.png}
+	\includegraphics[width = 0.3\linewidth]{Figures/scatter_day_detrendr.png}
+	\caption{SPod a versus SPod c before and after de-trending. }
+	\label{fig:scatter_day}
+\end{figure}
+
+Finally we estimated the quantile trends for 7 days of measurements of two co-located SPods. \Fig{vi_week} demonstrates the improvement in classification similarity when using \texttt{detrendr}. Each point represents a day of measurements and all points that fall below the dashed line have more similar classifications using \texttt{detrendr} compared to \texttt{qsreg}. 
+
+\begin{figure}
+	\includegraphics[width = 0.7\linewidth]{Figures/VI_by_day.png}
+	\caption{Variation of Information (VI) for \texttt{detrendr} and \texttt{qsreg} by quantile trend and threshold. Each point represents a full day of data. The dashed line represents y=x. In most cases \texttt{detrendr} results in a lower VI than \texttt{qsreg}.}
+	\label{fig:vi_week}
+\end{figure}
+
+
 
 %% ----------------------------------------------------------------------
 %% Conclusion and Discussion
