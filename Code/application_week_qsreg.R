@@ -12,16 +12,10 @@ load_all("detrendr")
 rm(list=ls())
 tau <- c(0.01, 0.05, 0.1)
 
-for (d in 6:8){
-  if (d == 1){
-    nodes <- c("c", "d", "e")
-    spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
-                     header=TRUE,  na.strings = "N/A")
-  } else{
-    nodes <- c("d", "j")
-    spod <- read.csv(sprintf("../SPod/SPod_week/S08_2018-06-%d.csv",d+13), 
-                     header=TRUE,  na.strings = "N/A")
-  }
+for (d in 2:8){
+  nodes <- c("d", "j")
+  spod <- read.csv(sprintf("../spod/spod_week/s08_2018-06-%d.csv",d+13), 
+                   header=TRUE,  na.strings = "N/A")
 
   spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                    format= "%m/%d/%Y %H:%M:%S")) 
@@ -59,11 +53,6 @@ for (d in 6:8){
     qsreg_trends[ind_start:ind_end, ] <- trends
     print(j)
   }
-  if (d == 1){
-    save(qsreg_trends, tau, nodes, spodPIDs,
-        file = "../SPod/Results/qsreg_trends_2017-04-13.RData")
-  } else {
-    save(qsreg_trends, tau, nodes, spodPIDs,
-      file = sprintf("../SPod/Results/qsreg_trends_2018-06-%d.RData",d+13))
-  }
+  save(qsreg_trends, tau, nodes, spodpids,
+    file = sprintf("../spod/results/qsreg_trends_2018-06-%d.rdata",d+13))
 }

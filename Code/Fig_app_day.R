@@ -116,31 +116,7 @@ ggplot(VI, aes(x=nodes, y = value, col = method, shape = factor(qthresh))) +
   facet_grid(~factor(tau)) +
   labs(y="Variation of Information", x = "SPods", col = "Method", 
        shape = "Threshold Quantile")
-ggsave("../Manuscript/Figures/VI_app_long.png", width = 7, height = 3.5)    
+ggsave("../Manuscript/Figures/VI_app_long.png", width = 7, height = 3.5) 
 
-# plot(c~e, peaks_qsreg)
-# abline(v=thresh_1, col="red")
-# abline(h=get_thresh2(thresh_1, coef_qsreg), col="red")
-# 
-plot(c~d, peaks_detrend)
-# abline(v=thresh_1, col="red")
-# abline(h=get_thresh2(thresh_1, coef_detrend), col="red")
-
-ind_start <- 7200
-ind_end <- 7200*4
-plot(spodPIDs[ind_start:ind_end, nodes[2]], type="l")
-lines(qsreg_trends[ind_start:ind_end, paste0(nodes[2], "_0.05")], col="blue")
-lines(spod_trends[ind_start:ind_end, paste0(nodes[2], "_0.05")], col="red")
-
-plot(spodPIDs[ind_start:ind_end, nodes[3]], type="l")
-lines(qsreg_trends[ind_start:ind_end, paste0(nodes[3], "_0.05")], col="blue")
-lines(spod_trends[ind_start:ind_end, paste0(nodes[3], "_0.05")], col="red")
-
-
-plot(peaks_detrend[ind_start:ind_end,"d"], type="l")
-lines(peaks_detrend[ind_start:ind_end,"e"], type="l", col="red")
-lines(peaks_detrend[ind_start:ind_end,"c"], type="l", col="blue")
-
-plot(d~e, peaks_detrend[ind_start:ind_end,])
-plot(d~e, peaks_qsreg[ind_start:ind_end,])
+################################################################################
 
