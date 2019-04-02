@@ -11,12 +11,24 @@ library(zoo)
 load_all("detrendr")
 rm(list=ls())
 
+<<<<<<< HEAD
 i = 0
 
 nodes <- c("d", "j")
 spod <- read.csv(sprintf("../SPod/SPod_week/S08_2018-06-%d.csv",i+13), 
                  header=TRUE,  na.strings = "N/A")
 
+=======
+i = 0 
+if (i == 1){
+  spod <- read.csv("../SPod/SPod_week/SENTINEL Data_2017-04-13.csv", 
+                   header=TRUE,  na.strings = "N/A")
+} else{
+  nodes <- c("d", "j")
+  spod <- read.csv(sprintf("../SPod/SPod_week/S08_2018-06-%d.csv",i+13), 
+                   header=TRUE,  na.strings = "N/A")
+}
+>>>>>>> 88bf5ade246170afe5aaff1348827578fe22aa5e
 
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 
