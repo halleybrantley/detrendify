@@ -1,14 +1,10 @@
 ################################################################################
-# Fit quantile trends on week of data
+# Fit smoothing spline quantile trends (qsreg) on week of data
 # Halley Brantley
 ################################################################################
 library(tidyverse)
-library(devtools)
-library(Hmisc)
 library(fields)
-library(gurobi)
 library(zoo)
-load_all("detrendr")
 rm(list=ls())
 tau <- c(0.01, 0.05, 0.1)
 load("../SPod/spodPIDs.RData")

@@ -8,7 +8,7 @@ library(Hmisc)
 library(zoo)
 load_all("detrendr")
 rm(list=ls())
-spod <- read.csv("../SPod/SENTINEL Data_2017-04-13.csv", 
+spod <- read.csv("../SPod/raw/SENTINEL Data_2017-04-13.csv", 
                  header=TRUE,  na.strings = "N/A")
 spod$time <- as.POSIXct(strptime(as.character(spod$TimeStamp), 
                                  format= "%m/%d/%Y %H:%M:%S")) 

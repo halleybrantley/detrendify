@@ -1,5 +1,5 @@
 ################################################################################
-# Fit quantile trends on shorter window
+# Fit quantile trends on 2 hour window from 4-13-17
 # Halley Brantley
 ################################################################################
 library(fields)

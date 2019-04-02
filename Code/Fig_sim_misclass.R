@@ -1,5 +1,5 @@
 ################################################################################
-# Calculate mis-classification rates in peaks simulation
+# Calculate mis-classification rates in peaks simulation and create figures
 # Halley Brantley
 ################################################################################
 library(tidyverse)
