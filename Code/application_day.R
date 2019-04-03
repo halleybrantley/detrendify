@@ -37,7 +37,7 @@ tau <- c(0.01, 0.05, 0.1)
 k <- 3
 spod_trends <- data.frame(time = spod$time)
 
-for (node in c("c")){
+for (node in c("c", "d", "e")){
   missID <- which(is.na(spodPIDs[, node]))
   spodPIDs[,node] <- na.approx(spodPIDs[,node], na.rm=FALSE)
   spodPIDs[missID, node] <- spodPIDs[missID, node]  + 
@@ -46,7 +46,7 @@ for (node in c("c")){
   names(spodNode)[2] <- c("pid")
   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
                           df_tol = 1e-9,
-                          lambdaSeq= exp(seq(8, 12, 1)),
+                          lambdaSeq= exp(seq(8, 13, 1)),
                           gamma = 1,
                           plot_lambda = TRUE,
                           solver = NULL,
