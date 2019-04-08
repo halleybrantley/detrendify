@@ -291,7 +291,7 @@ where $\theta(t)$ is a smooth function of time and $\lambda$ is a tuning paramet
 %% ----------------------------------------------------------------------
 \subsection{Quantile Trend Filtering}
 
-We combine the ideas of quantile regression and trend filtering. For a single quantile level $\tau$, the quantile trend filtering problem is given in \Eqn{quantile_trend}. As with classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of methods. We want to estimated multiple quantiles simultaneously and to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$ where $Q$ is the quantile function of $\V{y}$. Even if a single quantile is ultimately desired, ensuring non-crossing allows information from nearby quantiles to be used to improve the estimates. Given quantiles $\tau_1 < \tau_2 < \ldots < \tau_J$, the optimization problem becomes
+We combine the ideas of quantile regression and trend filtering. For a single quantile level $\tau$, the quantile trend filtering problem is given in \Eqn{quantile_trend}. As with classic quantile regression, the quantile trend filtering problem is a linear program which can be solved by a number of methods. We want to estimate multiple quantiles simultaneously and to ensure that our quantile estimates are valid by enforcing the constraint that if $\tau_2 > \tau_1$ then $Q(\tau_2) \ge Q(\tau_1)$ where $Q$ is the quantile function of $\V{y}$. Even if a single quantile is ultimately desired, ensuring non-crossing allows information from nearby quantiles to be used to improve the estimates. Given quantiles $\tau_1 < \tau_2 < \ldots < \tau_J$, the optimization problem becomes
 \begin{eqnarray*}
 	\label{eq:noncross_trend}
 	&&\underset{\M{\Theta} \in \mathcal{C}}{\text{minimize}}\; \sum_{j=1}^J \left [\rho_{\tau_j}(\V{y} - \V{\theta}_{j}) +
@@ -411,7 +411,7 @@ The consensus update \Eqn{update_consensus} is rather intuitive. We essentially 
 %This appears like we need to invert an underdetermined linear system, but we're actually just picking off the relevant entries.
 For notational ease, we write the consensus update \Eqn{update_consensus} compactly as $\M{\Theta} = \psi(\{\Mn{\Theta}{w}\},\{\Mn{\Omega}{w}\})$.
 
-{\bf Updating $\{\Mn{\Theta}{w}\}$: } We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in \Alg{admm}. The use of the Augmented Lagrangian converts the problem from a linear program into a quadratic program. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}.
+{\bf Updating $\{\Mn{\Theta}{w}\}$: } We then estimate the trend separately in each window, which can be done in parallel, while constraining the overlapping pieces of the trends to be equal as outlined in \Alg{admm}. The use of the Augmented Lagrangian converts the problem of solving a potentially large linear program into a solving a collection of smaller quadratic programs. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}.
 
 
 
@@ -552,7 +552,6 @@ where $\Vhat{\theta}$ is the estimated trend, and $\nu$ is the number of non-zer
 	\label{eq:eBIC}
 	\mbox{eBIC}_{\gamma}(\nu) & = & -2\log(L\{\Vhat{\theta}\}) + \nu\log n  + 2\gamma\log{P \choose \nu},~~\gamma \in [0,1]
 \end{eqnarray*}
-
 where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
 
 %\begin{figure}[h!]
@@ -700,7 +699,7 @@ The $\VI$ is a distance metric for measuring similarity of classifications and w
 
 \subsection{Long series of air quality measurements}
 \label{sec:long-app}
-\Alg{admm} was used to removed the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,401 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally higher VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). The Spearman correlation coefficients for SPods a and b, SPods a and c, and SPods b and c after removing the 5\textsuperscript{th} quantile trend using \texttt{detrendr} were 0.37, 0.75, and 0.43, compared with 0.07, 0.24, and 0.16 using \texttt{qsreg}. The noise variance was higher for SPod b than for SPods a and c resulting in lower correlation and higher VI values for the ab and bc metrics compared with ac. 
+\Alg{admm} was used to remove the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,401 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally higher VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). The Spearman correlation coefficients for SPods a and b, SPods a and c, and SPods b and c after removing the 5\textsuperscript{th} quantile trend using \texttt{detrendr} were 0.37, 0.75, and 0.43, compared with 0.07, 0.24, and 0.16 using \texttt{qsreg}. The noise variance was higher for SPod b than for SPods a and c resulting in lower correlation and higher VI values for the ab and bc metrics compared with ac. 
 
 \begin{figure}
 	\centering
