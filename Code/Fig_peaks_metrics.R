@@ -10,7 +10,7 @@ tau <- c(0.01, 0.05, 0.1)
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-             "detrend_eBIC", simDesign, n, i))
+             "detrend_valid", simDesign, n, i))
 trend_detrend <- as.data.frame(trend) 
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
              "qsreg", simDesign, n, i))

@@ -12,10 +12,12 @@ get_objective <- function(tau, lambda, n, m, missInd){
   obj <- c()
   nT <- length(tau)
   for (i in 1:nT){
-    obj <- c(obj, rep(tau[i], n), rep((1-tau[i]), n), rep(lambda[i], 2*m))
+    obj0 <- c(rep(tau[i], n), rep((1-tau[i]), n), rep(lambda[i], 2*m))
+    obj0[missInd] <- 0
+    obj0[missInd + n] <- 0
+    obj <- c(obj, obj0)
   }
-  obj[missInd] <- 0
-  obj[missInd + n] <- 0
+
   return(obj)
 }
 
