@@ -2,6 +2,7 @@ library(tidyverse)
 library(devtools)
 library(jcolors)
 library(Cairo)
+library(grid)
 rm(list=ls())
 source("sim_generating_functions.R")
 load_all("detrendr")
@@ -39,6 +40,10 @@ for(simDesign in simDesigns){
 
 MSEs_long <- MSEs %>% gather("tau", "MSE", -c("Design", "Sim", "Method", "n")) 
 MSEs_long$RMSE <- sqrt(MSEs_long$MSE)
+
+MSEs %>% 
+  filter(Design == "mixednorm", 
+         Method=="detrend_valid", n==300)
 
 summary_stats <- 
   MSEs_long %>% group_by(Method, tau, Design, n) %>% 

@@ -27,6 +27,8 @@ spodPIDs$time <- spod$time
 spodPIDs$d[surge] <- NA
 for (node in nodes){
   spodPIDs[,node] <- as.numeric(scale(spodPIDs[,node], center = FALSE))
+  spodPIDs[,node] <- (spodPIDs[,node]-min(sspodPIDs[,node], na.rm=TRUE))*10 / 
+    (max(spodPIDs[,node], na.rm=TRUE)-min(spodPIDs[,node], na.rm=TRUE))
 }
 save(spodPIDs, file = "../SPod/spodPIDs.RData")
 
@@ -44,6 +46,7 @@ for (node in c("c", "d", "e")){
     rnorm(length(missID), 0, .002)
   spodNode <- spodPIDs[, c("time", node)]
   names(spodNode)[2] <- c("pid")
+
   result <- get_windows_BIC(spodNode$pid, tau, k, window_size, overlap,
                           df_tol = 1e-9,
                           lambdaSeq= exp(seq(8, 13, 1)),

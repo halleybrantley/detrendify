@@ -5,12 +5,12 @@
 library(tidyverse)
 rm(list=ls())
 i <- 10
-n <- 4000
+n <- 2000
 tau <- c(0.01, 0.05, 0.1)
 simDesign <- "peaks"
 load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-             "detrend_valid", simDesign, n, i))
+             "detrend_eBIC", simDesign, n, i))
 trend_detrend <- as.data.frame(trend) 
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
              "qsreg", simDesign, n, i))
@@ -24,12 +24,12 @@ trend_detrend$qsreg2 <- trend_qsreg[,2]
 
 ggplot(df, aes(x=x, y=y)) + 
   geom_line(col="grey") +
-  #geom_line(data=trend_detrend, aes(y=q, x=x, col = "true 0.1"), lwd = 1.5) +
-  geom_line(data=trend_detrend, aes(y=q2, x=x, col = "true 0.05"), lwd = 1.5) +
+  geom_line(data=trend_detrend, aes(y=q, x=x, col = "true 0.1"), lwd = 1.5) +
+  #geom_line(data=trend_detrend, aes(y=q2, x=x, col = "true 0.05"), lwd = 1.5) +
   #geom_line(data=trend_detrend, aes(y=V3, x=x, col = "detrendr 0.1")) +
-  #geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg 0.1")) + 
-  geom_line(data=trend_detrend, aes(y=V2, x=x, col = "detrendr 0.05")) +
-  geom_line(data=trend_detrend, aes(y=qsreg2, x=x, col = "qsreg 0.05")) +
+  geom_line(data=trend_detrend, aes(y=qsreg, x=x, col = "qsreg 0.1")) + 
+  #geom_line(data=trend_detrend, aes(y=V2, x=x, col = "detrendr 0.05")) +
+  #geom_line(data=trend_detrend, aes(y=qsreg2, x=x, col = "qsreg 0.05")) +
   theme_bw() + 
   scale_color_brewer(palette = "Set1") +
   labs(col="")
@@ -95,7 +95,7 @@ summary_peaks %>%
         axis.text.x = element_text(size=(text_size-5)),
         plot.title = element_text(size = text_size)) +
   labs(x = "", y="RMSE",  col = "Method") +
-  ylim(c(0,1.2))
+  ylim(c(0,0.4))
 ggsave("../Manuscript/Figures/peaks_mse.png", width = 7, height = 2.5)
 
 
