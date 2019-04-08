@@ -10,7 +10,7 @@ simDesigns <-  "peaks"
 
 regtype <- "ll"
 ckertype <- "epanechnikov"
-nmulti <- 2
+nmulti <- 1
 
 i = 0 
 ################################################################################

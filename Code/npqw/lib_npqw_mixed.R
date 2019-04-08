@@ -232,7 +232,7 @@ npqw.optim <- function(x,
                 }
             }
 
-            lower[1] <- .Machine$double.eps
+            lower[1] <- 1e-3 #.Machine$double.eps
             upper[1] <- 1-.Machine$double.eps
             for(i in 1:ncol(x)) {
                 if(x.col.numeric[i]) {
