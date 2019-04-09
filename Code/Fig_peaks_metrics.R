@@ -39,9 +39,9 @@ ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 4)
 simDesign <- "peaks"
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
-colPal <- rev(c('#006d2c', '#2ca25f', '#66c2a4', '#b2e2e2',
-                #'#762a83','#9970ab','#c2a5cf', '#d9f0d3',
-                '#a6dba0','#5aae61','#1b7837'))
+colPal <- c('#006d2c', '#2ca25f', '#66c2a4', '#1c9099', 
+            "#c2a5cf", "#9970ab", "#762a83")
+
 methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "detrend_Xing",
              "rqss", "npqw", "qsreg") 
 MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods), 
@@ -86,7 +86,7 @@ text_size <- 14
 
 summary_peaks %>% 
   ggplot( aes(x = factor(n), y = mean_mse, col = Method)) + 
-  geom_point(position = position_dodge(width = 0.5)) +
+  geom_point(position = position_dodge(width = 0.5), size=2) +
   geom_linerange(aes(ymin = mean_mse - 2*sd_mse, ymax = mean_mse + 2*sd_mse), 
                  position = position_dodge(width = 0.5))+
   facet_grid(.~factor(tau), scales = "free")+

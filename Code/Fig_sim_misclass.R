@@ -6,8 +6,8 @@ library(tidyverse)
 library(devtools)
 rm(list=ls())
 load_all("detrendr")
-colPal <- rev(c('#762a83','#9970ab','#c2a5cf', '#d9f0d3',
-                '#a6dba0','#5aae61','#1b7837'))
+colPal <- c('#006d2c', '#2ca25f', '#66c2a4', '#1c9099', 
+            "#c2a5cf", "#9970ab", "#762a83")
 
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
