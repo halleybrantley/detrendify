@@ -19,7 +19,7 @@ class.df <- data.frame(d = NA, tau = NA, qthresh = NA,
                        conf_detrend = NA, conf_qsreg = NA)
 k <- 1
 p <- 1
-for (d in 2:9){
+for (d in 2:8){
   load(sprintf("../SPod/Results/trends_j_2018-06-%d.RData", d+13))
   load(sprintf("../SPod/Results/qsreg_trends_2018-06-%d.RData", d+13))
   for (j in 1:length(tau)){
@@ -72,9 +72,11 @@ ggplot(class.df, aes(x=VI_qsreg, y=VI_detrend,
   geom_abline(slope=1, intercept = 0, linetype=2) +
   theme_bw() +
   scale_color_brewer(palette="Set1") +
+  ylim(c(0,1)) +
+  xlim(c(0,1)) +
   labs(x = "qsreg", y = "detrendr", col = "Quantile Threshold", 
        shape = "Quantile Baseline") 
-ggsave("../Manuscript/Figures/VI_by_day.png", width = 5, height = 4)    
+ggsave("../Manuscript/Figures/VI_by_day.png", width = 5, height = 3.3)    
 
 
 
