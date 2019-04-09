@@ -13,7 +13,7 @@ load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData",
              "detrend_eBIC", simDesign, n, i))
 trend_detrend <- as.data.frame(trend) 
 load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-             "qsreg", simDesign, n, i))
+             "npqw", simDesign, n, i))
 trend_qsreg <- as.data.frame(trend) 
 
 trend_detrend$x <- df$x
@@ -39,7 +39,8 @@ ggsave("../Manuscript/Figures/ex_baseline.png", width = 7, height = 4)
 simDesign <- "peaks"
 tau <- c(0.01, 0.05, 0.1)
 nSim <- 100
-colPal <- rev(c('#762a83','#9970ab','#c2a5cf', '#d9f0d3',
+colPal <- rev(c('#006d2c', '#2ca25f', '#66c2a4', '#b2e2e2',
+                #'#762a83','#9970ab','#c2a5cf', '#d9f0d3',
                 '#a6dba0','#5aae61','#1b7837'))
 methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "detrend_Xing",
              "rqss", "npqw", "qsreg") 
