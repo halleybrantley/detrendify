@@ -19,7 +19,7 @@ for (n in c(500,1000,2000,4000)){
                           overlap = overlap,
                           plot_lambda = FALSE,
                           criteria = "eBIC")
-    trend <- trend_BIC$theta
+    trend <- trend_BIC$trend
     save(trend, trend_BIC,
          file = sprintf("../SimResults/windows/%s_n_%i_sim%03.0f.RData",
                         simDesign, n, i))
