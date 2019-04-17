@@ -633,7 +633,7 @@ To compare the resulting signal classifications, we calculate the class averaged
 \end{eqnarray*}
 We use this metric because our classes tend to be very imbalanced with many more zeros than ones. The CAA metric should give a score close to 0.5 both for random guessing and also for trivial classifiers such as $\hat{\delta}_i = 0$ for all $i$.
 
-Our \texttt{detrend\_BIC} method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles.
+Our \texttt{detrend\_eBIC} method performs the best overall in terms of both RMSE and CAA. While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles.
 
 \begin{figure}[h!]
 	\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
