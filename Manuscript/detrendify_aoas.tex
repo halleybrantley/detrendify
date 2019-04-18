@@ -191,9 +191,9 @@ In the last decade, low cost and portable air quality sensors have enjoyed drama
 	\includegraphics[width = \linewidth]{Figures/uncorrected_data.png}
 	\caption{Example of 3 co-located SPod PID sensor readings over a 24 hour period.}
 	\label{fig:raw_spod}
-\end{figure}s
+\end{figure}
 
-While this work is motivated by the analysis of data from low cost air quality sensors, the problem of demixing nosy time series into trends and transients is ubiquitous across many fields of study. In a wide range of applications that spans chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar functions of time $y(t)$ are observed and assumed to be a superposition of an underlying slowly varying baseline trend $\theta(t)$, other more rapidly varying components $s(t)$, and noise. In practice, $y(t)$ is observed at discrete time points $t_1, \ldots, t_n$, and we model the vector of signal samples $\VE{y}{i} = y(t_i)$ as
+While this work is motivated by the analysis of data from low cost air quality sensors, the problem of demixing nosy time series into trends and transients is ubiquitous across many fields of study. In a wide range of applications that spans chemistry \citep{Ning2014}, macroeconomics \citep{yamada2017estimating}, environmental science \citep{brantley2014mobile}, and medical sciences \citep{pettersson2013algorithm, marandi2015qualitative}, scalar functions of time $y(t)$ are observed and assumed to be a superposition of an underlying slowly varying baseline trend $\theta(t)$, other more rapidly varying components $s(t)$, and noise. In practice, $y(t)$ is observed at discrete time points $t_1, \ldots, t_n$, and we model the vector of samples $\VE{y}{i} = y(t_i)$ as
 \begin{eqnarray*}
 	\V{y} & = & \V{\theta} + \V{s} + \V{\varepsilon},
 \end{eqnarray*}
@@ -208,7 +208,7 @@ To tackle demixing problems, we introduce a scalable baseline estimation framewo
 	\item Finally, we propose a modified criterion for performing model selection.
 \end{itemize}
 
-In the rest of the paper, we detail our quantile trend filtering algorithms as well as how to choose the smoothing parameter (Section \ref{sec:methods}). We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods (Section \ref{sec:simluation}). We further show that quantile trend filtering is a more effective method of drift removal for low-cost air quality sensors and results in improved signal classification compared to quantile smoothing splines (Section \ref{sec:application}). Finally, we discuss potential extensions of quantile trend filtering (Section \ref{sec:discussion}).
+In the rest of the paper, we detail our quantile trend filtering algorithms (Section \ref{sec:methods}) as well as how to choose the smoothing parameter (Section \ref{sec:lambda_choice}). We demonstrate through simulation studies that our proposed model provides better or comparable estimates of non-parametric quantile trends than existing methods (Section \ref{sec:simluation}). We further show that quantile trend filtering is a more effective method of drift removal for low-cost air quality sensors and results in improved signal classification compared to quantile smoothing splines (Section \ref{sec:application}). Finally, we discuss potential extensions of quantile trend filtering (Section \ref{sec:discussion}).
 
 %% ----------------------------------------------------------------------
 %% Methods
@@ -236,15 +236,15 @@ where $\lambda$ is a nonnegative regularization parameter, and the matrix $\Mn{D
 	\end{pmatrix}.
 \end{eqnarray*}
 
-Thus, $\lVert \Mn{D}{1}\V{\theta} \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_i - \theta_{i+1} \rvert$, which is known as total variation denoising penalty in one dimension in the signal processing literature \citep{Rudin1992} or the fused lasso penalty in the statistics literature \citep{Tibshirani2005}. The penalty term incentivizes solutions which are piecewise constant. For $k \geq 1$, the difference operator $\Mn{D}{k+1} \in \Real^{(n-k-1) \times n}$ is defined recursively as follows
+Thus, $\lVert \Mn{D}{1}\V{\theta} \rVert_1 = \sum_{i=1}^{n-1} \lvert \theta_i - \theta_{i+1} \rvert$, which is known as the total variation denoising penalty in one dimension in the signal processing literature \citep{Rudin1992} or the fused lasso penalty in the statistics literature \citep{Tibshirani2005}. The penalty term incentivizes solutions which are piecewise constant. For $k \geq 1$, the difference operator $\Mn{D}{k+1} \in \Real^{(n-k-1) \times n}$ is defined recursively as follows
 \begin{eqnarray*}
 	\Mn{D}{k+1} & = & \Mn{D}{1}\Mn{D}{k}.
 \end{eqnarray*}
 Penalizing the 1-norm of the vector $\Mn{D}{k+1}\V{\theta}$ produces estimates of $\V{\theta}$ that are piecewise polynomials of order $k$.
 
-\cite{Tib2014} proved that with a judicious choice of $\lambda$ the trend filtering estimate converges to the true underlying function at the minimax rate for functions whose $k$th derivative is of bounded variation and showed that trend filtering is both fast and locally adaptive when the time series consists of only the trend and random noise, which is illustrated in \Fig{tpn}. As noted earlier, in some applications, such as the air quality monitoring problem considered in this paper, the data contain a rapidly varying signal in addition to the slowly varying trend and noise. \Fig{tpspn} shows that standard trend filtering is not designed to distinguish between the slowly varying trend and the rapidly-varying signal, as the smooth component estimate $\V{\theta}$ is biased towards the peak of the transient component.
+\cite{Tib2014} proved that with a judicious choice of $\lambda$ the trend filtering estimate converges to the true underlying function at the minimax rate for functions whose $k$th derivative is of bounded variation and showed that trend filtering is locally adaptive when the time series consists of only the trend and random noise, which is illustrated in \Fig{tpn}. As noted earlier, in some applications, such as the air quality monitoring problem considered in this paper, the data contain a rapidly varying signal in addition to the slowly varying trend and noise. \Fig{tpspn} shows that standard trend filtering is not designed to distinguish between the slowly varying trend and the rapidly-varying signal, as the smooth component estimate $\V{\theta}$ is biased towards the peaks of the transient components.
 
-To account for the presence of a transient component in the observed time series $\V{y}$, we propose quantile trend filtering \Fig{tpspn}. % as a more robust method for detrending in these situations \Fig{tpspn}.
+To account for the presence of transient components in the observed time series $\V{y}$, we propose quantile trend filtering \Fig{tpspn}. % as a more robust method for detrending in these situations \Fig{tpspn}.
 To estimate the trend in the $\tau$\textsuperscript{th} quantile, we solve the convex optimization problem
 \begin{eqnarray}
 \label{eq:quantile_trend}
@@ -280,7 +280,7 @@ In this application, as well as those described in \cite{Ning2014}, \cite{marand
 \label{eq:smoothingspline}
 \sum_{i=1}^n\rho_{\tau}(y(t_i) - \theta(t_i)) + \lambda\int \theta''(t)^2 dt,
 \end{equation*}
-where $\theta(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degree of smoothing. \cite{Oh2011} proposed an algorithm for solving the quantile smoothing spline problem by approximating the check function with a differentiable function. \cite{Racine2017} take a different approach and constrain the response to follow a location scale model and estimate the $\tau$\textsuperscript{th} conditional quantile by combining Gaussian quantile functions with a kernel smoother and solving a local-linear least squares problem. 
+where $\theta(t)$ is a smooth function of time and $\lambda$ is a tuning parameter that controls the degree of smoothing. \cite{Oh2011} proposed an algorithm for solving the quantile smoothing spline problem by approximating the check function with a differentiable function. \cite{Racine2017} propose a method for estimating quantile trends that does employ the check function. In their method, the response is constrained to follow a location scale model and the conditional quantiles are estimated by combining Gaussian quantile functions with a kernel smoother and solving a local-linear least squares problem. 
 
 
 %% ----------------------------------------------------------------------
@@ -294,14 +294,14 @@ We combine the ideas of quantile regression and trend filtering. For a single qu
 	&&\underset{\M{\Theta} \in \mathcal{C}}{\text{minimize}}\; \sum_{j=1}^J \left [\rho_{\tau_j}(\V{y} - \V{\theta}_{j}) +
 	\lambda_j \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ] 
 \end{eqnarray}
-where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\theta}_J \end{pmatrix} \in \Real^{n \times J}$ is a matrix whose $j$th column corresponds to the $j$th quantile signal $\V{\theta}_j$ and the set $\mathcal{C} = \{\M{\Theta} \in \Real^{n \times J}: \ME{\theta}{ij} \leq \ME{\theta}{ij'} \;\text{for $j \leq j'$}\}$ encodes the non-crossing quantile constraints. The additional non-crossing constraints are linear inequalities involving the parameters, so the non-crossing quantile trends can still be estimated by a number of available linear programming solvers. We allow for the possibility that the degree of smoothness in the trends varies by quantile by allowing the smoothing parameter to vary with quantile as well. In the rest of this paper, we report numerical results using the commercial solver Gurobi \citep{gurobi} and its R package implementation. However, we could easily substitute a free solver such as the Rglpk package by \cite{rglpk}.
+where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\theta}_J \end{pmatrix} \in \Real^{n \times J}$ is a matrix whose $j$th column corresponds to the $j$th quantile signal $\V{\theta}_j$ and the set $\mathcal{C} = \{\M{\Theta} \in \Real^{n \times J}: \ME{\theta}{ij} \leq \ME{\theta}{ij'} \;\text{for $j \leq j'$}\}$ encodes the non-crossing quantile constraints. The additional non-crossing constraints are linear inequalities involving the parameters, so the non-crossing quantile trends can still be estimated by a number of available linear programming solvers. We allow for the possibility that the degree of smoothness in the trends varies by quantile by allowing the smoothing parameter to vary with quantile as well. In the rest of this paper, we use $k=2$ to produce piecewise quadratic polynomials and report numerical results using the commercial solver Gurobi \citep{gurobi} and its R package implementation. However, we could easily substitute a free solver such as the Rglpk package by \cite{rglpk}.
 
 %% ----------------------------------------------------------------------
 %% ADMM for Big Data
 %% ----------------------------------------------------------------------
 \subsection{ADMM for Big Data}
 
- As the size of the data increases, computation time becomes prohibitive (\Fig{timing}). In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
+ As the size of the data increases, computation time becomes prohibitive. In our application to air quality sensor data, measurements are recorded every second resulting in 86,400 observations per day. This number of observations is already too large to use with currently available R packages used for estimating quantile trends \citep{fields, quantreg}. To our knowledge, no one has addressed the problem of finding smooth quantile trends of series that are too large to be processed simultaneously. We propose a divide-and-conquer approach via an ADMM algorithm for solving large problems in a piecewise fashion. 
  
  \begin{figure}[!t]
  	\centering
@@ -318,7 +318,7 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
  \end{eqnarray*}
  We define $n_w = u_w-l_w+1$ so that $\Vn{y}{w} \in \Real^{n_w}$. \Fig{windows} shows an example of 1200 observations being mapped into three equally sized overlapping windows of observations. While the overlapping trend estimates between $l_2$ and $u_2$ do not vary dramatically, the difference is more pronounced in the trend in the 5\textsuperscript{th} quantile between $l_3$ and $u_2$. Thus, we need a way of enforcing estimates to be identical in the overlapping regions. 
  
- Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{w}_{j} \in \Real^{n_w}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $w$. We then ``stitch" together the $W$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{w}{ij} = \VE{\theta}{i + l_w - 1,j}$ for $i = 1, \ldots, u_w - l_w + 1$ and for all $j$. Let $\Mn{\Theta}{w}$ be the matrix whose $j$th column is $\Vn{\theta}{w}_{j}$. Then we can write these constraints more concisely as $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, where $\Mn{U}{w} \in \{0, 1\}^{n_w \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $w$th window, namely
+ Given quantiles $\tau_1 < \cdots < \tau_J$, we introduce dummy variables $\Vn{\theta}{w}_{j} \in \Real^{n_w}$ as the value of the $\tau_j$\textsuperscript{th} quantile trend in window $w$. We then ``stitch" together the $W$ quantile trend estimates into consensus over the overlapping regions by introducing the constraint $\VnE{\theta}{w}{ij} = \VE{\theta}{i + l_w - 1,j}$ for $i = 1, \ldots, n_w$ and for all $j$. Let $\Mn{\Theta}{w}$ be the matrix whose $j$th column is $\Vn{\theta}{w}_{j}$. Then we can write these constraints more concisely as $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, where $\Mn{U}{w} \in \{0, 1\}^{n_w \times n}$ is a matrix that selects rows of $\M{\Theta}$ corresponding to the $w$th window, namely
  \begin{eqnarray*}
  	\Mn{U}{w} & = & \begin{pmatrix}
  		\V{e}_{l_w}\Tra \\
@@ -326,9 +326,7 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
  		\V{e}_{u_w}\Tra
  	\end{pmatrix},
  \end{eqnarray*}
- where $\V{e}_i \in \Real^{n}$ denotes the $i$th standard basis vector. Furthermore, let $\iota_{\mathcal{C}}$ denote the indicator function of the non-crossing quantile constraint, namely $\iota_{\mathcal{C}}(\M{\Theta})$ is zero if $\M{\Theta} \in \mathcal{C}$ and infinity otherwise.
- 
- Our windowed quantile trend optimization problem can then be written as
+ where $\V{e}_i \in \Real^{n}$ denotes the $i$th standard basis vector. Furthermore, let $\iota_{\mathcal{C}}$ denote the indicator function of the non-crossing quantile constraint, namely $\iota_{\mathcal{C}}(\M{\Theta})$ is zero if $\M{\Theta} \in \mathcal{C}$ and infinity otherwise. Our windowed quantile trend optimization problem can then be written as
  \begin{equation}
  \label{eq:quantile_windows}
  \begin{split}
@@ -338,13 +336,13 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
  \end{split}
  \end{equation}
   
- The solution to \Eqn{quantile_windows} is {\em not} identical to the solution to \Eqn{noncross_trend} because of double counting of the overlapping sections. The solutions are very close, however, and the differences are essentially immaterial concerning downstream analysis. \Fig{windowsfit} provides an illustration of trends estimated using \Alg{admm} and multiple windows compared with the trends estimated using a single window. 
+ The solution to \Eqn{quantile_windows} is {\em not} identical to the solution to \Eqn{noncross_trend} because of double counting of the overlapping sections. The solutions are very close, however, and the differences are essentially immaterial concerning downstream analysis. \Fig{windowsfit} provides an illustration of the trends estimated using multiple windows compared with the trends estimated using a single window. 
  
  
  \begin{figure}
  	\centering
  	\includegraphics[width = 0.8\linewidth]{Figures/admm_windows.png}
- 	\caption{Trend fit with our ADMM algorithm with 3 windows which converged in 7 iterations compared to trend from simultaneous fit.} 
+ 	\caption{Trend fit with our ADMM algorithm with 3 windows (converged in 7 iterations), compared to trend from simultaneous fit.} 
  	\label{fig:windowsfit}
  \end{figure}
  

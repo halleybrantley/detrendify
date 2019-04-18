@@ -21,16 +21,6 @@ for (node in nodes){
   names(spod_trends)[(ncol(spod_trends)-length(tau)+1):ncol(spod_trends)] <-
     paste(node, tau, sep = "_")
 }
-spodRaw <- spodPIDs %>%
-  gather("node", "PID", -time)
-
-ggplot(spodRaw, aes(x=time, y=PID, col=node)) +
-  geom_line(alpha=0.5) +
-  theme_bw() +
-  scale_color_brewer(palette = "Set1", labels = c("a", "b", "c"))+
-  labs(col="SPod")
-
-ggsave("../Manuscript/Figures/uncorrected_data.png", width = 7, height = 2.5)
 ################################################################################
 peaks_qsreg <- select(spodPIDs, -time) - 
   select(qsreg_trends, ends_with(paste(tau[2])))

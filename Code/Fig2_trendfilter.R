@@ -1,3 +1,8 @@
+################################################################################
+# Figure 1 - example of trend filtering compared to quantile trend filtering
+# Halley Brantley
+################################################################################
+
 library(devtools)
 load_all("detrendr")
 install_github("hadley/l1tf")
