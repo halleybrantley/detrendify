@@ -459,7 +459,7 @@ For notational ease, we write the consensus update \Eqn{update_consensus} compac
 To terminate our algorithm, we use the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals, which represent the residuals for primal and dual feasibility, respectively. The primal residual at the $m$th iteration,
 
 \begin{eqnarray*}
-	r_{\text{primal}}^{m} & = & \sqrt{\sum_{w=1}^W\lVert\Mn{\Theta}{w}_{m} - \M{\Theta}_m\rVert_{\text{F}}^2},
+	r_{\text{primal}}^{m} & = & \sqrt{\sum_{w=1}^W\lVert\Mn{\Theta}{w}_{m} - \Mn{U}{w}\M{\Theta}_m\rVert_{\text{F}}^2},
 \end{eqnarray*}
 represents the difference between the trend values in the windows and the consensus trend value. The dual residual at the $m$th iteration,
 
