@@ -47,13 +47,10 @@ ggplot(df.data, aes(x=x, y=y)) +
   geom_segment(aes(x = x[700], xend=x[700], y=0, yend=1.5, linetype = "dotted")) +
   geom_segment(aes(x = x[850], xend=x[850], y=0, yend=1.5, linetype = "dotted")) +
   geom_segment(aes(x = n, xend = n, y=0, yend=1.5, linetype = "dotted")) +
-  
   geom_segment(aes(x = x[1], xend=x[500], y=2, yend=2)) +
   geom_text(aes(x=250, y=2.15, label = "Window 1")) +
-  
   geom_segment(aes(x = 350, xend=850, y=2.4, yend=2.4)) +
   geom_text(aes(x=600, y=2.55, label = "Window 2")) +
-  
   geom_segment(aes(x = 700, xend=1200, y=2.7, yend=2.7)) +
   geom_text(aes(x=950, y=2.85, label = "Window 3")) +
   geom_label(aes(x=1, y=-.2, label = "1")) +
