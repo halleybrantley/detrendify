@@ -387,7 +387,7 @@ where
 	&& + \; (\Vn{\theta}{w}_j - \Mn{U}{w}\V{\theta}_{j})\Tra\Vn{\omega}{w}_{j} +
 	\frac{\gamma}{2}\lVert \Vn{\theta}{w}_j - \Mn{U}{w}\V{\theta}_{j}\rVert_2^2 \biggr ] + \iota_\mathcal{C}(\Mn{\Theta}{w}),
 \end{eqnarray*}
-where $\gamma$ is a positive penalty parameter.
+where $\gamma$ is a positive tuning parameter.
 
 The ADMM algorithm alternates between updating the consensus variable $\M{\Theta}$, the window variables $\{\Mn{\Theta}{w}\}$, and the Lagrange multipliers $\{\Mn{\Omega}{w}\}$.
 At the $(m+1)$\textsuperscript{th} iteration, we perform the following sequence of updates
@@ -397,30 +397,29 @@ At the $(m+1)$\textsuperscript{th} iteration, we perform the following sequence 
 	\Mn{\Theta}{w}_{m+1} & = & \underset{\{\Mn{\Theta}{w}\}}{\arg\min}\; \mathcal{L}(\M{\Theta}_{m+1}, \{\Mn{\Theta}{w}\}, \{\Mn{\Omega}{w}_m\}) \\
 \end{eqnarray*}
 
-{\bf Updating $\M{\Theta}$: } Some algebra shows that updating the consensus variable step is computed as follows.
+{\bf Updating $\M{\Theta}$: } Some algebra shows that,  defining $i_w = i-l_w+1$, updating the consensus variable step is computed as follows.
 
-\begin{eqnarray}
+\begin{align}
 \label{eq:update_consensus}
 ~~~~\ME{\theta}{ij}	 &=& \begin{cases}
-\frac{1}{2}\left (\MnE{\theta}{w-1}{ij} + \MnE{\theta}{w}{ij} \right)
+\frac{1}{2}\left (\MnE{\theta}{w-1}{i_{w-1}j} + \MnE{\theta}{w}{i_wj} \right)
 -
-\frac{1}{2\gamma} \left (\MnE{\omega}{w-1}{ij} + \MnE{\omega}{w}{ij} \right)
+\frac{1}{2\gamma} \left (\MnE{\omega}{w-1}{i_{w-1}j} + \MnE{\omega}{w}{i_{w}j} \right)
 & \mbox{if~} l_{w} \le i \le u_{w-1},  \\
-\MnE{\theta}{w}{ij} & \mbox{if~} u_{w-1} < i \le l_{w+1}  \\
-\frac{1}{2} \left ( \MnE{\theta}{w}{ij} + \MnE{\theta}{w+1}{ij} \right )
+\MnE{\theta}{w}{i_{w}j} & \mbox{if~} u_{w-1} < i \le l_{w+1}  \\
+\frac{1}{2} \left ( \MnE{\theta}{w}{i_{w}j} + \MnE{\theta}{w+1}{i_{w+1}j} \right )
 -
-\frac{1}{2\gamma}	\left (\MnE{\omega}{w}{ij} + \MnE{\omega}{w+1}{ij} \right )
-& \mbox{if~} l_{m+1} < i \le u_{m}
+\frac{1}{2\gamma}	\left (\MnE{\omega}{w}{i_{w}j} + \MnE{\omega}{w+1}{i_{w+1}j} \right )
+& \mbox{if~} l_{w+1} < i \le u_{w}
 \end{cases},
-\end{eqnarray}
+\end{align}
+
 
 The consensus update \Eqn{update_consensus} is rather intuitive. We essentially average the trend estimates in overlapping sections of the windows, subject to some adjustment by the Lagrange multipliers, and leave the trend estimates in non-overlapping sections of the windows untouched.
 %This appears like we need to invert an underdetermined linear system, but we're actually just picking off the relevant entries.
 For notational ease, we write the consensus update \Eqn{update_consensus} compactly as $\M{\Theta} = \psi(\{\Mn{\Theta}{w}\},\{\Mn{\Omega}{w}\})$.
 
 {\bf Updating $\{\Mn{\Theta}{w}\}$: } We then estimate the trend separately in each window, which can be done in parallel, while penalizing the differences in the overlapping pieces of the trends  as outlined in \Alg{admm}. The use of the Augmented Lagrangian converts the problem of solving a potentially large linear program into a solving a collection of smaller quadratic programs. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}.
-
-
 
 
 \begin{algorithm}[t]
