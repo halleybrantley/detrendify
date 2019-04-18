@@ -30,7 +30,7 @@
 #' plot(trend[,1]~x, type="l")
 #' @export
 get_trend_windows <- function(y, tau, lambda, k, window_size,
-                           overlap, max_iter, rho=5, update=10, 
+                           overlap, max_iter, rho=1, update=10, 
                            use_gurobi = TRUE, 
                            eps_abs = .05, 
                            eps_rel = 1e-3){

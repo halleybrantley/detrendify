@@ -477,14 +477,15 @@ represents the difference between the trend values in the windows and the consen
 \end{eqnarray*}
 represents the change in the consensus variable from one iterate to the next. The algorithm is stopped when
 
-\begin{eqnarray*}
+\begin{eqnarray}
 	r_{\text{primal}}^{m} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\underset{w}{\max} \left[\max
-	\left\{\lVert\Mn{\Theta}{w}_m \rVert_{\text{F}}, \lVert \M{\Theta}_{m} \rVert_{\text{F}} \right\}\right] \\%\lVert \M{\Theta}_{k} \rVert_{\text{F}}} \right )\right]\\
+	\left\{\lVert\Mn{\Theta}{w}_m \rVert_{\text{F}}, \lVert \M{\Theta}_{m} \rVert_{\text{F}} \right\}\right] \nonumber \\%\lVert \M{\Theta}_{k} \rVert_{\text{F}}} \right )\right]\\
 	r_{\text{dual}}^{m} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\sqrt{\sum_{w=1}^W
 		\lVert \Mn{\Omega}{w}_m \rVert_{\text{F}}^2}.
-\end{eqnarray*}
+\label{eq:stopping}
+\end{eqnarray}
 
-The quantile trend filtering problem for a single window is a linear program with $N\times J$ parameters (number of observations by number of quantiles), which can be solved in computational time proportional to $(NJ)^3$.  Consequently, solving a large problem using \Alg{admm} should require less computational time than solving \Eqn{noncross_trend}, even if the sub-problems are solved sequentially. We demonstrate the advantages of \Alg{admm} through timing experiments (\Fig{timing}). For each data size, 25 datasets were simulated using the peaks simulation design described below. Trends for the fifth, tenth, and fifteenth quantiles were fit simultaneously: using $\lambda = n/5$. We use from one to four windows for each data size with an overlap of 500. The windows algorithm was run until the stopping criteria were met using $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. \Fig{timing} shows that using 4 windows instead of one on data sizes of 55,000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.
+The quantile trend filtering problem for a single window is a linear program with $N\times J$ parameters (number of observations by number of quantiles), which can be solved in computational time proportional to $(NJ)^3$.  Consequently, solving a large problem using \Alg{admm} should require less computational time than solving \Eqn{noncross_trend}, even if the sub-problems are solved sequentially. We demonstrate the advantages of \Alg{admm} through timing experiments (\Fig{timing}). For each data size, 25 datasets were simulated using the peaks simulation design described below. Trends for the fifth, tenth, and fifteenth quantiles were fit simultaneously using $\lambda_j = n/5$ for all $j$. We use from one to four windows for each data size with an overlap of 500. \Alg{admm} was the stopped when \Eqn{stopping} was satisfied, defining $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$. \Fig{timing} shows that using 4 windows instead of one on data sizes of 55,000 provides a factor of 3 decrease in computation time. The timing experiments were conducted on an Intel Xeon based Linux cluster using two processor cores.
 
 
 \begin{figure}[!t]
@@ -502,7 +503,7 @@ The quantile trend filtering problem for a single window is a linear program wit
 \section{Model Selection}
 \label{sec:lambda_choice}
 
-An important practical issue in baseline estimation is the choice of the regularization parameter $\lambda$, which controls the degree of smoothness in $\V{\theta}$. In this section, we introduce four methods for choosing $\lambda$. The first is a validation based approach; the latter three are based on information criteria. Each of the criteria we compare is calculated for a single quantile ($\tau_j$). Rather than combine results over quantiles, we allow the value of $\lambda$ to vary by quantile resulting in $\V{\lambda} = \{\lambda_1, ..., \lambda_J\}$. To choose the best value for each $\lambda_j$, we first estimate all of the quantile trends using $\V{\lambda} = \lambda\mathbf{1}$ over a grid of values for $\lambda$. We then determine the $\lambda_j$ that maximizes the criteria chosen evaluated using $\tau_j$. Finally, we re-estimate the non-crossing trends with the optimal values for $\lambda_j$. A more thorough approach would involve fitting the model on a J dimensional grid of values for $\V{\lambda}$ but this is computationally infeasible.      
+An important practical issue in baseline estimation is the choice of the regularization parameter $\lambda$, which controls the degree of smoothness in $\V{\theta}$. In this section, we introduce four methods for choosing $\lambda$. The first is a validation based approach; the latter three are based on information criteria. Each of the criteria we compare is calculated for a single quantile ($\tau_j$). Rather than combine results over quantiles, we allow the value of $\lambda$ to vary by quantile resulting in $\V{\lambda} = \{\lambda_1, ..., \lambda_J\}$. To choose the best value for each $\lambda_j$, we first estimate all of the quantile trends using $\lambda_j = \lambda$ for all $j$ over a grid of values for $\lambda$. We then determine the $\lambda_j$ that maximizes the criteria chosen evaluated using $\tau_j$. Finally, we re-estimate the non-crossing trends with the optimal values for $\lambda_j$. A more thorough approach would involve fitting the model on a J dimensional grid of values for $\V{\lambda}$ but this is computationally infeasible.      
 
 \subsection{Validation}
 Our method can easily handle missing data by defining the check loss function to output 0 for missing values. %We also explore three information criteria.
@@ -529,18 +530,18 @@ which can be solved via \Alg{admm} with trivial modification to the quadratic pr
 	\label{eq:SIC}
 	\mbox{SIC}(p_{\lambda}, \tau_j) & = & \log\left[\frac{1}{n}\rho_{\tau_j}(\V{y} - \V{\theta}_j)\right] + \frac{1}{2n}p_{\lambda}\log n.
 \end{eqnarray*}
-where $p_{\lambda} = \sum_i \One(\VE{y}{i} = \widehat{\theta}_i)$ is the number of interpolated points, which can be thought of as active knots. Equivalently, $p_{\lambda}$ can be substituted with the number of non-zero components in $\M{D}^{(k+1)}\Vhat{\theta}_j$ which we denote $\nu$ and have found to be more numerically stable.  The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by
+where $p_{\lambda} = \sum_i \One(\VE{y}{i} = \widehat{\theta}_i)$ is the number of non-interpolated points, which can be thought of as active knots. Equivalently, $p_{\lambda}$ can be substituted with the number of non-zero components in $\M{D}^{(k+1)}\Vhat{\theta}_j$ which we denote $\nu$ and have found to be more numerically stable.  The SIC is based on the traditional Bayesian Information Criterion (BIC) which is given by
 \begin{equation}
 \mbox{BIC}(\nu) = -2\log(L\{\Vhat{\theta}\}) + \nu\log n
 \end{equation}
 where $L$ is the likelihood function. If we take the approach used in Bayesian quantile regression \citep{yu2001bayesian}, and view minimizing the check function as maximizing the asymmetric Laplace likelihood,
 
 \begin{eqnarray*}
-	L(\V{y} \mid \V{\theta}) & = & \left[\frac{\tau^n(1-\tau)}{\sigma}\right]^n\exp\left\{-\sum_i\rho_\tau\left(\frac{\VE{y}{i} - \VE{\theta}{i}}{\sigma}\right)\right\},
+	L(\V{y} \mid \V{\theta}) & = & \left[\frac{\tau^n(1-\tau)}{\sigma}\right]^n\exp\left\{-\rho_\tau\left(\frac{\V{y} - \V{\theta}}{\sigma}\right)\right\},
 \end{eqnarray*}
 we can compute the BIC as
 \begin{eqnarray*}
-	\mbox{BIC}(\nu, \tau_j) = 2\frac{1}{\sigma}\rho_{\tau_j}(\V{y}-\Vhat{\theta}_j) + \nu\log n
+	\mbox{BIC}(\nu, \tau_j) = \frac{2}{\sigma}\rho_{\tau_j}(\V{y}-\Vhat{\theta}_j) + \nu\log n
 \end{eqnarray*}
 where $\Vhat{\theta}$ is the estimated trend, and $\nu$ is the number of non-zero elements of $\Mn{D}{k+1}\Vhat{\theta}$. We can choose any $\sigma>0$ and have found empirically that $\sigma =  \frac{1-|1-2\tau|}{2}$ produces stable estimates.
 
@@ -549,15 +550,7 @@ where $\Vhat{\theta}$ is the estimated trend, and $\nu$ is the number of non-zer
 	\label{eq:eBIC}
 	\mbox{eBIC}_{\gamma}(\nu) & = & -2\log(L\{\Vhat{\theta}\}) + \nu\log n  + 2\gamma\log{P \choose \nu},~~\gamma \in [0,1]
 \end{eqnarray*}
-where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$. In the simulation study, we compare the performance of the SIC, scaled eBIC, and validation methods. 
-
-%\begin{figure}[h!]
-%	\includegraphics[width = 0.25\linewidth]{Figures/df_by_lambda.png}
-%	\includegraphics[width = 0.25\linewidth]{Figures/BIC_data.png}
-%	\includegraphics[width = 0.5\linewidth]{Figures/BIC_by_lambda.png}
-%	\caption{(Left) Estimated degrees of freedom (number of non-zero elements of $\M{D}\V{\theta}$) as a function of $\log(\lambda)$. (Middle) Estimated 10th quantile trend with regularization parameter chosen using various criteria. (Right) Criteria values as a function of $\log(\lambda)$, vertical lines indicate locations of minima.}
-%	\label{fig:BIC}
-%\end{figure}
+where $P$ is the total number of possible parameters and $\nu$ is the number of non-zero parameters included in given mod. We used this criteria with $\gamma = 1$, and $P=n-k-1$. In the simulation study, we compare the performance of the SIC, scaled eBIC (with $\sigma$ defined above), and validation methods. 
 
 %% ----------------------------------------------------------------------
 %% Simulation Studies
@@ -565,9 +558,9 @@ where $P$ is the total number of possible parameters and $\nu$ is the number of 
 \section{Simulation Studies}
 \label{sec:simluation}
 
-We conduct two simulation studies to compare the performance of our quantile trend filtering method and regularization parameter selection criteria with previously published methods. The first study compares the method's ability to estimate quantiles when the only components of the observed series are a smooth trend and a random component. The second study is based on our application and compares the method's ability to estimate baseline trends and enable peak detection when the time series contains a non-negative signal component in addition to the trend and random component.
+We conduct two simulation studies to compare the performance of our quantile trend filtering method and regularization parameter selection criteria with previously published methods. The first study compares the method's ability to estimate quantiles when the observed series consists of a smooth trend plus independent error, but does not contain transient components. The second study is based on our application and compares the method's ability to estimate baseline trends and enable peak detection when the time series contains a non-negative, transient signal in addition to the trend and random component.
 
-We compare three criteria for choosing the smoothing parameter with our quantile trend filtering method with a single window:  $\V{\lambda}$ chosen using SIC \Eqn{SIC} \citep{KoenkerNgPortnoy1994} (\texttt{detrendr\_SIC}); $\V{\lambda}$ chosen using the validation method with the validation set consisting of every 5th observation (\texttt{detrendr\_valid}); and $\V{\lambda}$ chosen using the proposed scaled eBIC criteria \Eqn{eBIC} \texttt{detrendr\_eBIC}. For the second study we also examine the effect of the non-crossing quantile constraint by estimating the quantile trends separately and choosing $\V{\lambda}$ using the proposed scaled eBIC criteria (\texttt{detrendr\_Xing}). We do not include \texttt{detrendr\_Xing} in the first study because the difference in quantiles is large enough that we would not expect the non-crossing constraint to make a difference. 
+We compare three criteria for choosing the smoothing parameter for quantile trend filtering:  $\V{\lambda}$ chosen using SIC \Eqn{SIC} (\texttt{detrendr\_SIC}); $\V{\lambda}$ chosen using the validation method with the validation set consisting of every 5th observation (\texttt{detrendr\_valid}); and $\V{\lambda}$ chosen using the proposed scaled eBIC criteria \Eqn{eBIC} (\texttt{detrendr\_eBIC}). For the second study we also examine the effect of the non-crossing quantile constraint by estimating the quantile trends separately and choosing $\V{\lambda}$ using the proposed scaled eBIC criteria (\texttt{detrendr\_Xing}). We do not include \texttt{detrendr\_Xing} in the first study because the difference in quantiles is large enough that we would not expect the non-crossing constraint to make a difference. 
 
 We also compare the performance of our quantile trend filtering method with three previously published methods: \texttt{npqw} which is the quantile-ll method described in \cite{Racine2017}, code was obtained from the author; \texttt{qsreg} in the \texttt{fields} R package and described in \cite{Oh2011} and \cite{nychka1995nonparametric}; \texttt{rqss} available in the \texttt{quantreg} package and described in \cite{KoenkerNgPortnoy1994}.  Only our detrend methods guarantee non-crossing quantiles. The regularization parameter $\V{\lambda}$ for the \texttt{rqss} method is chosen using a grid search and minimizing the SIC criteria separately for each quantile as described in \cite{KoenkerNgPortnoy1994}, the regularization parameter for \texttt{qsreg} was chosen using generalized cross-validation separately for each quantile based on the quantile criterion \cite{Oh2011}.
 
