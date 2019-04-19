@@ -618,7 +618,7 @@ The second simulation design is closely motivated by our air quality analysis pr
 \end{eqnarray*}
 where $t_i = i$ for $i = 1, ..., n$, $\theta(t)$ is the drift component that varies smoothly over time, $s(t)$ is the true signal at time $t$, and $\VE{\varepsilon}{i}$ are i.i.d.\@ errors distributed as $N(0, 0.25^2)$. We generate $\theta(t)$ using cubic natural spline basis functions with degrees of freedom sampled from a Poisson distribution with mean parameter equal to $n/100$,  and coefficients drawn from an exponential distribution with rate 1. The true signal function $s(t)$ is assumed to be zero with peaks generated using the Gaussian density function. The number of peaks is sampled from a binomial distribution with size equal to $n$ and probability equal to $0.005$ with location parameters uniformly distributed between $1$ and $n-1$ and bandwidths uniformly distributed between $2$ and $12$. The simulated peaks were multiplied by a factor that was randomly drawn from a normal distribution with mean 20 and standard deviation of 4. An example dataset with 4 signal peaks is shown in \Fig{peaks_class_eg}. One hundred datasets were generated for each $n\in \{500, 1000, 2000, 4000\}$. 
 
-We compare the ability of the methods to estimate the true quantiles of $y(t_i)-s(t_i)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (\Fig{peaks_rmse}). In this simulation study, our proposed method \texttt{detrend\_eBIC} method substantially outperforms the others. The \texttt{detrend\_Xing} method, which is the \texttt{detrend\_eBIC} method fit without the non-crossing constraints, performs similarly for larger quantiles and larger datasets. However, \texttt{detrend\_Xing} produces significantly worse estimates for more extreme quantiles ($\tau = 0.01$) and smaller data sets ($\tau = 0.05$ and $n = 500$). These results indicate that even when a single quantile is of interest, simultaneously fitting nearby quantiles and utilizing the non-crossing constraint can improve estimates when data is sparse by using information from nearby quantiles. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the larger datasets, but its performance deteriorates as the data size shrinks. The \texttt{npqw} and \texttt{detrend\_valid} methods both perform poorly on this design.
+We compare the ability of the methods to estimate the true quantiles of $y(t_i)-s(t_i)$  for $\tau \in \{0.01, 0.05, 0.1\}$ and calculate the RMSE (\Fig{peaks_rmse}). In this simulation study, our proposed method \texttt{detrend\_eBIC} method substantially outperforms the others. The \texttt{detrend\_Xing} method, which is the \texttt{detrend\_eBIC} method fit without the non-crossing constraints, performs similarly for larger quantiles and larger datasets. However, \texttt{detrend\_Xing} produces significantly worse estimates for more extreme quantiles ($\tau = 0.01$) and smaller data sets ($\tau = 0.05$ and $n = 500$). These results indicate that even when a single quantile is of interest, simultaneously fitting nearby quantiles and utilizing the non-crossing constraint can improve estimates when data is sparse by using information from nearby quantiles. The \texttt{qsreg} method is comparable to the \texttt{detrend\_eBIC} method on the larger datasets, but its performance deteriorates as the data size shrinks. The \texttt{npqw} and \texttt{rqss} methods both perform poorly on this design.
 
 \begin{figure}
 	\includegraphics[width = \linewidth]{Figures/peaks_mse.png}
@@ -626,16 +626,15 @@ We compare the ability of the methods to estimate the true quantiles of $y(t_i)-
 	\label{fig:peaks_rmse}
 \end{figure}
 
-While minimizing RMSE is desirable in general, in our application, the primary metric of success is accurately classifying observations $\VE{y}{i}$ as signal or no signal. To evaluate the accuracy of our method compared to other methods we define true signal as any time point when the simulated peak value is greater than 0.5. We compare three different quantiles for the baseline estimation and four different thresholds for classifying the signal after subtracting the estimated baseline from the observations.  \Fig{peaks_class_eg} shows an illustration of the observations classified as signal after subtracting the baseline trend compared to the ``true signal." Let $\delta_i \in \{0,1\}$ be the vector of true signal classifications and $\hat{\delta}_i \in \{0,1\}$ be the vector of estimated signal classifications, namely $\hat{\delta}_i = \One(\VE{y}{i} - \hat{\theta}_{i} > 0.5)$.
-
+While minimizing RMSE is desirable in general, in our application, the primary metric of success is accurately classifying observations $\VE{y}{i}$ into signal present or absent. To evaluate the accuracy of our method compared to other methods we define true signal as any time point when the simulated peak value is greater than 0.5. We compare three different quantiles for the baseline estimation and four different thresholds for classifying the signal after subtracting the estimated baseline from the observations.  \Fig{peaks_class_eg} illustrates the observations classified as signal after subtracting the baseline trend compared to the ``true signal". 
 
 To compare the resulting signal classifications, we calculate the class averaged accuracy (CAA), which is defined as
 \begin{eqnarray*}
 	\mbox{CAA} & = & \frac{1}{2}\left[\frac{\sum_{i=1}^n \One[\delta_i = 1 \cap \hat{\delta}_i = 1]}{\sum_{i=1}^n \One[\delta_i = 1]} + \frac{\sum_{i=1}^n \One[\delta_i = 0 \cap \hat{\delta}_i=0]}{\sum_{t=i=1}^n \One[\delta_i = 0]}\right].
 \end{eqnarray*}
-We use this metric because our classes tend to be very imbalanced with many more zeros than ones. The CAA metric should give a score close to 0.5 both for random guessing and also for trivial classifiers such as $\hat{\delta}_i = 0$ for all $i$.
+where $\delta_i \in \{0,1\}$ is the vector of true signal classifications and $\hat{\delta}_i \in \{0,1\}$ is the vector of estimated signal classifications, namely $\hat{\delta}_i = \One(\VE{y}{i} - \hat{\theta}_{i} > 0.5)$. We use this metric because our classes tend to be very imbalanced with many more zeros than ones. The CAA metric should give a score close to 0.5 both for random guessing and also for trivial classifiers such as $\hat{\delta}_i = 0$ for all $i$.
 
-Our \texttt{detrend\_eBIC} method performs the best overall in terms of both RMSE (\Fig{peaks_rmse}) and CAA (\Fig{CAA}). While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles.
+Our \texttt{detrend\_eBIC} method results in the largest CAA values (\Fig{CAA}) in addition to the smallest RMSE values (\Fig{peaks_rmse}). While \texttt{qsreg} was competitive with our method in some cases, in the majority of cases the largest CAA values for each threshold were produced using the \texttt{detrend\_eBIC} method with the 1\textsuperscript{st} or 5\textsuperscript{th} quantiles.
 
 \begin{figure}[h!]
 	\includegraphics[width = \linewidth]{Figures/peaks_eg_class.png}
@@ -670,13 +669,13 @@ the sensor response to pollutants, and high frequency random noise. These sensor
 	\label{fig:short-trends}
 \end{figure}
 
-We compare our \texttt{detrendr} method with the \texttt{qsreg} method on a two-hour subset of one-second  SPod data (n=7200) both to facilitate visualization and because the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using $\tau = \{0.01, 0.05, 0.1\}$ and compare three thresholds for classifying the signal. The thresholds are calculated as the 90\textsuperscript{th}, 95\textsuperscript{th}, and 99\textsuperscript{th} quantiles of the de-trended series for each SPod. If there is signal present in the dataset, values above these thresholds should occur simultaneously on all three SPods. We do not use class-averaged accuracy to compare the signal classifications because we do not have a reference value to define as the ``true" signal. Instead, we compute the variation of information (VI) which compares the similarity between the two classifications. Given the signal classifications for SPods a and b, $\delta^{(a)}_i \in \{0,1\}$ and $\delta^{(b)}_i\in\{0,1\}$, the VI is defined as:
+We compare our \texttt{detrendr} method with the \texttt{qsreg} method on a two-hour subset of one-second  SPod data (n=7200) both to facilitate visualization and because the \texttt{qsreg} method cannot handle all 24 hours simultaneously. We estimate the baseline trend using $\tau = \{0.01, 0.05, 0.1\}$ and compare three thresholds for classifying the signal. The thresholds are calculated as the 90\textsuperscript{th}, 95\textsuperscript{th}, and 99\textsuperscript{th} quantiles of the de-trended series for each SPod. If there is signal present in the dataset, values above these thresholds should occur simultaneously on all three SPods. We do not use class-averaged accuracy to compare the signal classifications because we do not have a reference value to define as the ``true" signal. Instead, we compute the variation of information (VI) which compares the similarity between two classifications. Given the signal classifications for SPods a and b, $\delta^{(a)}_i \in \{0,1\}$ and $\delta^{(b)}_i\in\{0,1\}$, for $i \in \{1, ..., n\}$ the VI is defined as:
 \begin{eqnarray*}
-	r_{ij} & = & \frac{1}{n}\sum_t \One\left(\delta^{(a)}_i = i  \cap \delta^{(b)}_i = j\right)\\
-	\VI(s_a, s_b) & = & -\sum_{i,j} r_{ij} \left[ \log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \One(\delta^{(a)}_i = i)}\right) +
-	\log \left(\frac{r_{ij}}{\frac{1}{n}\sum_t \One(\delta^{(b)}_i = j)}\right) \right]
+	r_{jk} & = & \frac{1}{n}\sum_i \One\left(\delta^{(a)}_i = j  \cap \delta^{(b)}_i = k\right)\\
+	\VI(a, b) & = & -\sum_{j,k} r_{jk} \left[ \log \left(\frac{r_{jk}}{\frac{1}{n}\sum_i \One(\delta^{(a)}_i = j)}\right) +
+	\log \left(\frac{r_{jk}}{\frac{1}{n}\sum_i \One(\delta^{(b)}_i = k)}\right) \right]
 \end{eqnarray*}
-The $\VI$ is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different.  
+where $(j,k) \in \{(0,0), (0,1), (1,0), (1,1)\}$. The $\VI$ is a distance metric for measuring similarity of classifications and will be 0 if the classifications are identical and increase as the classifications become more different.  
 
 
 \Fig{short-trends} shows the estimated 5\textsuperscript{th} quantile trends from each method for each SPod. The \texttt{detrendr} method results in a smoother baseline estimate while the \texttt{qsreg} method absorbs more of the peaks obscuring some of the signal.  \Fig{rugplot} shows the series after subtracting the \texttt{detrendr} estimate of the 5\textsuperscript{th} quantile and classifying the signal using the 95\textsuperscript{th} quantile of the detrended data. The 90\textsuperscript{th} and 99\textsuperscript{th} thresholds are also shown for comparison in blue and orange, respectively. The largest peaks at 14:10 are easily identified as signal, but good baseline estimates also enable proper classification of the smaller peaks like the one at 15:12. The under-smoothing of the \texttt{qsreg} method results in less similar signal classifications and higher VI values for the 90\textsuperscript{th} and 95\textsuperscript{th} quantile thresholds (\Fig{vi}). However, when the 99\textsuperscript{th} threshold is used only the highest observations are classified as signal and the baseline estimation method isn't as important (\Fig{vi}).  
@@ -698,7 +697,7 @@ The $\VI$ is a distance metric for measuring similarity of classifications and w
 
 \subsection{Long series of air quality measurements}
 \label{sec:long-app}
-\Alg{admm} was used to remove the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,401 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally lower VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). The Spearman correlation coefficients for SPods a and b, SPods a and c, and SPods b and c after removing the 5\textsuperscript{th} quantile trend using \texttt{detrendr} were 0.37, 0.75, and 0.43, compared with 0.07, 0.24, and 0.16 using \texttt{qsreg}. The noise variance was higher for SPod b than for SPods a and c resulting in lower correlation and higher VI values for the ab and bc metrics compared with ac. 
+\Alg{admm} was used to remove the baseline drift from the full day of data  (\Fig{raw_spod}) consisting of 86,400 observations per SPod and compared to the series detrended using the \texttt{qsreg} trends estimated using non-overlapping 2 hour windows. As in the shorter illustration, the \texttt{detrendr} method results in generally lower VI scores than the \texttt{qsreg} method (\Fig{vi_day}). The \texttt{detrendr} method also results in better correlation in the detrended series as is illustrated in (\Fig{scatter_day}). The Spearman correlation coefficients for SPods a and b, SPods a and c, and SPods b and c after removing the 5\textsuperscript{th} quantile trend using \texttt{detrendr} were 0.37, 0.75, and 0.43, compared with 0.07, 0.24, and 0.16 using \texttt{qsreg}. The noise variance was higher for SPod b than for SPods a and c resulting in lower correlation and higher VI values for the ab and bc metrics compared with ac. 
 
 \begin{figure}
 	\centering
@@ -716,7 +715,7 @@ The $\VI$ is a distance metric for measuring similarity of classifications and w
 	\label{fig:scatter_day}
 \end{figure}
 
-Finally we estimated the quantile trends for 7 days of measurements of two co-located SPods. \Fig{vi_week} demonstrates the improvement in classification similarity when using \texttt{detrendr}. Each point represents a day of measurements and all points that fall below the dashed line have more similar classifications using \texttt{detrendr} compared to \texttt{qsreg}. The improvement of \texttt{detrendr} over \texttt{qsreg} is more severe at lower thresholds. This indicates that \texttt{detrendr} gives greater agreement on signal classification when the methods are tuned to deliver positive classifications more frequently. 
+Finally, we estimated the quantile trends for 7 days of measurements of two co-located SPods. \Fig{vi_week} demonstrates the improvement in classification similarity when using \texttt{detrendr}. Each point represents a day of measurements and all points that fall below the dashed line have more similar classifications using \texttt{detrendr} compared to \texttt{qsreg}. The improvement of \texttt{detrendr} over \texttt{qsreg} is more severe at lower thresholds. This indicates that \texttt{detrendr} gives greater agreement on signal classification when the methods are tuned to deliver positive classifications more frequently. 
 
 \begin{figure}
 	\includegraphics[width = 0.6\linewidth]{Figures/VI_by_day.png}
@@ -732,7 +731,7 @@ Finally we estimated the quantile trends for 7 days of measurements of two co-lo
 \section{Conclusion and Discussion}
 \label{sec:discussion}
 
-We have expanded the quantile trend filtering method by implementing a non-crossing constraint and a new algorithm for processing large series, and proposing a modified criteria for smoothing parameter selection. Furthermore we have demonstrated the utility of quantile trend filtering in both simulations and applied settings. Our ADMM algorithm for large series both reduces the computing time and allows trends to be estimated on series that cannot be estimated simultaneously while our scaled extended BIC criteria was shown to provided better estimated of quantile trends in series with and without a signal component. 
+We have expanded the quantile trend filtering method by implementing a non-crossing constraint, a new algorithm for processing large series, and proposing a modified criteria for smoothing parameter selection. Furthermore, we have demonstrated the utility of quantile trend filtering in both simulations and applied settings. Our ADMM algorithm for large series both reduces the computing time and allows trends to be estimated on series that cannot be estimated simultaneously while our scaled extended BIC criterion was shown to provide better estimates of quantile trends in series with and without a signal component. 
 
 In our application to low cost air quality sensor data, we have shown that the baseline drift in low cost air quality sensors can be removed through estimating quantile trends, but the data size was too large for existing methods to be computationally feasible. While \texttt{qsreg} cannot feasibly handle more than a few hour windows of data, our new methods were able to process 24 hours simultaneously and deliver signal classifications that were more consistent between the two sensors for a week of data (168 hours). 
 
@@ -757,15 +756,13 @@ The authors greatly appreciate Eben Thoma at the US Environmental Protection Age
 
 \begin{description}
 	
-	\item[R-package for detrend routine:] R-package detrendr containing code to perform the diagnostic methods described in the article. (GNU zipped tar file)
+	\item[R-package for detrend routine:] R-package detrendr containing code to perform the methods described in the article. (GNU zipped tar file also available at https://github.com/halleybrantley/detrendr)
 	
 \end{description}
 
 
 \bibliographystyle{imsart-nameyear}
 \bibliography{detrendify}
-
-
 
 
 \end{document}

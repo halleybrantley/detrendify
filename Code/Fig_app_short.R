@@ -32,8 +32,11 @@ spodFig <- data.frame(time = c(spodPIDs$time, spodPIDs$time, spodPIDs$time),
   gather("type","value", -c(time, node)) %>%
   arrange(time, rev(type))
 
-ggplot(spodFig, aes(x=time, y=value)) + 
-  geom_line(aes(col=type, group=type), alpha=0.5) + 
+ggplot() + 
+  geom_line(data=subset(spodFig, type=="raw"), 
+            aes(col=type, group=type, x=time, y=value)) + 
+  geom_line(data=subset(spodFig, type!="raw"), 
+            aes(col=type, group=type, x=time, y=value), alpha=.8) +
   theme_bw() +
   facet_grid(node~., scales="free")+
   scale_color_manual(breaks = c("raw", "detrendr", "qsreg"), 
