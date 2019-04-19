@@ -2,14 +2,14 @@
 # Figure 1 - example of trend filtering compared to quantile trend filtering
 # Halley Brantley
 ################################################################################
-
 library(devtools)
-load_all("detrendr")
+install_github("halleybrantley/detrendr")
 install_github("hadley/l1tf")
 install_github("glmgen/genlasso")
 library(l1tf)
 library(genlasso)
 library(ggplot2)
+library(detrendr)
 source("sim_generating_functions.R")
 set.seed(1122334457)
 n <- 500

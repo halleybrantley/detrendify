@@ -5,11 +5,12 @@
 library(tidyverse)
 library(devtools)
 devtools::install_github("const-ae/ggsignif")
-load_all("detrendr")
-
+devtools::install_github("halleybrantley/detrendr")
+library(detrendr) 
 rm(list=ls())
+################################################################################
 source("sim_generating_functions.R")
-set.seed(987652)
+set.seed(987651)
 overlap <- 150
 window_size <- 500
 n <- window_size*3 - overlap*2
@@ -62,7 +63,9 @@ ggplot(df.data, aes(x=x, y=y)) +
 ggsave("../Manuscript/Figures/overlapping_windows.png", width=7, height=2.5)
 
 result <- get_trend_windows(y, tau, lambda, k, window_size, overlap, 
-                            max_iter, update = 1, eps_abs = .01)
+                            max_iter=40, update = 1, 
+                            rho = 1, eps_abs = 0.01, 
+                            scale=FALSE)
 
 
 df_no <- rbind(data.frame(x=x, method = "Single Fit", result0), 

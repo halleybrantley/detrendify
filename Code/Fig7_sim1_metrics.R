@@ -1,3 +1,6 @@
+################################################################################
+# RMSEs from Simulation 1 
+################################################################################
 library(tidyverse)
 library(devtools)
 library(jcolors)
@@ -13,30 +16,31 @@ tau <- c(0.01, 0.05, 0.25, 0.5, .75, 0.95, 0.99)
 nSim <- 100
 simDesigns <- c( "mixednorm", "shapebeta", "gaus")
 methods <- c("detrend_eBIC", "detrend_SIC", "detrend_valid", "rqss", "npqw", "qsreg")
-MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns), 
-                             ncol = length(tau)+4))
-colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))
-k <- 1
-for(simDesign in simDesigns){  
-  for (i in 1:nSim){
-    for (n in c(300,500,1000)){
-    load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
-    Q <- trueQuantile(simDesign, df$x, tau)
-    for (method in methods){
-      load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
-              method, simDesign, n, i))
-      MSEs[k,1] <- simDesign
-      MSEs[k,2] <- i
-      MSEs[k,3] <- method
-      MSEs[k,4] <- n
-      MSEs[k,5:ncol(MSEs)] <- colMeans((trend - Q)^2)
-      k <- k+1
-    }
-  }
-  }
-}
+# MSEs <- as.data.frame(matrix(NA, nrow = nSim*length(methods)*length(simDesigns), 
+#                              ncol = length(tau)+4))
+# colnames(MSEs) <- c("Design", "Sim", "Method", "n", paste0("tau_", tau))
+# k <- 1
+# for(simDesign in simDesigns){  
+#   for (i in 1:nSim){
+#     for (n in c(300,500,1000)){
+#     load(sprintf("../SimData/%s_n_%i_sim%03.0f.RData", simDesign, n, i))
+#     Q <- trueQuantile(simDesign, df$x, tau)
+#     for (method in methods){
+#       load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData", 
+#               method, simDesign, n, i))
+#       MSEs[k,1] <- simDesign
+#       MSEs[k,2] <- i
+#       MSEs[k,3] <- method
+#       MSEs[k,4] <- n
+#       MSEs[k,5:ncol(MSEs)] <- colMeans((trend - Q)^2)
+#       k <- k+1
+#     }
+#   }
+#   }
+# }
+# save(MSEs, file="../SimResults/Sim1_MSE.RData")
 
-
+load("../SimResults/Sim1_MSE.RData")
 
 MSEs_long <- MSEs %>% gather("tau", "MSE", -c("Design", "Sim", "Method", "n")) 
 MSEs_long$RMSE <- sqrt(MSEs_long$MSE)

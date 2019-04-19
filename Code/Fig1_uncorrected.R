@@ -3,7 +3,6 @@
 # Halley Brantley
 ################################################################################
 library(tidyverse)
-library(devtools)
 rm(list=ls())
 colPal <- c('#1b7837', '#762a83')
 tau <- c(0.01, 0.05, 0.1)

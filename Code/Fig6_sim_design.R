@@ -1,5 +1,5 @@
 ################################################################################
-# Quantile Estimation Simulation Figures
+# Simulation Design Example Figures
 ################################################################################
 library(ggplot2)
 library(tidyverse)
