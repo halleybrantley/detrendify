@@ -2,13 +2,10 @@
 # RMSEs from Simulation 1 
 ################################################################################
 library(tidyverse)
-library(devtools)
-library(jcolors)
 library(Cairo)
 library(grid)
 rm(list=ls())
 source("sim_generating_functions.R")
-load_all("detrendr")
 colPal <- c('#006d2c', '#2ca25f', '#66c2a4', 
             "#c2a5cf", "#9970ab", "#762a83")
 text_size <- 14
