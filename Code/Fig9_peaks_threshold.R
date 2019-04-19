@@ -2,7 +2,7 @@
 # Figure 9 - Peaks classification example
 # Halley Brantley
 ################################################################################
-
+library(ggplot2)
 n <- 1000
 i <- 5
 method <- "detrend_eBIC"
@@ -11,7 +11,7 @@ load(sprintf("../SimResults/%s/%s_n_%i_sim%03.0f.RData",
              method, "peaks", n, i))
 df$signal <- as.numeric(df$peaks > 0.5)
 y_adj <- df$y - trend[,2]
-signal_hat <- as.numeric(y_adj > thresh[4])
+signal_hat <- as.numeric(y_adj > 1.2)
 trend <- as.data.frame(trend)
 trend$x <- df$x
 ggplot(df, aes(x=x, y=y)) + geom_line(col="grey") +
