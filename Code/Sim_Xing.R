@@ -17,7 +17,7 @@ for (n in c(500,1000,2000,4000)){
                             lambdaSeq = lambdaSeq, 
                             plot_lambda = FALSE, 
                             criteria = "eBIC")
-      trend[,j] <- trend_BIC[[j]]$theta 
+      trend[,j] <- trend_BIC[[j]]$trend 
     }
     save(trend, trend_BIC,
          file = sprintf("../SimResults/detrend_cross/%s_n_%i_sim%03.0f.RData", 

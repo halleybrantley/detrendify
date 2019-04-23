@@ -14,7 +14,7 @@ for (n in c(500,1000,2000,4000)){
     #                       lambdaSeq = lambdaSeq, 
     #                       plot_lambda = FALSE, 
     #                       criteria = "eBIC")
-    # trend <- trend_BIC$theta 
+    # trend <- trend_BIC$trend 
     # save(trend, trend_BIC,
     #      file = sprintf("../SimResults/detrend_eBIC/%s_n_%i_sim%03.0f.RData", 
     #                     simDesign, n, i))
@@ -22,7 +22,7 @@ for (n in c(500,1000,2000,4000)){
                                  lambdaSeq = lambdaSeq,
                                  plot_lambda = TRUE, 
                                  criteria = "valid")
-    trend <- trend_valid$theta
+    trend <- trend_valid$trend
     save(trend, trend_valid,
          file = sprintf("../SimResults/detrend_valid/%s_n_%i_sim%03.0f.RData", 
                         simDesign, n, i))
@@ -31,7 +31,7 @@ for (n in c(500,1000,2000,4000)){
     #                            lambdaSeq = lambdaSeq,
     #                            plot_lambda = FALSE, 
     #                            criteria = "SIC")
-    # trend <- trend_SIC$theta
+    # trend <- trend_SIC$trend
     # save(trend, trend_SIC,
     #      file = sprintf("../SimResults/detrend_SIC/%s_n_%i_sim%03.0f.RData", 
     #                     simDesign, n, i))
