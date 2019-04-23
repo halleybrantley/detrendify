@@ -336,7 +336,7 @@ where $\M{\Theta} = \begin{pmatrix} \V{\theta}_1 & \V{\theta}_2 & \cdots & \V{\t
  \end{split}
  \end{equation}
   
- The solution to \Eqn{quantile_windows} is {\em not} identical to the solution to \Eqn{noncross_trend} because of double counting of the overlapping sections. The solutions are very close, however, and the differences are essentially immaterial concerning downstream analysis. \Fig{windowsfit} provides an illustration of the trends estimated using multiple windows compared with the trends estimated using a single window. 
+ The solution to \Eqn{quantile_windows} is {\em not} identical to the solution to \Eqn{noncross_trend} because of double counting of the overlapping sections. The solutions are very close, however, and the differences are essentially immaterial concerning downstream analysis. \Fig{windowsfit} provides an illustration of the trends estimated using multiple windows compared with the trends estimated using a single window; estimates using multiple and single windows are nearly indistinguishable. 
  
  
  \begin{figure}
@@ -626,7 +626,7 @@ We compare the ability of the methods to estimate the true quantiles of $y(t_i)-
 	\label{fig:peaks_rmse}
 \end{figure}
 
-While minimizing RMSE is desirable in general, in our application, the primary metric of success is accurately classifying observations $\VE{y}{i}$ into signal present or absent. To evaluate the accuracy of our method compared to other methods we define true signal as any time point when the simulated peak value is greater than 0.5. We compare three different quantiles for the baseline estimation and four different thresholds for classifying the signal after subtracting the estimated baseline from the observations.  \Fig{peaks_class_eg} illustrates the observations classified as signal after subtracting the baseline trend compared to the ``true signal". 
+While minimizing RMSE is desirable in general, in our application, the primary metric of success is accurately classifying observations $\VE{y}{i}$ into signal present or absent. To evaluate the accuracy of our method compared to other methods we define true signal as any time point when the simulated peak value is greater than 0.5. We compare three different quantiles for the baseline estimation and four different thresholds for classifying the signal after subtracting the estimated baseline from the observations.  \Fig{peaks_class_eg} illustrates the observations classified as signal after subtracting the baseline trend compared to the ``true signal." 
 
 To compare the resulting signal classifications, we calculate the class averaged accuracy (CAA), which is defined as
 \begin{eqnarray*}
