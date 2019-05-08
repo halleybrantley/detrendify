@@ -6,11 +6,11 @@ library(caret)
 library(zoo)
 library(aricode)
 library(mcclust)
-load_all("detrendr")
+load_all("../../detrendr")
 rm(list=ls())
 load("../SPod/trends_short.RData")
 source("application_functions.R")
-colPal <- c('#1b7837', '#762a83', "darkgrey")
+
 nodes <- c("c", "d", "e")
 missInd <- which(is.na(spodPIDs$d))
 tau <- c(0.01, 0.05, 0.1)
@@ -32,6 +32,8 @@ spodFig <- data.frame(time = c(spodPIDs$time, spodPIDs$time, spodPIDs$time),
   gather("type","value", -c(time, node)) %>%
   arrange(time, rev(type))
 
+colPal <- c('#1b7837', '#762a83', "grey50")
+
 ggplot() + 
   geom_line(data=subset(spodFig, type=="raw"), 
             aes(col=type, group=type, x=time, y=value)) + 
@@ -44,6 +46,23 @@ ggplot() +
   labs(col="", x="", y="PID")
 ggsave("../Manuscript/Figures/short_trends.png", width = 7, height = 4)
 
+
+# Figure for presentation
+spodFig2 <- spodFig %>% filter(time > min(spodPIDs$time)+60*10, 
+                               time < max(spodPIDs$time)-60*60)
+ggplot() + 
+  geom_line(data=subset(spodFig2, type=="raw" & node != "b"), 
+            aes(col=type, group=type, x=time, y=value)) + 
+  geom_line(data=subset(spodFig2, type=="qsreg" & node != "b"), 
+            aes(col=type, group=type, x=time, y=value), size=1) +
+  geom_line(data=subset(spodFig2, type=="detrendr" & node != "b"), 
+            aes(col=type, group=type, x=time, y=value), size=1) +
+  theme_bw() +
+  facet_grid(node~., scales="free")+
+  scale_color_manual(breaks = c("raw", "detrendr", "qsreg"), 
+                     values = c(colPal)) +
+  labs(col="", x="", y="PID")
+ggsave("../Manuscript/Figures/zoom_trends.png", width = 7, height = 5)
 
 ################################################################################
 methods <- c("detrendr", "qsreg")
@@ -128,11 +147,12 @@ ggplot(spodLong, aes(x=time, y=PID)) +
   geom_rug(data = spodLong_signal, sides = "b") +
   geom_line(col="grey") +
   theme_bw() +
-  geom_hline(data=thresholds, aes(yintercept = thresh), linetype="dashed")+
+  geom_hline(data=thresholds, aes(yintercept = thresh), linetype="dashed", 
+             col = "#377eb8")+
   geom_hline(data=thresholds_90, aes(yintercept = thresh), linetype="dashed", 
-             col="blue") +
+             col= "#e41a1c") +
   geom_hline(data=thresholds_99, aes(yintercept = thresh), linetype="dashed", 
-             col="orange") +
+             col="#4daf4a") +
   facet_grid(node~., scales="free_y") 
   # xlim(c(as.POSIXct("2017-11-30 11:00:01 EST"), 
   #        as.POSIXct("2017-11-30 12:00:01 EST"))) +
@@ -140,34 +160,62 @@ ggplot(spodLong, aes(x=time, y=PID)) +
 ggsave("../Manuscript/Figures/corrected_rugplot.png", width = 7, height = 4)
 tail(spodLong[which(spodLong$PID > 0.2),])
 
+
+spodLong2 <- spodLong %>% filter(time > min(spodPIDs$time)+60*10, 
+                               time < max(spodPIDs$time)-60*60, 
+                               node != "b")
+spodLong_signal2 <- spodLong_signal %>% 
+  filter(time > min(spodPIDs$time)+60*10, 
+         time < max(spodPIDs$time)-60*60, 
+         node != "b")
+
+
+ggplot(spodLong2, aes(x=time, y=PID)) +
+  geom_rug(data = spodLong_signal2, sides = "b") +
+  geom_line(col="grey") +
+  theme_bw() +
+  geom_hline(data=filter(thresholds, node != 'b'), 
+             aes(yintercept = thresh), linetype="dashed", 
+             col = "#377eb8")+
+  geom_hline(data=filter(thresholds_90, node != 'b'), 
+             aes(yintercept = thresh), linetype="dashed", 
+             col= "#e41a1c") +
+  geom_hline(data=filter(thresholds_99, node != 'b'), 
+             aes(yintercept = thresh), linetype="dashed", 
+             col="#4daf4a") +
+  facet_grid(node~., scales="free_y") 
+# xlim(c(as.POSIXct("2017-11-30 11:00:01 EST"), 
+#        as.POSIXct("2017-11-30 12:00:01 EST"))) +
+#ylim(c(0, .2))
+ggsave("../Manuscript/Figures/zoom_rugplot.png", width = 7, height = 4)
 ################################################################################
 
-confusion <- metric_df %>% 
-  filter(metric_type %in% c("confusion")) %>% 
-  select(-metric_type) %>% unnest() %>% 
-  arrange(tau, crit)
-
-
-latex(confusion %>% filter(crit == 5) %>% select(-crit),
-      file = "../Manuscript/short_confusion_detrend_MAD5.tex",
-      rowlabel = "",
-      rowname = "",
-      colheads = c("Method", "Quantile", 
-                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
-                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
-      caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=7200). Node order is a, b, c. The threshold for the signal was 
-      set as the median + 5*MAD.")
-
-latex(confusion %>% filter(crit == 6) %>% select(-crit),
-      file = "../Manuscript/short_confusion_detrend_MAD6.tex",
-      rowlabel = "",
-      rowname = "",
-      colheads = c("Method", "Quantile", 
-                   "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
-                   "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
-      caption = "Confusion matrices for 3 SPod nodes after baseline 
-      removal (n=7200). Node order is a, b, c. The threshold for the signal was 
-      set as the median + 6*MAD.")
+# confusion <- metric_df %>% 
+#   filter(metric_type %in% c("confusion")) %>% 
+#   select(-metric_type) %>% unnest() %>% 
+#   arrange(tau, crit)
+# 
+# 
+# latex(confusion %>% filter(crit == 5) %>% select(-crit),
+#       file = "../Manuscript/short_confusion_detrend_MAD5.tex",
+#       rowlabel = "",
+#       rowname = "",
+#       colheads = c("Method", "Quantile", 
+#                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
+#                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
+#       caption = "Confusion matrices for 3 SPod nodes after baseline 
+#       removal (n=7200). Node order is a, b, c. The threshold for the signal was 
+#       set as the median + 5*MAD.")
+# 
+# latex(confusion %>% filter(crit == 6) %>% select(-crit),
+#       file = "../Manuscript/short_confusion_detrend_MAD6.tex",
+#       rowlabel = "",
+#       rowname = "",
+#       colheads = c("Method", "Quantile", 
+#                    "0,0,0", "1,0,0", "0,1,0", "1,1,0", 
+#                    "1,0,0", "1,1,0", "1,0,1", "1,1,1"),
+#       caption = "Confusion matrices for 3 SPod nodes after baseline 
+#       removal (n=7200). Node order is a, b, c. The threshold for the signal was 
+#       set as the median + 6*MAD.")
 
 ################################################################################
