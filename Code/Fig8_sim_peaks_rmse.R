@@ -3,6 +3,7 @@
 # Halley Brantley
 ################################################################################
 library(tidyverse)
+library(Hmisc)
 rm(list=ls())
 ################################################################################
 simDesign <- "peaks"
@@ -88,4 +89,21 @@ summary_peaks %>%
   ylim(c(0,0.4))
 ggsave("../Manuscript/Figures/peaks_mse.png", width = 7, height = 2.5)
 
+summary_peaks$value <- sprintf("%0.3f (%0.3f)", summary_peaks$mean_mse, 
+                               summary_peaks$sd_mse)
 
+wide_stats <- 
+  summary_peaks %>% 
+  filter(Method != "windows") %>%
+  select(Method, tau, n, value) %>%
+  spread(tau, value) %>%
+  arrange(n, Method)
+wide_stats$Method <- as.character(str_replace(wide_stats$Method, "_", " ")) 
+unique(wide_stats$Method)
+
+latex(wide_stats  %>% select(-n) , 
+      file = "Fig8.tex",       
+      rowname = "",
+      title = '', 
+      n.rgroup = c(7,7,7,7),
+      rgroup = c("n=500", "n=1000", "n=2000", "n=4000"))

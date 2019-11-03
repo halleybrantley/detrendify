@@ -110,3 +110,46 @@ for (metric_choice in metric_types){
 }
 
 
+summary_stats <- summary_peaks %>% 
+  filter(metric_type == metric_choice, method != "windows")
+
+
+summary_stats$value <- sprintf("%0.3f (%0.3f)", summary_stats$mean_metric, 
+                               summary_stats$sd_metric)
+
+wide_stats <- 
+  summary_stats %>% 
+  select(method, tau, threshold, n, value) %>%
+  spread(tau, value) %>%
+  arrange(threshold, n, method)
+wide_stats$method <- as.character(str_replace(wide_stats$method, "_", " ")) 
+unique(wide_stats$method)
+
+latex(wide_stats %>% filter(threshold==0.9) %>% select(-n, -threshold) , 
+      file = "Fig10_09.tex",       
+      rowname = "",
+      title = '', 
+      n.rgroup = c(7,7,7,7),
+      rgroup = c("n=500", "n=1000", "n=2000", "n=4000"))
+
+
+latex(wide_stats %>% filter(threshold==1.0) %>% select(-n, -threshold) , 
+      file = "Fig10_10.tex",       
+      rowname = "",
+      title = '', 
+      n.rgroup = c(7,7,7,7),
+      rgroup = c("n=500", "n=1000", "n=2000", "n=4000"))
+
+latex(wide_stats %>% filter(threshold==1.1) %>% select(-n, -threshold) , 
+      file = "Fig10_11.tex",       
+      rowname = "",
+      title = '', 
+      n.rgroup = c(7,7,7,7),
+      rgroup = c("n=500", "n=1000", "n=2000", "n=4000"))
+
+latex(wide_stats %>% filter(threshold==1.2) %>% select(-n, -threshold) , 
+      file = "Fig10_12.tex",       
+      rowname = "",
+      title = '', 
+      n.rgroup = c(7,7,7,7),
+      rgroup = c("n=500", "n=1000", "n=2000", "n=4000"))
