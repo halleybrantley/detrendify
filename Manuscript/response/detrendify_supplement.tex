@@ -1,0 +1,878 @@
+\documentclass[12pt]{article}
+\RequirePackage{amsthm,amsmath,amsbsy,amsfonts}
+\usepackage{bm,graphicx,psfrag,epsf}
+\usepackage{enumerate}
+\usepackage{natbib}
+%\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+%\RequirePackage{hypernat}
+\usepackage{paralist, booktabs, multirow}
+%\usepackage{url}
+\usepackage{comment}
+
+
+
+\newtheorem{lemma}{Lemma}
+\newcommand{\blind}{0}
+\newcommand{\trace}{\text{Trace}}
+\numberwithin{equation}{section}
+\theoremstyle{plain}
+%\newtheorem{thm}{Theorem}[section]
+%\newtheorem{mydef}{Definition}
+%\newtheorem{remark}{Remark}
+
+%% ----------------------------------------------------------------------
+%% Packages
+%% ----------------------------------------------------------------------
+%\usepackage{amsmath,amsfonts,amssymb}
+
+\usepackage{amssymb}
+\usepackage[usenames]{color}
+%\usepackage{amsbsy,amsthm,amsmath,amssymb}
+
+%% For \mathscr
+\usepackage[mathscr]{eucal}
+
+%% For \llbracket and \rrbracket, \varoast, \varoslash
+\usepackage{stmaryrd}
+
+%% For \boldsymbol
+%\usepackage{amsbsy}
+
+%%% For \bm (bold math)
+%\usepackage{bm}
+
+%% For proper spacing in text macros
+\usepackage{xspace}
+
+%% For special lists like inparaenum, compactenum, compactitem
+\usepackage{paralist}
+
+%% Turn on/off options for PDF
+\usepackage{ifpdf}
+
+%% Graphics
+\usepackage{graphicx}
+\ifpdf
+\usepackage{epstopdf}
+% REMOVE NEXT LINE TO REVERT TO PNG FILES
+\DeclareGraphicsExtensions{.eps,.pdf}
+\else
+\usepackage{epsfig}
+\fi
+
+%% For \subfloat command
+\usepackage{subfig}
+
+\usepackage{booktabs}
+
+%% For hyperlinks. Should always be the last package. Omit for DVI version.
+\ifpdf
+\usepackage[colorlinks,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\else
+\newcommand{\href}[2]{{#2}}
+\usepackage{url}
+\fi
+
+%% For tabulary
+\usepackage{tabulary}
+
+%% Show labels
+%\usepackage[notref,notcite]{showkeys}
+
+%% Algorithm
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%% ----------------------------------------------------------------------
+%% Hyper-linked References
+%% ----------------------------------------------------------------------
+
+\ifpdf
+\newcommand{\Sec}[1]{\hyperref[sec:#1]{Section~\ref*{sec:#1}}} %section
+\newcommand{\App}[1]{\hyperref[sec:#1]{Appendix~\ref*{sec:#1}}} %appendix
+\newcommand{\Eqn}[1]{\hyperref[eq:#1]{{\rm (\ref*{eq:#1})}}} %equation
+\newcommand{\Part}[1]{\hyperref[part:#1]{(\ref*{part:#1})}} %part of theorem
+\newcommand{\Fig}[1]{\hyperref[fig:#1]{Figure~\ref*{fig:#1}}} %figure
+\newcommand{\Tab}[1]{\hyperref[tab:#1]{Table~\ref*{tab:#1}}} %table
+\newcommand{\Thm}[1]{\hyperref[thm:#1]{Theorem~\ref*{thm:#1}}} %theorem
+\newcommand{\Lem}[1]{\hyperref[lem:#1]{Lemma~\ref*{lem:#1}}} %lemma
+\newcommand{\Prop}[1]{\hyperref[prop:#1]{Proposition~\ref*{prop:#1}}} %proposition
+\newcommand{\Cor}[1]{\hyperref[cor:#1]{Corollary~\ref*{cor:#1}}} %corollary
+\newcommand{\Def}[1]{\hyperref[def:#1]{Definition~\ref*{def:#1}}} %definition
+\newcommand{\Alg}[1]{\hyperref[alg:#1]{Algorithm~\ref*{alg:#1}}} %algorithm
+\newcommand{\Ex}[1]{\hyperref[ex:#1]{Example~\ref*{ex:#1}}} %example
+\newcommand{\As}[1]{\hyperref[as:#1]{Assumption~{\rm\ref*{as:#1}}}} %assumption
+\newcommand{\Reg}[1]{\hyperref[as:#1]{Condition~\ref*{reg:#1}}} %regularity condition
+\newcommand{\AlgLine}[2]{\hyperref[alg:#1]{line~\ref*{line:#2} of Algorithm~\ref*{alg:#1}}}
+\newcommand{\AlgLines}[3]{\hyperref[alg:#1]{lines~\ref*{line:#2}--\ref*{line:#3} of Algorithm~\ref*{alg:#1}}}
+\else
+\newcommand{\Sec}[1]{{Section~\ref{sec:#1}}} %section
+\newcommand{\App}[1]{{Appendix~\ref{sec:#1}}} %appendix
+\newcommand{\Eqn}[1]{{(\ref{eq:#1})}} %equation
+\newcommand{\Part}[1]{{(\ref{part:#1})}} %part of proof
+\newcommand{\Fig}[1]{{Figure~\ref{fig:#1}}} %figure
+\newcommand{\Tab}[1]{{Table~\ref{tab:#1}}} %table
+\newcommand{\Thm}[1]{{Theorem~\ref{thm:#1}}} %theorem
+\newcommand{\Lem}[1]{{Lemma~\ref{lem:#1}}} %lemma
+\newcommand{\Prop}[1]{{Property~\ref{prop:#1}}} %property
+\newcommand{\Cor}[1]{{Corollary~\ref{cor:#1}}} %corollary
+\newcommand{\Def}[1]{{Definition~\ref{def:#1}}} %definition
+\newcommand{\Alg}[1]{{Algorithm~\ref{alg:#1}}} %algorithm
+\newcommand{\Ex}[1]{{Example~\ref{ex:#1}}} %example
+\newcommand{\As}[1]{{Assumption~\ref{as:#1}}} %assumption
+\newcommand{\Reg}[1]{{R~\ref{reg:#1}}} %regularity condition
+\newcommand{\AlgLine}[2]{{line~\ref{line:#2} of Algorithm~\ref{alg:#1}}}
+\newcommand{\AlgLines}[3]{{lines~\ref{line:#2}--\ref{line:#3} of Algorithm~\ref{alg:#1}}}
+\fi
+
+\usepackage{paralist, booktabs, multirow}
+
+%% ----------------------------------------------------------------------
+%% Environments
+%% ----------------------------------------------------------------------
+
+%% Assumptions environments
+\newtheorem{assumption}{Assumption}[section]
+%% Special proof where box is inside final equation
+% The function \proof and \endproof are defined inside the SIAM class file.
+% Be sure to use \myproofend inside the final equation to produce the
+% special box that signifies the end of the proof.
+\newenvironment{myproof}{\proof}{}
+\newcommand{\myproofend}{\quad\endproof}
+\newtheorem{theorem}{Theorem}[section]
+
+
+\usepackage[normalem]{ulem}
+
+\usepackage{comment}
+\usepackage{xspace}
+%% For comments to each other
+\definecolor{blue}{rgb}{0.2,0.5,0.7}
+\definecolor{green}{rgb}{0.3,0.68,0.29}
+\definecolor{purple}{rgb}{0.6,0.31,0.64}
+\newcommand{\Remark}[2]{{\bf {\color{red}Remark from #1: #2}}\xspace}
+\newcommand{\One}{\mathbbm{1}}
+
+
+
+
+%%%%%
+
+%\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+%
+%\RequirePackage[OT1]{fontenc}
+%\RequirePackage{amsthm,amsmath}
+%\RequirePackage [round,authoryear]{natbib}
+%\RequirePackage{hypernat}
+%
+%\usepackage{amsbsy,amsthm,amsmath,amssymb}
+%\usepackage{graphicx,booktabs}
+%%\usepackage{subfig}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+%\setlength{\oddsidemargin}{.75in}
+%\setlength{\evensidemargin}{.75in}
+%\setlength{\textwidth}{5in}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{remark}{Remark}[section]
+%\newtheorem{corollary}{Corollary}[section]
+%\newtheorem{example}{Example}[section]
+%\newtheorem{definition}{Definition}[section]
+
+
+%% ----------------------------------------------------------------------
+%% Definitions
+%% ----------------------------------------------------------------------
+
+%% Shorthand for Real
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\dom}{{\bf dom}\,}
+
+%% Math notation
+\newcommand{\Tra}{^{\sf T}} % Transpose
+\newcommand{\Inv}{^{-1}} % Inverse
+\newcommand{\tr}{\operatorname{tr}} % Trace
+\newcommand{\Ker}{\operatorname{Ker}} % Kernel
+\def\vec{\mathop{\rm vec}\nolimits}
+\def\mtcz{\mathop{\rm mat}\nolimits} % Matricize operation
+\newcommand{\amp}{\mathop{\:\:\,}\nolimits}
+\newcommand{\bic}{\text{BIC}}
+
+%% Vectors
+\newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+\newcommand{\Vbar}[1]{{\bm{\M{A}r \mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+\newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+\newcommand{\VnE}[3]{{#1}^{(#2)}_{#3}} % n-th vector
+\newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+
+
+%% Matrices
+\newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+\newcommand{\MC}[2]{\V{#1}_{#2}}
+\newcommand{\Mr}[2]{\V{#1}_{#2}} % matrix row
+\newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\MhatC}[2]{\Vhat{#1}_{#2}} % matrix column
+\newcommand{\Mbar}[1]{{\bm{\M{A}r \mathbf{\MakeUppercase{#1}}}}} % matrix
+\newcommand{\MbarC}[2]{\Vbar{#1}_{#2}} % matrix column
+\newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+\newcommand{\Mbarn}[2]{\Mbar{#1}^{(#2)}} % n-th matrix
+\newcommand{\Mtilden}[2]{\Mtilde{#1}^{(#2)}} % n-th matrix
+\newcommand{\MnTra}[2]{\M{#1}^{(#2){{\sf T}}}} % n-th matrix transpose
+\newcommand{\MnE}[3]{\MakeLowercase{#1}^{(#2)}_{#3}} % n-th matrix element
+\newcommand{\MnC}[3]{\V{#1}^{(#2)}_{#3}} % n-th matrix column
+\newcommand{\MbarnC}[3]{\Vbar{#1}^{(#2)}_{#3}} % n-th matrix column
+\newcommand{\MnCTra}[3]{\V{#1}^{(#2){{\sf T}}}_{#3}} % n-th matrix column transpose
+\newcommand{\MCTra}[2]{\V{#1}^{{\sf T}}_{#2}} % n-th matrix column transpose
+
+%% Tensors
+\newcommand{\T}[1]{\boldsymbol{\mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\Tbar}[1]{\boldsymbol{\M{A}r \mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\That}[1]{\boldsymbol{\hat \mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\Ttilde}[1]{\boldsymbol{\tilde \mathscr{\MakeUppercase{#1}}}} %tensor
+\newcommand{\TE}[2]{\MakeLowercase{#1}_{\MI{#2}}} % tensor element with multi-index
+
+%% Matrix-matrix operations
+\newcommand{\Kron}{\otimes} %Kronecker
+\newcommand{\Khat}{\odot} %Khatri-Rao
+\newcommand{\Hada}{\circ} %Hadamard
+\newcommand{\Divide}{\varoslash}
+
+% Matricize
+\newcommand{\Mz}[2]{\M{#1}_{(#2)}} % n-th mode matricize
+\newcommand{\Mzsets}[3]{\TM{#1}{#2\times#3}} % matricze with just the sets specified
+\newcommand{\Mzall}[4]{\TM{#1}{#2\times#3\,:\,#4}} % full matricize specification
+
+%% K-Tensor
+\newcommand{\KT}[1]{\left\llbracket #1 \right\rrbracket} % kruskal operator
+\newcommand{\KTsmall}[1]{\llbracket #1 \rrbracket} % small kruskal operator
+\newcommand{\KG}[1]{\langle #1 \rangle} % kruskal "group"
+
+%% text with quads around it
+\newcommand{\qtext}[1]{\quad\text{#1}\quad}
+
+%% Derivative
+\newcommand{\FD}[2]{\frac{\partial #1}{\partial #2}}
+
+%% Prox-operators
+\newcommand{\prox}[2]{\operatorname{prox}_{#1}({#2})}
+\newcommand{\proj}[1]{\mathcal{P}_{#1}}
+\newcommand{\soft}[1]{\operatorname{S}_{#1}}
+
+%% Sign-operator
+\newcommand{\sign}[1]{\operatorname{sign}({#1})}
+
+%% convex hull
+\newcommand{\conv}[1]{\operatorname{conv}({#1})}
+
+
+\algnewcommand\algorithmicinput{\textbf{INPUT:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+\algnewcommand\algorithmicoutput{\textbf{OUTPUT:}}
+\algnewcommand\OUTPUT{\item[\algorithmicoutput]}
+%\startlocaldefs
+%\numberwithin{equation}{section}
+%\theoremstyle{plain}
+%\newtheorem{thm}{Theorem}[section]
+%\endlocaldefs
+
+\addtolength{\oddsidemargin}{-.5in}%
+\addtolength{\evensidemargin}{-.5in}%
+\addtolength{\textwidth}{1in}%
+\addtolength{\textheight}{1.3in}%
+\addtolength{\topmargin}{-.8in}%
+
+\pdfminorversion=4
+
+%% ----------------------------------------------------------------------
+%% Main Document
+%% ----------------------------------------------------------------------
+\begin{document}
+
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\if0\blind
+{
+  \title{\bf Baseline Drift Estimation for Air Quality Data Using Quantile Trend Filtering}
+  \author{Halley L. Brantley\thanks{Department of Statistics, North Carolina State University, Raleigh, NC 27695-8203 (E-mail: hlbrantl@ncsu.edu)} ,    
+    Joseph Guinness\thanks{Department of Statistics and Data Science, Cornell University, Ithaca, NY 14853 (E-mail: guinness@cornell.edu)} 
+    and
+    Eric C. Chi\thanks{Department of Statistics, North Carolina State University, Raleigh, NC 27695-8203 (E-mail: eric$\_$chi@ncsu.edu)} \\}
+    \date{}
+  \maketitle
+} \fi
+
+\bigskip
+
+\spacingset{1.45}
+
+%% ----------------------------------------------------------------------
+%% Technical Details on the ADMM Algorithm
+%% ----------------------------------------------------------------------
+\section{Technical Details on the ADMM Algorithm}
+
+\subsection{Convergence}
+ Our windowed quantile trend optimization problem can be written as
+ \begin{equation}
+ \label{eq:quantile_windows}
+ \begin{split}
+ &\text{minimize}\; \sum_{w=1}^W \left \{\sum_{j=1}^J \left [\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_{j}) +
+ \lambda_j \lVert \Mn{D}{k+1} \Vn{\theta}{w}_{j} \rVert_1 \right ] + \iota_\mathcal{C}(\Mn{\Theta}{w}) \right\}\\
+ &\text{subject to} \qquad \Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta} \;\; \text{ for } w = 1, \ldots, W.
+ \end{split}
+ \end{equation}
+
+\begin{comment}
+The ADMM algorithm \citep{gabay1975dual, glowinski1975approximation} is  described in greater detail by \cite{boyd2011distributed}, but we briefly review how it can be used to iteratively solve the following equality constrained optimization problem which is a more general form of \Eqn{quantile_windows}.
+
+\begin{equation}
+\label{eq:split_objective}
+\begin{split}
+&\text{minimize} \; f(\V{\phi}) + g(\Vtilde{\phi}) \\ 
+&\text{subject to} \; \M{A}\V{\phi} + \M{B}\Vtilde{\phi} = \V{c}.
+\end{split}
+\end{equation}
+Recall that finding the minimizer to an equality constrained optimization problem is equivalent to the identifying the saddle point of the Lagrangian function associated with the problem \Eqn{split_objective}. ADMM seeks the saddle point of a related function called the augmented Lagrangian,
+%The Lagrangian for the ALM problem
+\begin{eqnarray*}
+	\mathcal{L}_{\gamma}(\V{\phi},\Vtilde{\phi},\V{\omega}) & = & f(\V{\phi}) + g(\Vtilde{\phi}) + \langle \V{\omega}, \V{c} - \M{A}\V{\phi} - \M{B}\Vtilde{\phi} \rangle
+	+ \frac{\gamma}{2} \lVert \V{c} - \M{A}\V{\phi} - \M{B}\Vtilde{\phi} \rVert_2^2,
+\end{eqnarray*}
+where the dual variable $\V{\omega}$ is a vector of Lagrange multipliers and $\gamma$ is a nonnegative tuning parameter. When $\gamma = 0$, the augmented Lagrangian coincides with the ordinary Lagrangian.
+
+ADMM minimizes the augmented Lagrangian one block of variables at a time before updating the dual variable $\V{\omega}$. This yields the following sequence of updates at the $(m+1)$\textsuperscript{th} ADMM iteration
+\begin{equation}
+\label{eq:admm_updates}
+\begin{split}
+\V{\phi}_{m+1} & \amp = \amp \underset{\V{\phi}}{\arg\min}\; \mathcal{L}_\gamma(\V{\phi},\Vtilde{\phi}_{m}, \V{\omega}_{m}) \\
+\Vtilde{\phi}_{m+1} & \amp = \amp \underset{\Vtilde{\phi}}{\arg\min}\; \mathcal{L}_\gamma(\V{\phi}_{m+1},\Vtilde{\phi}, \V{\omega}_{m}) \\
+\V{\omega}_{m+1} & \amp = \amp \V{\omega}_{m} + \gamma(\V{c} - \M{A}\V{\phi}_{m+1} - \M{B}\Vtilde{\phi}_{m+1}).
+\end{split}
+\end{equation}
+
+Returning to our constrained windows problem giving in \Eqn{quantile_windows}, let $\Mn{\Omega}{w}$ denote the Lagrange multiplier matrix for the $w$th consensus constraint, namely $\Mn{\Theta}{w} = \Mn{U}{w}\M{\Theta}$, and let $\Vn{\omega}{w}_{j}$ denote its $j$th column.
+
+The augmented Lagrangian is given by
+\begin{eqnarray*}
+	\mathcal{L}(\M{\Theta}, \{\Mn{\Theta}{w}\}, \{\Mn{\Omega}{w}\}) & = & \sum_{w=1}^W \mathcal{L}_w(\M{\Theta}, \Mn{\Theta}{w}, \Mn{\Omega}{w}),
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+	\mathcal{L}_w(\M{\Theta}, \Mn{\Theta}{w}, \Mn{\Omega}{w}) & = & \sum_{j=1}^J \biggl [\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_j)+\lambda_j \lVert \Mn{D}{k+1}\Vn{\theta}{w}_j\rVert_1 \\
+	&& + \; (\Vn{\theta}{w}_j - \Mn{U}{w}\V{\theta}_{j})\Tra\Vn{\omega}{w}_{j} +
+	\frac{\gamma}{2}\lVert \Vn{\theta}{w}_j - \Mn{U}{w}\V{\theta}_{j}\rVert_2^2 \biggr ] + \iota_\mathcal{C}(\Mn{\Theta}{w}),
+\end{eqnarray*}
+where $\gamma$ is a positive tuning parameter.
+
+The ADMM algorithm alternates between updating the consensus variable $\M{\Theta}$, the window variables $\{\Mn{\Theta}{w}\}$, and the Lagrange multipliers $\{\Mn{\Omega}{w}\}$.
+At the $(m+1)$\textsuperscript{th} iteration, we perform the following sequence of updates
+
+\begin{eqnarray*}
+	\M{\Theta}_{m+1} & = & \underset{\M{\Theta}}{\arg\min}\; \mathcal{L}(\M{\Theta}, \{\Mn{\Theta}{w}_m\}, \{\Mn{\Omega}{w}_m\}) \\
+	\Mn{\Theta}{w}_{m+1} & = & \underset{\{\Mn{\Theta}{w}\}}{\arg\min}\; \mathcal{L}(\M{\Theta}_{m+1}, \{\Mn{\Theta}{w}\}, \{\Mn{\Omega}{w}_m\}) \\
+\end{eqnarray*}
+
+{\bf Updating $\M{\Theta}$: } Some algebra shows that,  defining $i_w = i-l_w+1$, updating the consensus variable step is computed as follows.
+
+\begin{align}
+\label{eq:update_consensus}
+~~~~\ME{\theta}{ij}	 &=& \begin{cases}
+\frac{1}{2}\left (\MnE{\theta}{w-1}{i_{w-1}j} + \MnE{\theta}{w}{i_wj} \right)
+-
+\frac{1}{2\gamma} \left (\MnE{\omega}{w-1}{i_{w-1}j} + \MnE{\omega}{w}{i_{w}j} \right)
+& \mbox{if~} l_{w} \le i \le u_{w-1},  \\
+\MnE{\theta}{w}{i_{w}j} & \mbox{if~} u_{w-1} < i \le l_{w+1}  \\
+\frac{1}{2} \left ( \MnE{\theta}{w}{i_{w}j} + \MnE{\theta}{w+1}{i_{w+1}j} \right )
+-
+\frac{1}{2\gamma}	\left (\MnE{\omega}{w}{i_{w}j} + \MnE{\omega}{w+1}{i_{w+1}j} \right )
+& \mbox{if~} l_{w+1} < i \le u_{w}
+\end{cases},
+\end{align}
+
+
+The consensus update \Eqn{update_consensus} is rather intuitive. We essentially average the trend estimates in overlapping sections of the windows, subject to some adjustment by the Lagrange multipliers, and leave the trend estimates in non-overlapping sections of the windows untouched.
+%This appears like we need to invert an underdetermined linear system, but we're actually just picking off the relevant entries.
+For notational ease, we write the consensus update \Eqn{update_consensus} compactly as $\M{\Theta} = \psi(\{\Mn{\Theta}{w}\},\{\Mn{\Omega}{w}\})$.
+
+{\bf Updating $\{\Mn{\Theta}{w}\}$: } We then estimate the trend separately in each window, which can be done in parallel, while penalizing the differences in the overlapping pieces of the trends  as outlined in Algorithm~1. The use of the Augmented Lagrangian converts the problem of solving a potentially large linear program into a solving a collection of smaller quadratic programs. The \texttt{gurobi} R package \citep{gurobi} can solve quadratic programs in addition to linear programs, but we can also use the free R package \texttt{quadprog} \citep{quadprog}.
+
+
+\begin{algorithm}[t]
+	\caption{ADMM algorithm for quantile trend filtering with windows}\label{alg:admm}
+	\begin{algorithmic}
+		\State Define $\M{D} = \Mn{D}{k+1}$.
+		\State \textbf{initialize:}
+		\For{$w = 1, \ldots, W$}
+		\State $\Mn{\Theta}{w}_0 \gets \underset{\Mn{\Theta}{w} \in \mathcal{C}}{\arg \min}\;
+		\sum_{j=1}^J\rho_{\tau_j}(\Vn{y}{w} - \Vn{\theta}{w}_{j})+\lambda \lVert \M{D}\Vn{\theta}{w}_{j}\rVert_1$
+		%				 $\Vn{\theta}{0}_{j,m} \gets \arg \min \sum_{j=1}^J\rho_{\tau_j}(\Vn{y}{w} - \V{\theta}_{j,m})+\lambda \lVert \M{D}\V{\theta}_{j,m}\rVert_1$ subject to $\theta_{1,m}(t) < \ldots<\theta_{J,m}(t)$ for all $t$. \\
+		\State $\Mn{\Omega}{w}_0 \gets \M{0}$
+		\EndFor
+		%			 	 $\Vn{\omega}{0}_{j,m} \gets \V{0}$
+		\State $m \gets 0$
+		\Repeat{}
+		\State $\M{\Theta}_{m+1} \gets \psi(\{\Mn{\Theta}{w}_m\}, \{\Mn{\Omega}{w}_m\})$
+		\For{$w = 1, \ldots, W$}
+		\State $\Mn{\Theta}{w}_{m+1} \gets \underset{\Mn{\Theta}{w}}{\arg\min}\; \mathcal{L}_w(\M{\Theta}_{m+1}, \Mn{\Theta}{w}, \Mn{\Omega}{w}_{m})$
+		\State
+		$\Mn{\Omega}{w}_{m+1} \gets \Mn{\Omega}{w}_m + \gamma(\Mn{\Theta}{w}_{m+1} - \Mn{U}{w}\M{\Theta}_{m+1})$
+		\EndFor
+		\State $m \gets m + 1$
+		%			\State
+		%			$\M{A}r{\theta}_{j,m}^{(q)} \gets g(\theta_{j, m-1}^{(q-1)}, \theta_{j,m}^{(q-1)}, \theta_{j,m+1}^{(q-1)})$
+		%			\State
+		%			$\omega_{j,m}^{(q)} \gets \omega_{j,m}^{(q-1)} + \gamma(\theta_{j,m}^{(q-1)} - \M{A}r{\theta}_{j,m}^{(q)})$
+		%			\State
+		%				$\theta_{j,m}^{(q)} \gets \arg\min \mathcal{L}(\theta_{j,m}, \M{A}r{\theta}_{j,m}^{(q-1)}, \omega_{j,m}^{(q-1)})$
+		%			 subject to $\theta_{1,m}(t) < \ldots<\theta_{J,m}(t)$ for all $t$.
+		\Until {convergence}
+		\State \textbf{return} $\M{\Theta}_m$
+		%			\State \textbf{return} Non-overlapping sequence of $\M{A}r{\theta}_{j,m}^{(q)}$ for all $j$, $m$.
+	\end{algorithmic}
+\end{algorithm}
+
+\end{comment}
+
+Algorithm~1 has the following convergence guarantees.
+\begin{proposition}
+	\label{prop:convergence}
+	Let $\{\{\Mn{\Theta}{w}_m\}, \M{\Theta}_m\}$ denote the $m$th collection of iterates generated by Algorithm~1. Then (i)
+	$\lVert \Mn{\Theta}{w}_m - \Mn{U}{w}\M{\Theta}_m \rVert_{\text{F}} \rightarrow 0$ and (ii) $p_m \rightarrow p^\star$, where $p^\star$ is the optimal objective function value of
+	\Eqn{quantile_windows} and $p_m$ is the objective function value of \Eqn{quantile_windows} evaluated at $\{\{\Mn{\Theta}{w}_m\}, \M{\Theta}_m\}$.
+\end{proposition}
+The proof of \Prop{convergence} is a straightforward application of the convergence result presented in Section 3.2 of \cite{boyd2011distributed}.
+
+\section{Stopping Criteria}
+
+To terminate our algorithm, we use the stopping criteria described by \cite{boyd2011distributed}. The criteria are based on the primal and dual residuals, which represent the residuals for primal and dual feasibility, respectively. The primal residual at the $m$th iteration,
+
+\begin{eqnarray*}
+	r_{\text{primal}}^{m} & = & \sqrt{\sum_{w=1}^W\lVert\Mn{\Theta}{w}_{m} - \Mn{U}{w}\M{\Theta}_m\rVert_{\text{F}}^2},
+\end{eqnarray*}
+represents the difference between the trend values in the windows and the consensus trend value. The dual residual at the $m$th iteration,
+
+\begin{eqnarray*}
+	r_{\text{dual}}^{m} & = & \gamma\sqrt{\sum_{w=1}^W \lVert\M{\Theta}_m - \M{\Theta}_{m-1}\rVert_{\text{F}}^2},
+\end{eqnarray*}
+represents the change in the consensus variable from one iterate to the next. The algorithm is stopped when
+
+\begin{eqnarray}
+	r_{\text{primal}}^{m} & < &\epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\underset{w}{\max} \left[\max
+	\left\{\lVert\Mn{\Theta}{w}_m \rVert_{\text{F}}, \lVert \M{\Theta}_{m} \rVert_{\text{F}} \right\}\right] \nonumber \\%\lVert \M{\Theta}_{k} \rVert_{\text{F}}} \right )\right]\\
+	r_{\text{dual}}^{m} & < & \epsilon_{\text{abs}}\sqrt{nJ} + \epsilon_{\text{rel}}\,\sqrt{\sum_{w=1}^W
+		\lVert \Mn{\Omega}{w}_m \rVert_{\text{F}}^2}.
+\label{eq:stopping}
+\end{eqnarray}
+
+In the timing experiment plotted in Figure~5 of the main paper, Algorithm~1 was the stopped when \Eqn{stopping} was satisfied, defining $\epsilon_{abs} = 0.01$ and $\epsilon_{rel} = 0.001$.
+
+
+\newpage
+\section{Simulation Results}
+
+The following tables list the simulation results that are plotted in Figures 7, 8, and 10 in the manuscript.  
+
+\begin{table}[!hbp]
+\begin{center}
+	\caption{RMSE and standard error for Gaussian design, by method, quantile and data size. Numbers correspond to the top panel in Fig. 7 in the manuscript.}
+\begin{tabular}{llllll}
+\hline\hline
+\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.25}&\multicolumn{1}{c}{0.5}&\multicolumn{1}{c}{0.75}&\multicolumn{1}{c}{0.95}\tabularnewline
+\hline
+{\bfseries n=300}&&&&&\tabularnewline
+detrend eBIC&0.097 (0.003)&0.065 (0.002)&0.059 (0.002)&0.063 (0.002)&0.092 (0.003)\tabularnewline
+detrend SIC&0.108 (0.003)&0.078 (0.002)&0.070 (0.002)&0.075 (0.003)&0.107 (0.004)\tabularnewline
+detrend valid&0.118 (0.005)&0.091 (0.004)&0.077 (0.004)&0.085 (0.003)&0.124 (0.005)\tabularnewline
+rqss&0.117 (0.003)&0.084 (0.002)&0.078 (0.002)&0.081 (0.002)&0.119 (0.004)\tabularnewline
+npqw&0.094 (0.003)&0.072 (0.002)&0.070 (0.002)&0.071 (0.002)&0.096 (0.003)\tabularnewline
+qsreg&0.147 (0.003)&0.107 (0.002)&0.103 (0.002)&0.106 (0.002)&0.141 (0.003)\tabularnewline
+\hline
+{\bfseries n=500}&&&&&\tabularnewline
+detrend eBIC&0.077 (0.002)&0.051 (0.001)&0.046 (0.001)&0.051 (0.001)&0.074 (0.002)\tabularnewline
+detrend SIC&0.080 (0.003)&0.058 (0.002)&0.053 (0.002)&0.057 (0.002)&0.078 (0.003)\tabularnewline
+detrend valid&0.096 (0.003)&0.069 (0.003)&0.066 (0.003)&0.066 (0.002)&0.092 (0.004)\tabularnewline
+rqss&0.097 (0.003)&0.069 (0.002)&0.063 (0.001)&0.067 (0.002)&0.097 (0.002)\tabularnewline
+npqw&0.075 (0.002)&0.060 (0.002)&0.057 (0.002)&0.059 (0.002)&0.073 (0.002)\tabularnewline
+qsreg&0.116 (0.002)&0.085 (0.002)&0.080 (0.001)&0.081 (0.001)&0.109 (0.002)\tabularnewline
+\hline
+{\bfseries n=1000}&&&&&\tabularnewline
+detrend eBIC&0.055 (0.002)&0.039 (0.001)&0.037 (0.001)&0.039 (0.001)&0.053 (0.002)\tabularnewline
+detrend SIC&0.056 (0.002)&0.040 (0.001)&0.037 (0.001)&0.039 (0.001)&0.054 (0.002)\tabularnewline
+detrend valid&0.074 (0.003)&0.057 (0.002)&0.046 (0.002)&0.055 (0.002)&0.071 (0.003)\tabularnewline
+rqss&0.074 (0.002)&0.050 (0.001)&0.047 (0.001)&0.050 (0.001)&0.073 (0.002)\tabularnewline
+npqw&0.057 (0.001)&0.046 (0.001)&0.041 (0.001)&0.045 (0.001)&0.054 (0.002)\tabularnewline
+qsreg&0.081 (0.002)&0.059 (0.001)&0.055 (0.001)&0.059 (0.001)&0.078 (0.002)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+
+\begin{table}[!tbp]
+\begin{center}
+	\caption{RMSE and standard error for Mixed Normal design, by method, quantile and data size. Numbers correspond to the middle panel in Fig. 7 in the manuscript.}
+\begin{tabular}{llllll}
+\hline\hline
+\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.25}&\multicolumn{1}{c}{0.5}&\multicolumn{1}{c}{0.75}&\multicolumn{1}{c}{0.95}\tabularnewline
+\hline
+{\bfseries n=300}&&&&&\tabularnewline
+detrend eBIC&0.253 (0.010)&0.178 (0.006)&0.155 (0.005)&0.189 (0.007)&0.242 (0.009)\tabularnewline
+detrend SIC&0.223 (0.008)&0.179 (0.007)&0.164 (0.006)&0.188 (0.007)&0.228 (0.008)\tabularnewline
+detrend valid&0.302 (0.011)&0.253 (0.010)&0.235 (0.011)&0.233 (0.011)&0.280 (0.011)\tabularnewline
+rqss&0.280 (0.010)&0.189 (0.008)&0.164 (0.006)&0.202 (0.008)&0.275 (0.009)\tabularnewline
+npqw&0.383 (0.008)&0.243 (0.006)&0.146 (0.005)&0.250 (0.007)&0.374 (0.007)\tabularnewline
+qsreg&0.314 (0.008)&0.299 (0.008)&0.272 (0.006)&0.287 (0.009)&0.301 (0.008)\tabularnewline
+\hline
+{\bfseries n=500}&&&&&\tabularnewline
+detrend eBIC&0.180 (0.006)&0.149 (0.005)&0.120 (0.004)&0.147 (0.004)&0.186 (0.007)\tabularnewline
+detrend SIC&0.178 (0.006)&0.152 (0.006)&0.136 (0.005)&0.145 (0.005)&0.186 (0.007)\tabularnewline
+detrend valid&0.237 (0.009)&0.203 (0.010)&0.201 (0.011)&0.201 (0.010)&0.218 (0.009)\tabularnewline
+rqss&0.222 (0.007)&0.155 (0.007)&0.123 (0.004)&0.150 (0.006)&0.220 (0.008)\tabularnewline
+npqw&0.352 (0.006)&0.217 (0.005)&0.118 (0.003)&0.217 (0.004)&0.350 (0.006)\tabularnewline
+qsreg&0.245 (0.007)&0.229 (0.006)&0.226 (0.006)&0.225 (0.006)&0.248 (0.006)\tabularnewline
+\hline
+{\bfseries n=1000}&&&&&\tabularnewline
+detrend eBIC&0.135 (0.005)&0.112 (0.004)&0.095 (0.003)&0.108 (0.004)&0.137 (0.005)\tabularnewline
+detrend SIC&0.134 (0.005)&0.116 (0.004)&0.104 (0.004)&0.112 (0.004)&0.137 (0.005)\tabularnewline
+detrend valid&0.170 (0.008)&0.152 (0.007)&0.147 (0.007)&0.164 (0.009)&0.171 (0.007)\tabularnewline
+rqss&0.167 (0.006)&0.117 (0.004)&0.097 (0.003)&0.112 (0.004)&0.168 (0.006)\tabularnewline
+npqw&0.327 (0.004)&0.200 (0.004)&0.106 (0.002)&0.195 (0.004)&0.334 (0.005)\tabularnewline
+qsreg&0.168 (0.005)&0.158 (0.004)&0.162 (0.004)&0.156 (0.004)&0.169 (0.005)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+
+%latex.default(wide_stats %>% filter(Design == "shapebeta") %>%     select(-n, -Design), file = "Fig7_beta.tex", rowname = "",     title = "", n.rgroup = c(6, 6, 6), rgroup = c("n=300", "n=500",         "n=1000"))%
+\begin{table}[!tbp]
+\begin{center}
+	\caption{RMSE and standard error for Beta design, by method, quantile and data size. Numbers correspond to the bottom panel in Fig. 7 in the manuscript.}
+\begin{tabular}{llllll}
+\hline\hline
+\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.25}&\multicolumn{1}{c}{0.5}&\multicolumn{1}{c}{0.75}&\multicolumn{1}{c}{0.95}\tabularnewline
+\hline
+{\bfseries n=300}&&&&&\tabularnewline
+detrend eBIC&0.020 (0.000)&0.025 (0.001)&0.032 (0.001)&0.041 (0.001)&0.056 (0.002)\tabularnewline
+detrend SIC&0.016 (0.001)&0.030 (0.001)&0.042 (0.001)&0.048 (0.002)&0.065 (0.002)\tabularnewline
+detrend valid&0.022 (0.001)&0.033 (0.002)&0.042 (0.002)&0.052 (0.002)&0.072 (0.002)\tabularnewline
+rqss&0.020 (0.001)&0.034 (0.001)&0.047 (0.001)&0.054 (0.001)&0.073 (0.002)\tabularnewline
+npqw&0.044 (0.001)&0.035 (0.001)&0.038 (0.001)&0.048 (0.001)&0.060 (0.002)\tabularnewline
+qsreg&0.025 (0.001)&0.040 (0.001)&0.053 (0.001)&0.063 (0.001)&0.087 (0.002)\tabularnewline
+\hline
+{\bfseries n=500}&&&&&\tabularnewline
+detrend eBIC&0.018 (0.000)&0.020 (0.001)&0.025 (0.001)&0.031 (0.001)&0.044 (0.001)\tabularnewline
+detrend SIC&0.015 (0.001)&0.020 (0.001)&0.028 (0.001)&0.034 (0.001)&0.046 (0.001)\tabularnewline
+detrend valid&0.018 (0.001)&0.028 (0.001)&0.035 (0.001)&0.040 (0.001)&0.059 (0.002)\tabularnewline
+rqss&0.017 (0.001)&0.029 (0.001)&0.038 (0.001)&0.043 (0.001)&0.060 (0.001)\tabularnewline
+npqw&0.039 (0.001)&0.030 (0.001)&0.029 (0.001)&0.036 (0.001)&0.046 (0.001)\tabularnewline
+qsreg&0.017 (0.001)&0.031 (0.001)&0.040 (0.001)&0.049 (0.001)&0.067 (0.001)\tabularnewline
+\hline
+{\bfseries n=1000}&&&&&\tabularnewline
+detrend eBIC&0.014 (0.000)&0.015 (0.000)&0.019 (0.001)&0.025 (0.001)&0.035 (0.001)\tabularnewline
+detrend SIC&0.012 (0.000)&0.015 (0.001)&0.020 (0.001)&0.025 (0.001)&0.037 (0.001)\tabularnewline
+detrend valid&0.012 (0.001)&0.020 (0.001)&0.025 (0.001)&0.032 (0.001)&0.043 (0.001)\tabularnewline
+rqss&0.011 (0.000)&0.021 (0.001)&0.028 (0.001)&0.034 (0.001)&0.047 (0.001)\tabularnewline
+npqw&0.032 (0.001)&0.022 (0.001)&0.023 (0.001)&0.030 (0.001)&0.037 (0.001)\tabularnewline
+qsreg&0.011 (0.000)&0.021 (0.001)&0.029 (0.001)&0.037 (0.001)&0.048 (0.001)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+
+
+
+\begin{table}[!tbp]
+\begin{center}
+\caption{RMSE and standard error by method, quantile, and data size for peaks design. Numbers correspond to Fig. 8 in the manuscript.}
+\begin{tabular}{lllll}
+\hline
+~~&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.01}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.1}\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=500}
+~~&detrend eBIC&0.134 (0.005)&0.102 (0.005)&0.100 (0.005)\tabularnewline
+~~&detrend SIC&0.310 (0.012)&0.249 (0.014)&0.233 (0.015)\tabularnewline
+~~&detrend valid&0.188 (0.014)&0.166 (0.011)&0.217 (0.014)\tabularnewline
+~~&detrend Xing&0.315 (0.011)&0.187 (0.012)&0.137 (0.010)\tabularnewline
+~~&rqss&0.242 (0.007)&0.280 (0.012)&0.241 (0.014)\tabularnewline
+~~&npqw&0.196 (0.012)&0.185 (0.012)&0.192 (0.012)\tabularnewline
+~~&qsreg&0.372 (0.009)&0.326 (0.011)&0.314 (0.012)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=1000}
+~~&detrend eBIC&0.125 (0.003)&0.092 (0.003)&0.092 (0.003)\tabularnewline
+~~&detrend SIC&0.306 (0.010)&0.241 (0.012)&0.229 (0.012)\tabularnewline
+~~&detrend valid&0.147 (0.006)&0.178 (0.010)&0.237 (0.012)\tabularnewline
+~~&detrend Xing&0.289 (0.009)&0.134 (0.008)&0.110 (0.006)\tabularnewline
+~~&rqss&0.256 (0.006)&0.295 (0.010)&0.238 (0.012)\tabularnewline
+~~&npqw&0.212 (0.008)&0.196 (0.008)&0.207 (0.008)\tabularnewline
+~~&qsreg&0.265 (0.005)&0.247 (0.006)&0.255 (0.007)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=2000}
+~~&detrend eBIC&0.118 (0.002)&0.093 (0.002)&0.092 (0.002)\tabularnewline
+~~&detrend SIC&0.288 (0.008)&0.210 (0.009)&0.198 (0.009)\tabularnewline
+~~&detrend valid&0.141 (0.004)&0.159 (0.008)&0.229 (0.010)\tabularnewline
+~~&detrend Xing&0.250 (0.008)&0.109 (0.005)&0.094 (0.003)\tabularnewline
+~~&rqss&0.259 (0.004)&0.287 (0.007)&0.217 (0.008)\tabularnewline
+~~&npqw&0.193 (0.008)&0.190 (0.008)&0.197 (0.008)\tabularnewline
+~~&qsreg&0.166 (0.002)&0.163 (0.004)&0.175 (0.004)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=4000}
+~~&detrend eBIC&0.117 (0.002)&0.092 (0.002)&0.092 (0.001)\tabularnewline
+~~&detrend SIC&0.265 (0.005)&0.188 (0.006)&0.178 (0.006)\tabularnewline
+~~&detrend valid&0.132 (0.002)&0.168 (0.006)&0.228 (0.006)\tabularnewline
+~~&detrend Xing&0.215 (0.007)&0.093 (0.002)&0.089 (0.002)\tabularnewline
+~~&rqss&0.262 (0.003)&0.257 (0.007)&0.196 (0.006)\tabularnewline
+~~&npqw&0.189 (0.012)&0.182 (0.012)&0.185 (0.011)\tabularnewline
+~~&qsreg&0.137 (0.005)&0.102 (0.001)&0.109 (0.002)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+	
+\begin{table}[!tbp]
+\begin{center}
+	\caption{Class averaged accuracy when the threshold is 0.9, by data size, and method (1 is best 0.5 is worst). Numbers correspond to top panel in Fig. 10 in manuscript.}
+\begin{tabular}{lllll}
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.01}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.1}\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=500}
+~~&detrend eBIC&0.759 (0.029)&0.758 (0.030)&0.720 (0.029)\tabularnewline
+~~&detrend SIC&0.557 (0.024)&0.543 (0.024)&0.537 (0.024)\tabularnewline
+~~&detrend valid&0.748 (0.029)&0.660 (0.028)&0.565 (0.025)\tabularnewline
+~~&detrend Xing&0.544 (0.023)&0.613 (0.028)&0.645 (0.028)\tabularnewline
+~~&rqss&0.626 (0.026)&0.505 (0.021)&0.522 (0.023)\tabularnewline
+~~&npqw&0.628 (0.028)&0.612 (0.028)&0.576 (0.026)\tabularnewline
+~~&qsreg&0.524 (0.022)&0.484 (0.020)&0.472 (0.019)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=1000}
+~~&detrend eBIC&0.860 (0.013)&0.853 (0.013)&0.818 (0.013)\tabularnewline
+~~&detrend SIC&0.655 (0.015)&0.644 (0.015)&0.633 (0.015)\tabularnewline
+~~&detrend valid&0.850 (0.014)&0.730 (0.017)&0.624 (0.015)\tabularnewline
+~~&detrend Xing&0.658 (0.015)&0.782 (0.016)&0.783 (0.015)\tabularnewline
+~~&rqss&0.708 (0.014)&0.563 (0.012)&0.614 (0.014)\tabularnewline
+~~&npqw&0.685 (0.014)&0.672 (0.015)&0.632 (0.014)\tabularnewline
+~~&qsreg&0.707 (0.014)&0.616 (0.012)&0.580 (0.011)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=2000}
+~~&detrend eBIC&0.882 (0.003)&0.876 (0.004)&0.848 (0.004)\tabularnewline
+~~&detrend SIC&0.701 (0.010)&0.700 (0.011)&0.682 (0.011)\tabularnewline
+~~&detrend valid&0.874 (0.004)&0.776 (0.011)&0.645 (0.010)\tabularnewline
+~~&detrend Xing&0.728 (0.010)&0.845 (0.007)&0.832 (0.006)\tabularnewline
+~~&rqss&0.725 (0.007)&0.593 (0.007)&0.653 (0.010)\tabularnewline
+~~&npqw&0.765 (0.005)&0.738 (0.007)&0.693 (0.006)\tabularnewline
+~~&qsreg&0.844 (0.004)&0.756 (0.006)&0.696 (0.006)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=4000}
+~~&detrend eBIC&0.881 (0.002)&0.869 (0.003)&0.836 (0.003)\tabularnewline
+~~&detrend SIC&0.712 (0.007)&0.713 (0.007)&0.694 (0.008)\tabularnewline
+~~&detrend valid&0.877 (0.002)&0.749 (0.009)&0.631 (0.007)\tabularnewline
+~~&detrend Xing&0.762 (0.008)&0.858 (0.004)&0.829 (0.003)\tabularnewline
+~~&rqss&0.711 (0.004)&0.624 (0.008)&0.667 (0.007)\tabularnewline
+~~&npqw&0.812 (0.003)&0.784 (0.003)&0.745 (0.003)\tabularnewline
+~~&qsreg&0.878 (0.002)&0.837 (0.003)&0.782 (0.003)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+%latex.default(wide_stats %>% filter(threshold == 1) %>% select(-n,     -threshold), file = "Fig10_10.tex", rowname = "", title = "",     n.rgroup = c(7, 7, 7, 7), rgroup = c("n=500", "n=1000", "n=2000",         "n=4000"))%
+\begin{table}[!tbp]
+\begin{center}
+\caption{Class averaged accuracy when the threshold is 1.0, by data size, and method (1 is best 0.5 is worst). Numbers correspond to second panel in Fig. 10 in manuscript.}
+
+\begin{tabular}{lllll}
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.01}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.1}\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=500}
+~~&detrend eBIC&0.757 (0.030)&0.728 (0.029)&0.688 (0.028)\tabularnewline
+~~&detrend SIC&0.550 (0.024)&0.532 (0.023)&0.527 (0.023)\tabularnewline
+~~&detrend valid&0.747 (0.029)&0.638 (0.028)&0.546 (0.024)\tabularnewline
+~~&detrend Xing&0.538 (0.023)&0.599 (0.027)&0.622 (0.027)\tabularnewline
+~~&rqss&0.616 (0.026)&0.500 (0.021)&0.511 (0.022)\tabularnewline
+~~&npqw&0.624 (0.028)&0.598 (0.027)&0.564 (0.025)\tabularnewline
+~~&qsreg&0.516 (0.021)&0.480 (0.019)&0.470 (0.018)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=1000}
+~~&detrend eBIC&0.855 (0.013)&0.820 (0.013)&0.781 (0.013)\tabularnewline
+~~&detrend SIC&0.639 (0.014)&0.627 (0.014)&0.615 (0.014)\tabularnewline
+~~&detrend valid&0.845 (0.014)&0.706 (0.016)&0.608 (0.014)\tabularnewline
+~~&detrend Xing&0.648 (0.015)&0.755 (0.016)&0.748 (0.014)\tabularnewline
+~~&rqss&0.691 (0.014)&0.557 (0.012)&0.598 (0.013)\tabularnewline
+~~&npqw&0.673 (0.014)&0.649 (0.015)&0.612 (0.014)\tabularnewline
+~~&qsreg&0.689 (0.014)&0.601 (0.011)&0.569 (0.010)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=2000}
+~~&detrend eBIC&0.880 (0.003)&0.846 (0.004)&0.809 (0.004)\tabularnewline
+~~&detrend SIC&0.681 (0.010)&0.677 (0.010)&0.659 (0.010)\tabularnewline
+~~&detrend valid&0.874 (0.005)&0.748 (0.011)&0.624 (0.009)\tabularnewline
+~~&detrend Xing&0.714 (0.011)&0.813 (0.007)&0.792 (0.006)\tabularnewline
+~~&rqss&0.704 (0.006)&0.582 (0.006)&0.634 (0.009)\tabularnewline
+~~&npqw&0.754 (0.006)&0.707 (0.007)&0.660 (0.006)\tabularnewline
+~~&qsreg&0.827 (0.004)&0.723 (0.006)&0.668 (0.005)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=4000}
+~~&detrend eBIC&0.875 (0.003)&0.836 (0.003)&0.795 (0.003)\tabularnewline
+~~&detrend SIC&0.691 (0.007)&0.688 (0.007)&0.667 (0.007)\tabularnewline
+~~&detrend valid&0.872 (0.003)&0.722 (0.008)&0.614 (0.006)\tabularnewline
+~~&detrend Xing&0.747 (0.009)&0.823 (0.004)&0.787 (0.003)\tabularnewline
+~~&rqss&0.691 (0.004)&0.611 (0.007)&0.644 (0.006)\tabularnewline
+~~&npqw&0.807 (0.003)&0.750 (0.003)&0.707 (0.003)\tabularnewline
+~~&qsreg&0.873 (0.003)&0.801 (0.003)&0.740 (0.003)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+%latex.default(wide_stats %>% filter(threshold == 1.1) %>% select(-n,     -threshold), file = "Fig10_11.tex", rowname = "", title = "",     n.rgroup = c(7, 7, 7, 7), rgroup = c("n=500", "n=1000", "n=2000",         "n=4000"))%
+\begin{table}[!tbp]
+\begin{center}
+\caption{Class averaged accuracy when the threshold is 1.1, by data size, and method (1 is best 0.5 is worst). Numbers correspond to third panel in Fig. 10 in manuscript.}
+\begin{tabular}{lllll}
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.01}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.1}\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=500}
+~~&detrend eBIC&0.738 (0.029)&0.693 (0.028)&0.653 (0.027)\tabularnewline
+~~&detrend SIC&0.540 (0.023)&0.522 (0.023)&0.517 (0.022)\tabularnewline
+~~&detrend valid&0.727 (0.029)&0.614 (0.026)&0.533 (0.023)\tabularnewline
+~~&detrend Xing&0.528 (0.022)&0.580 (0.026)&0.598 (0.026)\tabularnewline
+~~&rqss&0.603 (0.025)&0.497 (0.021)&0.506 (0.021)\tabularnewline
+~~&npqw&0.613 (0.027)&0.580 (0.026)&0.548 (0.024)\tabularnewline
+~~&qsreg&0.506 (0.021)&0.476 (0.019)&0.467 (0.018)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=1000}
+~~&detrend eBIC&0.832 (0.013)&0.781 (0.013)&0.742 (0.013)\tabularnewline
+~~&detrend SIC&0.624 (0.013)&0.609 (0.013)&0.597 (0.013)\tabularnewline
+~~&detrend valid&0.826 (0.014)&0.680 (0.015)&0.593 (0.013)\tabularnewline
+~~&detrend Xing&0.633 (0.014)&0.725 (0.015)&0.713 (0.014)\tabularnewline
+~~&rqss&0.669 (0.013)&0.549 (0.011)&0.584 (0.013)\tabularnewline
+~~&npqw&0.652 (0.014)&0.627 (0.014)&0.591 (0.013)\tabularnewline
+~~&qsreg&0.664 (0.013)&0.584 (0.011)&0.559 (0.010)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=2000}
+~~&detrend eBIC&0.861 (0.004)&0.808 (0.004)&0.765 (0.004)\tabularnewline
+~~&detrend SIC&0.659 (0.009)&0.653 (0.009)&0.636 (0.009)\tabularnewline
+~~&detrend valid&0.857 (0.005)&0.719 (0.010)&0.606 (0.008)\tabularnewline
+~~&detrend Xing&0.695 (0.010)&0.776 (0.007)&0.749 (0.006)\tabularnewline
+~~&rqss&0.682 (0.006)&0.572 (0.005)&0.614 (0.008)\tabularnewline
+~~&npqw&0.730 (0.007)&0.672 (0.007)&0.633 (0.006)\tabularnewline
+~~&qsreg&0.800 (0.005)&0.691 (0.005)&0.642 (0.005)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=4000}
+~~&detrend eBIC&0.852 (0.003)&0.793 (0.003)&0.750 (0.003)\tabularnewline
+~~&detrend SIC&0.669 (0.006)&0.663 (0.006)&0.642 (0.006)\tabularnewline
+~~&detrend valid&0.851 (0.003)&0.693 (0.007)&0.598 (0.006)\tabularnewline
+~~&detrend Xing&0.725 (0.008)&0.781 (0.004)&0.743 (0.003)\tabularnewline
+~~&rqss&0.668 (0.004)&0.596 (0.006)&0.622 (0.006)\tabularnewline
+~~&npqw&0.784 (0.004)&0.712 (0.004)&0.671 (0.003)\tabularnewline
+~~&qsreg&0.850 (0.003)&0.759 (0.003)&0.702 (0.003)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+\begin{table}[!tbp]
+\begin{center}
+\caption{Class averaged accuracy when the threshold is 1.2, by data size, and method (1 is best 0.5 is worst). Numbers correspond to bottom panel in Fig. 10 in manuscript.}
+
+\begin{tabular}{lllll}
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.01}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.1}\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=500}
+~~&detrend eBIC&0.703 (0.028)&0.658 (0.027)&0.620 (0.025)\tabularnewline
+~~&detrend SIC&0.529 (0.022)&0.514 (0.022)&0.509 (0.022)\tabularnewline
+~~&detrend valid&0.696 (0.028)&0.595 (0.025)&0.519 (0.022)\tabularnewline
+~~&detrend Xing&0.519 (0.022)&0.564 (0.025)&0.576 (0.024)\tabularnewline
+~~&rqss&0.585 (0.024)&0.491 (0.020)&0.497 (0.021)\tabularnewline
+~~&npqw&0.595 (0.026)&0.561 (0.025)&0.530 (0.023)\tabularnewline
+~~&qsreg&0.499 (0.020)&0.473 (0.019)&0.464 (0.018)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=1000}
+~~&detrend eBIC&0.797 (0.013)&0.745 (0.013)&0.704 (0.012)\tabularnewline
+~~&detrend SIC&0.605 (0.012)&0.592 (0.012)&0.581 (0.012)\tabularnewline
+~~&detrend valid&0.798 (0.014)&0.654 (0.014)&0.576 (0.012)\tabularnewline
+~~&detrend Xing&0.615 (0.013)&0.695 (0.014)&0.680 (0.013)\tabularnewline
+~~&rqss&0.646 (0.013)&0.543 (0.011)&0.571 (0.012)\tabularnewline
+~~&npqw&0.628 (0.013)&0.605 (0.013)&0.576 (0.012)\tabularnewline
+~~&qsreg&0.637 (0.012)&0.573 (0.010)&0.550 (0.009)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=2000}
+~~&detrend eBIC&0.829 (0.004)&0.764 (0.004)&0.724 (0.004)\tabularnewline
+~~&detrend SIC&0.638 (0.008)&0.632 (0.008)&0.617 (0.008)\tabularnewline
+~~&detrend valid&0.826 (0.006)&0.688 (0.009)&0.591 (0.007)\tabularnewline
+~~&detrend Xing&0.674 (0.010)&0.736 (0.007)&0.710 (0.005)\tabularnewline
+~~&rqss&0.658 (0.006)&0.561 (0.005)&0.597 (0.007)\tabularnewline
+~~&npqw&0.698 (0.007)&0.644 (0.006)&0.607 (0.005)\tabularnewline
+~~&qsreg&0.763 (0.005)&0.662 (0.005)&0.622 (0.005)\tabularnewline
+\hline
+\multirow{7}{*}{\bfseries n=4000} 
+~~&detrend eBIC&0.816 (0.003)&0.751 (0.003)&0.710 (0.003)\tabularnewline
+~~&detrend SIC&0.644 (0.005)&0.638 (0.005)&0.620 (0.005)\tabularnewline
+~~&detrend valid&0.817 (0.004)&0.665 (0.006)&0.584 (0.005)\tabularnewline
+~~&detrend Xing&0.698 (0.008)&0.739 (0.004)&0.703 (0.004)\tabularnewline
+~~&rqss&0.646 (0.003)&0.582 (0.005)&0.603 (0.005)\tabularnewline
+~~&npqw&0.750 (0.004)&0.675 (0.004)&0.641 (0.004)\tabularnewline
+~~&qsreg&0.816 (0.003)&0.718 (0.003)&0.667 (0.003)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+\begin{comment}
+\section{MM Algorithm for Validation Problem}
+
+Recall that the modified quantile regression problem is given by 
+
+\begin{eqnarray}
+\label{eq:validate}
+&&\underset{\M{\Theta} \in \mathcal{C}}{\text{minimize}}\; \sum_{j=1}^J \left [\tilde{\rho}_{\tau_j}(\V{y} - \V{\theta}_{j}) +
+\lambda_j \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ],
+\end{eqnarray}
+where 
+\begin{eqnarray}
+\label{eq:modcheck}
+\tilde{\rho}_{\tau}(\V{r}) & = & \sum_{i \not\in \mathcal{V}} \VE{r}{i}(\tau-\One(\VE{r}{i}<0)),
+\end{eqnarray}
+and $\mathcal{V}$ is a held-out validation subset of $\{1, \ldots, n\}$.
+
+We solve \Eqn{validate} with a majorization-minimization (MM) algorithm \citep{HunLan2004}. 
+Recall that a function $g(\V{\nu} \mid \Vtilde{\nu})$ majorizes a function $f(\V{\nu})$ at a point $\Vtilde{\nu}$ if i) $g(\V{\nu} \mid \Vtilde{\nu}) \geq f(\V{\nu})$ for all $\V{\nu}$ and ii) $g(\Vtilde{\nu} \mid \Vtilde{\nu}) = f(\Vtilde{u})$. The MM algorithm minimizes the function $f$ by minimizing a sequence of majorizations. Given the $t$th current iterate $\Vn{\nu}{t}$ we obtain the $t+1$th iterate as follows
+\begin{eqnarray*}
+\Vn{\nu}{t+1} & = & \underset{\V{\nu}}{\arg\min}\; g(\V{\nu} \mid \Vn{\nu}{t}).
+\end{eqnarray*}
+The MM iterate sequence enjoys a monotonic progress in solving the minimization problem.
+\begin{eqnarray*}
+f(\Vn{\nu}{t+1}) \leq g(\Vn{\nu}{t+1} \mid \Vn{\nu}{t}) \leq g(\Vn{\nu}{t} \mid \Vn{\nu}{t}) = f(\Vn{\nu}{t}).
+\end{eqnarray*}
+
+The following function majorizes $\tilde{\rho}_{\tau}(\V{r})$ at $\Vtilde{r}$
+\begin{eqnarray*}
+g_\tau(\V{r} \mid \Vtilde{r}) & = & \sum_{i \not\in \mathcal{V}} \VE{r}{i}(\tau-\One(\VE{r}{i}<0)) + \sum_{i \in \mathcal{V}} \VtildeE{r}{i}(\tau-\One(\VtildeE{r}{i}<0)).
+\end{eqnarray*}
+
+The MM algorithm for solving \Eqn{validate} employs the following update rule.
+\begin{eqnarray}
+\label{eq:MM}
+\Mn{\Theta}{t+1} & = & \underset{\M{\Theta} \in \mathcal{C}}{\arg\min}\; \sum_{j=1}^J \left [g_{\tau_j}(\V{y} - \V{\theta}_{j} \mid \V{y} - \Vn{\theta}{t}_j) +
+\lambda_j \lVert \Mn{D}{k+1} \V{\theta}_j \rVert_1 \right ].
+\end{eqnarray}
+Note that the update rule requires solving a quantile trend filtering problem where we have plugged in the missing value at time $i$ with $\VnE{\theta}{t}{ij}$.
+
+\end{comment}
+
+\newpage
+
+\bibliographystyle{plain}
+\bibliography{detrendify}
+
+\end{document}
