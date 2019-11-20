@@ -1,0 +1,45 @@
+%latex.default(wide_stats %>% filter(threshold == 1.2) %>% select(-n,     -threshold), file = "Fig10_12.tex", rowname = "", title = "",     n.rgroup = c(7, 7, 7, 7), rgroup = c("n=500", "n=1000", "n=2000",         "n=4000"))%
+\begin{table}[!tbp]
+\begin{center}
+\begin{tabular}{lllll}
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{method}&\multicolumn{1}{c}{0.01}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.1}\tabularnewline
+\hline
+{\bfseries n=500}&&&&\tabularnewline
+~~&detrend eBIC&0.703 (0.028)&0.658 (0.027)&0.620 (0.025)\tabularnewline
+~~&detrend SIC&0.529 (0.022)&0.514 (0.022)&0.509 (0.022)\tabularnewline
+~~&detrend valid&0.696 (0.028)&0.595 (0.025)&0.519 (0.022)\tabularnewline
+~~&detrend Xing&0.519 (0.022)&0.564 (0.025)&0.576 (0.024)\tabularnewline
+~~&rqss&0.585 (0.024)&0.491 (0.020)&0.497 (0.021)\tabularnewline
+~~&npqw&0.595 (0.026)&0.561 (0.025)&0.530 (0.023)\tabularnewline
+~~&qsreg&0.499 (0.020)&0.473 (0.019)&0.464 (0.018)\tabularnewline
+\hline
+{\bfseries n=1000}&&&&\tabularnewline
+~~&detrend eBIC&0.797 (0.013)&0.745 (0.013)&0.704 (0.012)\tabularnewline
+~~&detrend SIC&0.605 (0.012)&0.592 (0.012)&0.581 (0.012)\tabularnewline
+~~&detrend valid&0.798 (0.014)&0.654 (0.014)&0.576 (0.012)\tabularnewline
+~~&detrend Xing&0.615 (0.013)&0.695 (0.014)&0.680 (0.013)\tabularnewline
+~~&rqss&0.646 (0.013)&0.543 (0.011)&0.571 (0.012)\tabularnewline
+~~&npqw&0.628 (0.013)&0.605 (0.013)&0.576 (0.012)\tabularnewline
+~~&qsreg&0.637 (0.012)&0.573 (0.010)&0.550 (0.009)\tabularnewline
+\hline
+{\bfseries n=2000}&&&&\tabularnewline
+~~&detrend eBIC&0.829 (0.004)&0.764 (0.004)&0.724 (0.004)\tabularnewline
+~~&detrend SIC&0.638 (0.008)&0.632 (0.008)&0.617 (0.008)\tabularnewline
+~~&detrend valid&0.826 (0.006)&0.688 (0.009)&0.591 (0.007)\tabularnewline
+~~&detrend Xing&0.674 (0.010)&0.736 (0.007)&0.710 (0.005)\tabularnewline
+~~&rqss&0.658 (0.006)&0.561 (0.005)&0.597 (0.007)\tabularnewline
+~~&npqw&0.698 (0.007)&0.644 (0.006)&0.607 (0.005)\tabularnewline
+~~&qsreg&0.763 (0.005)&0.662 (0.005)&0.622 (0.005)\tabularnewline
+\hline
+{\bfseries n=4000}&&&&\tabularnewline
+~~&detrend eBIC&0.816 (0.003)&0.751 (0.003)&0.710 (0.003)\tabularnewline
+~~&detrend SIC&0.644 (0.005)&0.638 (0.005)&0.620 (0.005)\tabularnewline
+~~&detrend valid&0.817 (0.004)&0.665 (0.006)&0.584 (0.005)\tabularnewline
+~~&detrend Xing&0.698 (0.008)&0.739 (0.004)&0.703 (0.004)\tabularnewline
+~~&rqss&0.646 (0.003)&0.582 (0.005)&0.603 (0.005)\tabularnewline
+~~&npqw&0.750 (0.004)&0.675 (0.004)&0.641 (0.004)\tabularnewline
+~~&qsreg&0.816 (0.003)&0.718 (0.003)&0.667 (0.003)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}

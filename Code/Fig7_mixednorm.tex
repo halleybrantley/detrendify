@@ -1,0 +1,33 @@
+%latex.default(wide_stats %>% filter(Design == "mixednorm") %>%     select(-n, -Design), file = "Fig7_mixednorm.tex", rowname = "",     title = "", n.rgroup = c(6, 6, 6), rgroup = c("n=300", "n=500",         "n=1000"))%
+\begin{table}[!tbp]
+\begin{center}
+\begin{tabular}{lllllll}
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{0.05}&\multicolumn{1}{c}{0.25}&\multicolumn{1}{c}{0.5}&\multicolumn{1}{c}{0.75}&\multicolumn{1}{c}{0.95}\tabularnewline
+\hline
+{\bfseries n=300}&&&&&&\tabularnewline
+~~&detrend eBIC&0.253 (0.010)&0.178 (0.006)&0.155 (0.005)&0.189 (0.007)&0.242 (0.009)\tabularnewline
+~~&detrend SIC&0.223 (0.008)&0.179 (0.007)&0.164 (0.006)&0.188 (0.007)&0.228 (0.008)\tabularnewline
+~~&detrend valid&0.302 (0.011)&0.253 (0.010)&0.235 (0.011)&0.233 (0.011)&0.280 (0.011)\tabularnewline
+~~&rqss&0.280 (0.010)&0.189 (0.008)&0.164 (0.006)&0.202 (0.008)&0.275 (0.009)\tabularnewline
+~~&npqw&0.383 (0.008)&0.243 (0.006)&0.146 (0.005)&0.250 (0.007)&0.374 (0.007)\tabularnewline
+~~&qsreg&0.314 (0.008)&0.299 (0.008)&0.272 (0.006)&0.287 (0.009)&0.301 (0.008)\tabularnewline
+\hline
+{\bfseries n=500}&&&&&&\tabularnewline
+~~&detrend eBIC&0.180 (0.006)&0.149 (0.005)&0.120 (0.004)&0.147 (0.004)&0.186 (0.007)\tabularnewline
+~~&detrend SIC&0.178 (0.006)&0.152 (0.006)&0.136 (0.005)&0.145 (0.005)&0.186 (0.007)\tabularnewline
+~~&detrend valid&0.237 (0.009)&0.203 (0.010)&0.201 (0.011)&0.201 (0.010)&0.218 (0.009)\tabularnewline
+~~&rqss&0.222 (0.007)&0.155 (0.007)&0.123 (0.004)&0.150 (0.006)&0.220 (0.008)\tabularnewline
+~~&npqw&0.352 (0.006)&0.217 (0.005)&0.118 (0.003)&0.217 (0.004)&0.350 (0.006)\tabularnewline
+~~&qsreg&0.245 (0.007)&0.229 (0.006)&0.226 (0.006)&0.225 (0.006)&0.248 (0.006)\tabularnewline
+\hline
+{\bfseries n=1000}&&&&&&\tabularnewline
+~~&detrend eBIC&0.135 (0.005)&0.112 (0.004)&0.095 (0.003)&0.108 (0.004)&0.137 (0.005)\tabularnewline
+~~&detrend SIC&0.134 (0.005)&0.116 (0.004)&0.104 (0.004)&0.112 (0.004)&0.137 (0.005)\tabularnewline
+~~&detrend valid&0.170 (0.008)&0.152 (0.007)&0.147 (0.007)&0.164 (0.009)&0.171 (0.007)\tabularnewline
+~~&rqss&0.167 (0.006)&0.117 (0.004)&0.097 (0.003)&0.112 (0.004)&0.168 (0.006)\tabularnewline
+~~&npqw&0.327 (0.004)&0.200 (0.004)&0.106 (0.002)&0.195 (0.004)&0.334 (0.005)\tabularnewline
+~~&qsreg&0.168 (0.005)&0.158 (0.004)&0.162 (0.004)&0.156 (0.004)&0.169 (0.005)\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
